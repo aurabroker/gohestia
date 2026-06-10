@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "ergo-razem-kalkulator",
+  "name": "gohestia",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-06-10",
   "compatibility_flags": ["nodejs_compat"],

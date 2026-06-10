@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 import { Resend } from 'resend';
 import { z } from 'zod';
 import { OfertaEmailTemplate } from '@/components/email/oferta-template';

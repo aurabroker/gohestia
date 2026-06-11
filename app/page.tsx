@@ -62,10 +62,28 @@ const HIGHLIGHTS = [
 
 export default function Home() {
   const [open, setOpen] = useState<ProductType | null>(null);
+  const [age, setAge] = useState('');
 
   function toggle(type: ProductType) {
     setOpen(prev => prev === type ? null : type);
   }
+
+  const ageNum = parseInt(age, 10);
+  const ageGroup: 'A1' | 'A2' | 'B' | null =
+    !age || isNaN(ageNum) ? null :
+    ageNum >= 18 && ageNum <= 53 ? 'A1' :
+    ageNum >= 54 && ageNum <= 59 ? 'A2' :
+    ageNum >= 60 && ageNum <= 65 ? 'B' : null;
+
+  const ageGroupLabel =
+    ageGroup === 'A1' ? '18–53 lat' :
+    ageGroup === 'A2' ? '54–59 lat' :
+    ageGroup === 'B'  ? '60–65 lat' : null;
+
+  const ageError =
+    age && (isNaN(ageNum) || ageNum < 18 || ageNum > 65)
+      ? 'Ubezpieczenie dostępne dla osób w wieku 18–65 lat.'
+      : null;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -173,14 +191,38 @@ export default function Home() {
         {/* Product accordions with full comparison tables */}
         <section id="produkty" className="py-14">
           <div className="max-w-5xl mx-auto px-4 space-y-6">
-            <div className="text-center mb-10">
-              <h3 className="text-2xl font-bold text-gray-900">Wybierz zakres ochrony</h3>
-              <p className="text-gray-500 mt-2">Kliknij, aby zobaczyć pełną tabelę świadczeń dla każdego wariantu</p>
+            <div className="mb-10">
+              <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">Wybierz zakres ochrony</h3>
+                  <p className="text-gray-500 mt-1 text-sm">Kliknij produkt, aby zobaczyć pełną tabelę świadczeń i składek.</p>
+                </div>
+                <div className="shrink-0">
+                  <label className="block text-xs font-medium text-gray-600 mb-1">Twój wiek</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min={18}
+                      max={65}
+                      placeholder="np. 35"
+                      value={age}
+                      onChange={e => setAge(e.target.value)}
+                      className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
+                    />
+                    {ageGroupLabel && (
+                      <span className="rounded-full bg-[#E4002B]/10 text-[#E4002B] text-xs font-semibold px-3 py-1">
+                        Grupa {ageGroup} · {ageGroupLabel}
+                      </span>
+                    )}
+                  </div>
+                  {ageError && <p className="mt-1 text-xs text-red-500">{ageError}</p>}
+                  {!age && <p className="mt-1 text-xs text-gray-400">Wpisz wiek, aby zobaczyć Twoje składki</p>}
+                </div>
+              </div>
             </div>
 
             {PRODUCTS.map(p => (
               <div key={p.type} className={`rounded-2xl border ${p.border} shadow-sm overflow-hidden`}>
-                {/* Accordion header */}
                 <button
                   onClick={() => toggle(p.type)}
                   className="w-full text-left"
@@ -201,7 +243,6 @@ export default function Home() {
                         }
                       </div>
                     </div>
-                    {/* Feature pills */}
                     <div className="flex flex-wrap gap-2 mt-4">
                       {p.features.map(f => (
                         <span key={f} className={`rounded-full ${p.pillBg} px-3 py-1 text-xs font-medium`}>
@@ -212,14 +253,14 @@ export default function Home() {
                   </div>
                 </button>
 
-                {/* Expandable table */}
                 {open === p.type && (
                   <div className="p-4 md:p-6">
-                    <p className="text-sm text-gray-500 mb-4">
-                      Pełna tabela świadczeń dla grupy wiekowej <strong>18–53 lat</strong>.
-                      Kwoty dla pozostałych grup wiekowych (54–59 lat, 60–65 lat) mogą się różnić — sprawdź w kalkulatorze.
-                    </p>
-                    <VariantsComparisonTable product={p.type} ageGroup="A1" />
+                    {ageGroupLabel && (
+                      <p className="text-sm text-gray-500 mb-4">
+                        Składki i świadczenia dla grupy wiekowej <strong>{ageGroupLabel}</strong>.
+                      </p>
+                    )}
+                    <VariantsComparisonTable product={p.type} ageGroup={ageGroup ?? 'A1'} />
                     <div className="mt-6 flex justify-center">
                       <Link
                         href="/kalkulator/wiek"

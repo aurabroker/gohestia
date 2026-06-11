@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/product-card';
 import { AddonToggle } from '@/components/addon-toggle';
 import { PremiumCalculator } from '@/components/premium-calculator';
 import { BenefitsTable } from '@/components/benefits-table';
+import { getBenefits } from '@/lib/data/benefits';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { ProductType, Variant } from '@/types';
 
@@ -98,9 +99,7 @@ export default function ProduktPage() {
           {benefitsOpen && (
             <div className="mt-4">
               <BenefitsTable
-                ageGroup={ageGroup}
-                product={selectedProduct!}
-                variant={selectedVariant}
+                benefits={getBenefits(ageGroup, selectedProduct!, selectedVariant)}
               />
             </div>
           )}

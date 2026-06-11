@@ -29,35 +29,33 @@ export function BenefitsTable({ benefits }: Props) {
           </tr>
         </thead>
         <tbody>
-          {categories.map(cat => {
+          {categories.flatMap(cat => {
             const catRows = benefits.filter(r => r.category === cat);
-            return (
-              <tbody key={cat}>
-                <tr className="bg-[#E4002B]/5 border-b border-gray-100">
-                  <td colSpan={3} className="px-4 py-2 font-semibold text-[#E4002B] text-xs uppercase tracking-wide">
-                    {CATEGORY_LABELS[cat]}
+            return [
+              <tr key={`header-${cat}`} className="bg-[#E4002B]/5 border-b border-gray-100">
+                <td colSpan={3} className="px-4 py-2 font-semibold text-[#E4002B] text-xs uppercase tracking-wide">
+                  {CATEGORY_LABELS[cat]}
+                </td>
+              </tr>,
+              ...catRows.map((row, i) => (
+                <tr
+                  key={`${cat}-${i}`}
+                  className={[
+                    'border-b border-gray-100 last:border-0',
+                    row.highlight ? 'bg-yellow-50' : 'bg-white',
+                  ].join(' ')}
+                >
+                  <td className="px-4 py-2 text-gray-700">{row.name}</td>
+                  <td className={[
+                    'px-4 py-2 text-right font-medium whitespace-nowrap',
+                    row.value === '—' ? 'text-gray-400' : 'text-gray-900',
+                  ].join(' ')}>{row.value}</td>
+                  <td className="px-4 py-2 text-right text-gray-400 whitespace-nowrap text-xs">
+                    {row.karencja ?? '—'}
                   </td>
                 </tr>
-                {catRows.map((row, i) => (
-                  <tr
-                    key={i}
-                    className={[
-                      'border-b border-gray-100 last:border-0',
-                      row.highlight ? 'bg-yellow-50' : 'bg-white',
-                    ].join(' ')}
-                  >
-                    <td className="px-4 py-2 text-gray-700">{row.name}</td>
-                    <td className={[
-                      'px-4 py-2 text-right font-medium whitespace-nowrap',
-                      row.value === '—' ? 'text-gray-400' : 'text-gray-900',
-                    ].join(' ')}>{row.value}</td>
-                    <td className="px-4 py-2 text-right text-gray-400 whitespace-nowrap text-xs">
-                      {row.karencja ?? '—'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            );
+              )),
+            ];
           })}
         </tbody>
       </table>

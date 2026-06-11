@@ -61,7 +61,7 @@ export default function Home() {
       <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Aura Expert</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">Aura Expert sp. z o.o.</p>
             <h1 className="text-lg font-bold text-gray-900">
               ERGO Razem <span className="text-[#E4002B]">Kalkulator</span>
             </h1>
@@ -265,9 +265,18 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-gray-200 bg-white py-6">
-        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-          <p>© 2025 Aura Expert — Agent ERGO Hestia</p>
-          <p>Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.</p>
+        <div className="max-w-5xl mx-auto px-4 space-y-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
+            <p>© 2025 Aura Expert sp. z o.o. — Agent ERGO Hestia</p>
+            <p>Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.</p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
+            <a href="/polityka-prywatnosci" className="text-gray-500 hover:text-[#E4002B] transition-colors">Polityka prywatności</a>
+            <span className="text-gray-300">|</span>
+            <a href="/rodo" className="text-gray-500 hover:text-[#E4002B] transition-colors">RODO</a>
+            <span className="text-gray-300">|</span>
+            <a href="/regulamin" className="text-gray-500 hover:text-[#E4002B] transition-colors">Regulamin</a>
+          </div>
         </div>
       </footer>
     </div>

@@ -119,7 +119,7 @@ export default function PodsumowaniePage() {
         </div>
 
         <p className="mt-4 text-xs text-gray-400">
-          Materiał marketingowy. Szczegóły w OWU (kod ER 01/25).
+          Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.
         </p>
       </section>
 

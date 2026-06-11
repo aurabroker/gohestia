@@ -56,8 +56,7 @@ export function OfertaEmailTemplate({ imie, nazwisko, oferta }: Props) {
         </p>
       </div>
       <div style={{ padding: '16px 32px', background: '#f3f3f3', fontSize: 11, color: '#999' }}>
-        Materiał marketingowy. Szczegóły w OWU (kod ER 01/25).
-        Obowiązuje od 2.06.2025 r.
+        Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.
       </div>
     </div>
   );

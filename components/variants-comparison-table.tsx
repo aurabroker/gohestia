@@ -55,7 +55,7 @@ export function VariantsComparisonTable({ product, ageGroup }: Props) {
 
   // Filter to only variants available for this age group
   const premiumEntries = PREMIUMS[ageGroup][product];
-  const availableKeys = new Set(premiumEntries.map(e => e.variant));
+  const availableKeys = new Set<string>(premiumEntries.map(e => e.variant));
   const filteredVariants = variants.filter(v => availableKeys.has(v.key));
 
   const allBenefits = filteredVariants.map(v => getBenefits(ageGroup, product, v.key));

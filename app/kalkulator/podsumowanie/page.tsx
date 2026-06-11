@@ -7,7 +7,8 @@ import { z } from 'zod';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { calcMonthlyPremium } from '@/lib/calculator';
 import { VARIANT_LABELS, PRODUCT_LABELS, ADDONS } from '@/lib/data/premiums';
-import { COVERAGE, WAITING_PERIODS } from '@/lib/data/coverage';
+import { WAITING_PERIODS } from '@/lib/data/coverage';
+import { BenefitsTable } from '@/components/benefits-table';
 import type { Variant, ProductType } from '@/types';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -50,7 +51,6 @@ export default function PodsumowaniePage() {
     ageGroup, selectedProduct, selectedVariant as Variant, addons, birthDate
   );
 
-  const benefits = COVERAGE[selectedVariant as Variant]?.slice(0, 6) ?? [];
   const activeAddons: string[] = [];
   if (addons.mediplan)          activeAddons.push(ADDONS.mediplan.label);
   if (addons.medicalAssistance) activeAddons.push(ADDONS.medical_assistance.label);
@@ -113,14 +113,13 @@ export default function PodsumowaniePage() {
           <p className="text-4xl font-bold text-[#E4002B]">{monthly} zł<span className="text-lg font-normal text-gray-500">/mies.</span></p>
         </div>
 
-        <h3 className="font-semibold text-gray-900 mb-3">Główne świadczenia</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
-          {benefits.map((b, i) => (
-            <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
-              <span className="text-green-500 font-bold flex-shrink-0">✓</span>
-              <span><strong>{b.name}</strong> — {b.description}</span>
-            </div>
-          ))}
+        <h3 className="font-semibold text-gray-900 mb-3">Pełny zakres świadczeń</h3>
+        <div className="mb-4">
+          <BenefitsTable
+            ageGroup={ageGroup}
+            product={selectedProduct as ProductType}
+            variant={selectedVariant}
+          />
         </div>
 
         <button

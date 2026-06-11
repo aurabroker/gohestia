@@ -1,11 +1,13 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { getVariants, isGlobalDoctorsEligible, calcMonthlyPremium } from '@/lib/calculator';
 import { ProductCard } from '@/components/product-card';
 import { AddonToggle } from '@/components/addon-toggle';
 import { PremiumCalculator } from '@/components/premium-calculator';
+import { BenefitsTable } from '@/components/benefits-table';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import type { ProductType, Variant } from '@/types';
 
 const PRODUCTS: { type: ProductType; label: string; desc: string; icon: string }[] = [
@@ -21,6 +23,7 @@ export default function ProduktPage() {
     setProduct, setVariant, toggleAddon,
   } = useCalculatorStore();
   const router = useRouter();
+  const [benefitsOpen, setBenefitsOpen] = useState(false);
 
   useEffect(() => {
     if (!ageGroup)               router.replace('/kalkulator/wiek');
@@ -79,6 +82,28 @@ export default function ProduktPage() {
               />
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Zakres świadczeń */}
+      {selectedVariant && (
+        <section>
+          <button
+            onClick={() => setBenefitsOpen(v => !v)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800"
+          >
+            {benefitsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            Zobacz pełny zakres świadczeń
+          </button>
+          {benefitsOpen && (
+            <div className="mt-4">
+              <BenefitsTable
+                ageGroup={ageGroup}
+                product={selectedProduct!}
+                variant={selectedVariant}
+              />
+            </div>
+          )}
         </section>
       )}
 

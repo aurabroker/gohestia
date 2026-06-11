@@ -10,7 +10,10 @@ const PRODUCTS: {
   label: string;
   desc: string;
   icon: string;
-  color: string;
+  bg: string;
+  border: string;
+  accent: string;
+  pillBg: string;
   features: string[];
 }[] = [
   {
@@ -18,7 +21,10 @@ const PRODUCTS: {
     label: 'Dla Mnie',
     desc: 'Ubezpieczenie indywidualne — kompleksowa ochrona tylko dla Ciebie',
     icon: '👤',
-    color: 'from-blue-500 to-blue-700',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    accent: 'text-blue-700',
+    pillBg: 'bg-blue-100 text-blue-700',
     features: ['Zgon z każdej przyczyny', 'Wypadki i NW', 'Leczenie szpitalne', 'Poważne zachorowania (56 jednostek)', 'Operacje chirurgiczne', 'Trwały uszczerbek'],
   },
   {
@@ -26,7 +32,10 @@ const PRODUCTS: {
     label: 'Dla Nas',
     desc: 'Ty i Twój małżonek lub partner życiowy — ochrona dla dwojga',
     icon: '👫',
-    color: 'from-rose-500 to-rose-700',
+    bg: 'bg-rose-50',
+    border: 'border-rose-200',
+    accent: 'text-rose-700',
+    pillBg: 'bg-rose-100 text-rose-700',
     features: ['Wszystko z pakietu "Dla Mnie"', 'Zgon małżonka / partnera', 'Trwałe inwalidztwo partnera', 'Poważne zachorowania partnera (12 jednostek)', 'Zgon rodziców i teściów'],
   },
   {
@@ -34,7 +43,10 @@ const PRODUCTS: {
     label: 'Dla Rodziny',
     desc: 'Ty, partner, dzieci i rodzice — pełna ochrona całej rodziny',
     icon: '👨‍👩‍👧‍👦',
-    color: 'from-emerald-500 to-emerald-700',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    accent: 'text-emerald-700',
+    pillBg: 'bg-emerald-100 text-emerald-700',
     features: ['Wszystko z pakietu "Dla Nas"', 'Zgon i inwalidztwo dziecka NW', 'Poważne zachorowania dziecka (18 jednostek)', 'Urodzenie dziecka / wada wrodzona', 'Osierocenie dziecka', 'Leczenie szpitalne dziecka'],
   },
 ];
@@ -58,11 +70,11 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Aura Expert sp. z o.o.</p>
-            <h1 className="text-lg font-bold text-gray-900">
+            <p className="text-[10px] text-gray-400 uppercase tracking-wide">Aura Expert sp. z o.o.</p>
+            <h1 className="text-base font-bold text-gray-800">
               ERGO Razem <span className="text-[#E4002B]">Kalkulator</span>
             </h1>
           </div>
@@ -84,28 +96,28 @@ export default function Home() {
       <main className="flex-1">
 
         {/* Hero */}
-        <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-[#8B0016] text-white">
-          <div className="max-w-5xl mx-auto px-4 py-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <section className="bg-gradient-to-br from-white via-red-50 to-rose-100 border-b border-rose-100">
+          <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="inline-block rounded-full bg-white/10 px-4 py-1 text-sm font-medium">
+              <div className="inline-block rounded-full bg-[#E4002B]/10 text-[#E4002B] px-4 py-1 text-sm font-medium">
                 Sopockie TU na Życie ERGO Hestia S.A.
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-                Grupowe ubezpieczenie na życie <span className="text-[#ff6b6b]">ERGO Razem</span>
+              <h2 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
+                Grupowe ubezpieczenie na życie <span className="text-[#E4002B]">ERGO Razem</span>
               </h2>
-              <p className="text-gray-300 text-lg leading-relaxed">
-                Kompleksowa ochrona Ciebie i Twoich bliskich. Wypłaty nawet do <strong className="text-white">500 000 zł</strong> — bez badań lekarskich, w kilka minut online.
+              <p className="text-gray-600 text-lg leading-relaxed">
+                Kompleksowa ochrona Ciebie i Twoich bliskich. Wypłaty nawet do <strong className="text-gray-900">500 000 zł</strong> — bez badań lekarskich, w kilka minut online.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link
                   href="/kalkulator/wiek"
-                  className="rounded-lg bg-[#E4002B] px-8 py-4 font-semibold text-white hover:bg-[#c00025] transition-colors text-lg"
+                  className="rounded-lg bg-[#E4002B] px-8 py-4 font-semibold text-white hover:bg-[#c00025] transition-colors text-lg shadow-sm"
                 >
                   Oblicz składkę →
                 </Link>
                 <a
                   href="#produkty"
-                  className="rounded-lg bg-white/10 px-8 py-4 font-semibold text-white hover:bg-white/20 transition-colors text-lg"
+                  className="rounded-lg bg-white border border-gray-200 px-8 py-4 font-semibold text-gray-700 hover:bg-gray-50 transition-colors text-lg shadow-sm"
                 >
                   Zobacz świadczenia ↓
                 </a>
@@ -113,25 +125,25 @@ export default function Home() {
             </div>
             {/* Visual panel */}
             <div className="hidden md:flex flex-col gap-4">
-              <div className="rounded-2xl bg-white/10 backdrop-blur p-6 border border-white/20">
-                <p className="text-sm text-gray-400 mb-1">Maksymalna wypłata za zgon NW</p>
-                <p className="text-3xl font-bold">500 000 zł</p>
+              <div className="rounded-2xl bg-white p-6 border border-rose-100 shadow-sm">
+                <p className="text-sm text-gray-500 mb-1">Maksymalna wypłata za zgon NW</p>
+                <p className="text-3xl font-bold text-[#E4002B]">500 000 zł</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl bg-white/10 backdrop-blur p-5 border border-white/20">
-                  <p className="text-sm text-gray-400 mb-1">Poważne zachorowania</p>
-                  <p className="text-2xl font-bold">56</p>
+                <div className="rounded-2xl bg-white p-5 border border-rose-100 shadow-sm">
+                  <p className="text-sm text-gray-500 mb-1">Poważne zachorowania</p>
+                  <p className="text-2xl font-bold text-gray-900">56</p>
                   <p className="text-xs text-gray-400">jednostek chorobowych</p>
                 </div>
-                <div className="rounded-2xl bg-white/10 backdrop-blur p-5 border border-white/20">
-                  <p className="text-sm text-gray-400 mb-1">Składka od</p>
-                  <p className="text-2xl font-bold">57 zł</p>
+                <div className="rounded-2xl bg-white p-5 border border-rose-100 shadow-sm">
+                  <p className="text-sm text-gray-500 mb-1">Składka od</p>
+                  <p className="text-2xl font-bold text-gray-900">57 zł</p>
                   <p className="text-xs text-gray-400">miesięcznie</p>
                 </div>
               </div>
-              <div className="rounded-2xl bg-white/10 backdrop-blur p-5 border border-white/20">
-                <p className="text-sm text-gray-400 mb-1">Leczenie szpitalne</p>
-                <p className="text-xl font-bold">do 250 zł / dzień</p>
+              <div className="rounded-2xl bg-white p-5 border border-rose-100 shadow-sm">
+                <p className="text-sm text-gray-500 mb-1">Leczenie szpitalne</p>
+                <p className="text-xl font-bold text-gray-900">do 250 zł / dzień</p>
                 <p className="text-xs text-gray-400">każdy dzień pobytu w szpitalu</p>
               </div>
             </div>
@@ -167,32 +179,32 @@ export default function Home() {
             </div>
 
             {PRODUCTS.map(p => (
-              <div key={p.type} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+              <div key={p.type} className={`rounded-2xl border ${p.border} shadow-sm overflow-hidden`}>
                 {/* Accordion header */}
                 <button
                   onClick={() => toggle(p.type)}
                   className="w-full text-left"
                 >
-                  <div className={`bg-gradient-to-r ${p.color} p-6 text-white`}>
+                  <div className={`${p.bg} p-6`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <span className="text-4xl">{p.icon}</span>
                         <div>
-                          <h4 className="text-xl font-bold">{p.label}</h4>
-                          <p className="text-white/80 text-sm mt-0.5">{p.desc}</p>
+                          <h4 className={`text-xl font-bold ${p.accent}`}>{p.label}</h4>
+                          <p className="text-gray-600 text-sm mt-0.5">{p.desc}</p>
                         </div>
                       </div>
                       <div className="shrink-0 ml-4">
                         {open === p.type
-                          ? <ChevronUp className="h-6 w-6 text-white/70" />
-                          : <ChevronDown className="h-6 w-6 text-white/70" />
+                          ? <ChevronUp className="h-6 w-6 text-gray-400" />
+                          : <ChevronDown className="h-6 w-6 text-gray-400" />
                         }
                       </div>
                     </div>
                     {/* Feature pills */}
                     <div className="flex flex-wrap gap-2 mt-4">
                       {p.features.map(f => (
-                        <span key={f} className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium">
+                        <span key={f} className={`rounded-full ${p.pillBg} px-3 py-1 text-xs font-medium`}>
                           ✓ {f}
                         </span>
                       ))}
@@ -247,15 +259,15 @@ export default function Home() {
         </section>
 
         {/* Bottom CTA */}
-        <section className="bg-[#E4002B] py-16">
-          <div className="max-w-2xl mx-auto px-4 text-center text-white space-y-4">
-            <h3 className="text-3xl font-bold">Gotowy(-a) na ochronę?</h3>
-            <p className="text-white/80 text-lg">
+        <section className="bg-gradient-to-br from-rose-50 to-red-50 border-t border-rose-100 py-16">
+          <div className="max-w-2xl mx-auto px-4 text-center space-y-4">
+            <h3 className="text-3xl font-bold text-gray-900">Gotowy(-a) na ochronę?</h3>
+            <p className="text-gray-600 text-lg">
               Oblicz składkę w kilka minut. Bez zobowiązań, bez badań lekarskich.
             </p>
             <Link
               href="/kalkulator/wiek"
-              className="inline-block rounded-lg bg-white text-[#E4002B] px-10 py-4 font-bold text-lg hover:bg-gray-100 transition-colors"
+              className="inline-block rounded-lg bg-[#E4002B] text-white px-10 py-4 font-bold text-lg hover:bg-[#c00025] transition-colors shadow-sm"
             >
               Złóż wniosek →
             </Link>

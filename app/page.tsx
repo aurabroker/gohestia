@@ -141,28 +141,30 @@ export default function Home() {
                 </a>
               </div>
             </div>
-            {/* Visual panel */}
-            <div className="hidden md:flex flex-col gap-4">
-              <div className="rounded-2xl bg-white p-6 border border-rose-100 shadow-sm">
-                <p className="text-sm text-gray-500 mb-1">Maksymalna wypłata za zgon NW</p>
-                <p className="text-3xl font-bold text-[#E4002B]">500 000 zł</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-2xl bg-white p-5 border border-rose-100 shadow-sm">
-                  <p className="text-sm text-gray-500 mb-1">Poważne zachorowania</p>
-                  <p className="text-2xl font-bold text-gray-900">56</p>
-                  <p className="text-xs text-gray-400">jednostek chorobowych</p>
+            {/* Video panel */}
+            <div className="hidden md:block relative rounded-2xl overflow-hidden shadow-xl border border-rose-100" style={{aspectRatio:'16/9'}}>
+              <video
+                src="/hero-family.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
+              {/* Stat overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-5 flex gap-4 text-white">
+                <div>
+                  <p className="text-2xl font-bold">500 000 zł</p>
+                  <p className="text-xs text-white/70">maks. wypłata za zgon NW</p>
                 </div>
-                <div className="rounded-2xl bg-white p-5 border border-rose-100 shadow-sm">
-                  <p className="text-sm text-gray-500 mb-1">Składka od</p>
-                  <p className="text-2xl font-bold text-gray-900">57 zł</p>
-                  <p className="text-xs text-gray-400">miesięcznie</p>
+                <div className="border-l border-white/30 pl-4">
+                  <p className="text-2xl font-bold">od 57 zł</p>
+                  <p className="text-xs text-white/70">składka miesięczna</p>
                 </div>
-              </div>
-              <div className="rounded-2xl bg-white p-5 border border-rose-100 shadow-sm">
-                <p className="text-sm text-gray-500 mb-1">Leczenie szpitalne</p>
-                <p className="text-xl font-bold text-gray-900">do 250 zł / dzień</p>
-                <p className="text-xs text-gray-400">każdy dzień pobytu w szpitalu</p>
+                <div className="border-l border-white/30 pl-4">
+                  <p className="text-2xl font-bold">56</p>
+                  <p className="text-xs text-white/70">chorób objętych</p>
+                </div>
               </div>
             </div>
           </div>

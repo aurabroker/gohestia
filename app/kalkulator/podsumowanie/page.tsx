@@ -7,10 +7,9 @@ import { z } from 'zod';
 import { useCalculatorStore } from '@/store/calculator-store';
 import { calcMonthlyPremium } from '@/lib/calculator';
 import { VARIANT_LABELS, PRODUCT_LABELS, ADDONS } from '@/lib/data/premiums';
-import { WAITING_PERIODS } from '@/lib/data/coverage';
+import { getBenefits } from '@/lib/data/benefits';
 import { BenefitsTable } from '@/components/benefits-table';
 import type { Variant, ProductType } from '@/types';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const schema = z.object({
   imie:          z.string().min(2, 'Min. 2 znaki').max(50),
@@ -31,7 +30,6 @@ export default function PodsumowaniePage() {
     selectedProduct, selectedVariant, addons, reset,
   } = useCalculatorStore();
   const router = useRouter();
-  const [waitingOpen, setWaitingOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -55,6 +53,8 @@ export default function PodsumowaniePage() {
   if (addons.mediplan)          activeAddons.push(ADDONS.mediplan.label);
   if (addons.medicalAssistance) activeAddons.push(ADDONS.medical_assistance.label);
   if (addons.globalDoctors)     activeAddons.push(ADDONS.global_doctors.label);
+
+  const benefits = getBenefits(ageGroup, selectedProduct as ProductType, selectedVariant);
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
@@ -115,34 +115,8 @@ export default function PodsumowaniePage() {
 
         <h3 className="font-semibold text-gray-900 mb-3">Pełny zakres świadczeń</h3>
         <div className="mb-4">
-          <BenefitsTable
-            ageGroup={ageGroup}
-            product={selectedProduct as ProductType}
-            variant={selectedVariant}
-          />
+          <BenefitsTable benefits={benefits} />
         </div>
-
-        <button
-          onClick={() => setWaitingOpen(v => !v)}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
-        >
-          {waitingOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          Okresy karencji
-        </button>
-        {waitingOpen && (
-          <div className="mt-3 rounded-lg bg-gray-50 p-4">
-            <table className="w-full text-sm">
-              <tbody>
-                {Object.entries(WAITING_PERIODS).map(([k, v]) => (
-                  <tr key={k} className="border-b border-gray-100 last:border-0">
-                    <td className="py-1 text-gray-600">{k}</td>
-                    <td className="py-1 text-right font-medium">{v}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
 
         <p className="mt-4 text-xs text-gray-400">
           Materiał marketingowy. Szczegóły w OWU (kod ER 01/25).

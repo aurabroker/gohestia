@@ -33,17 +33,6 @@ export default function KalkulatorLayout({ children }: { children: React.ReactNo
         </div>
       </main>
 
-      {/* Footer disclaimer */}
-      <footer className="bg-gray-100 border-t border-gray-200 py-4 mt-auto">
-        <div className="max-w-3xl mx-auto px-4">
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Materiał marketingowy dla agentów ubezpieczeniowych Sopockiego Towarzystwa
-            Ubezpieczeń na Życie ERGO Hestia S.A. Nie stanowi oferty w rozumieniu art. 66 k.c.
-            Szczegółowe informacje w aktualnych Warunkach Grupowego Ubezpieczenia na Życie
-            dla ubezpieczonych w Grupie Otwartej ERGO Razem (kod ER 01/25). Obowiązuje od 2.06.2025 r.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

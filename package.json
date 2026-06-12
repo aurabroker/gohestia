@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^5.4.0",
     "@marsidev/react-turnstile": "^1.5.3",
     "@react-email/components": "^1.0.12",
+    "@supabase/supabase-js": "^2.108.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.17.0",

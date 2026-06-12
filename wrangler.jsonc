@@ -4,6 +4,10 @@
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-06-10",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://kukvgsjrmrqtzhkszzum.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_MIr6swJYHmBbAQU8joomhA_cTsbkCuG"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

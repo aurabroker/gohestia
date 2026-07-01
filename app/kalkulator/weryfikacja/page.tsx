@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useCalculatorStore } from '@/store/calculator-store';
+import { TURNSTILE_SITE_KEY } from '@/lib/turnstile-config';
 
 export default function WeryfikacjaPage() {
   const { ageGroup, questionnaireComplete, setTurnstileVerified } = useCalculatorStore();
@@ -49,7 +50,7 @@ export default function WeryfikacjaPage() {
 
       <Turnstile
         ref={widgetRef}
-        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+        siteKey={TURNSTILE_SITE_KEY}
         onSuccess={handleSuccess}
         onError={retry}
         onExpire={retry}

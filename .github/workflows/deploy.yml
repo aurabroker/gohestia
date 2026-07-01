@@ -15,9 +15,32 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      # Akceptuj poświadczenia z Secrets ALBO z Variables (na wypadek pomyłki
+      # zakładki). Token najlepiej trzymać w Secrets — patrz krok preflight.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Preflight — sprawdź poświadczenia (bez ujawniania wartości)
+        env:
+          TOK_S: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TOK_V: ${{ vars.CLOUDFLARE_API_TOKEN }}
+          ACC_S: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ACC_V: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          chk() { if [ -n "$2" ]; then echo "$1: SET (dł. ${#2})"; else echo "$1: BRAK"; fi; }
+          echo "── Gdzie są poświadczenia? ──"
+          chk "CLOUDFLARE_API_TOKEN  (Secrets)  " "$TOK_S"
+          chk "CLOUDFLARE_API_TOKEN  (Variables)" "$TOK_V"
+          chk "CLOUDFLARE_ACCOUNT_ID (Secrets)  " "$ACC_S"
+          chk "CLOUDFLARE_ACCOUNT_ID (Variables)" "$ACC_V"
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN nie znaleziony ani w Secrets, ani w Variables repo. Dodaj go w Settings → Secrets and variables → Actions → zakładka Secrets, o nazwie dokładnie CLOUDFLARE_API_TOKEN."
+            exit 1
+          fi
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -29,13 +52,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Build sam w sobie waliduje projekt (TypeScript + Next).
-      # Deploy używa wrangler pod spodem — czyta CLOUDFLARE_API_TOKEN
-      # i CLOUDFLARE_ACCOUNT_ID z sekretów repozytorium (GitHub Actions).
+      # Deploy używa wrangler pod spodem — czyta CLOUDFLARE_API_TOKEN i
+      # CLOUDFLARE_ACCOUNT_ID z env ustawionego na poziomie job (Secrets/Variables).
       # Sekrety runtime (RESEND_API_KEY, AGENT_EMAIL, TURNSTILE_SECRET_KEY,
-      # FROM_EMAIL) są ustawione po stronie Cloudflare i deploy ich nie kasuje.
+      # FROM_EMAIL) są po stronie Cloudflare i deploy ich nie kasuje.
       - name: Build & deploy (OpenNext → Cloudflare)
         run: npm run deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

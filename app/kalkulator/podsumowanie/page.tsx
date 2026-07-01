@@ -153,6 +153,14 @@ export default function PodsumowaniePage() {
       if (res.ok) {
         reset();
         router.push(`/kalkulator/sukces?email=${encodeURIComponent(data.email)}`);
+      } else {
+        let detail = '';
+        try {
+          detail = JSON.stringify(await res.json());
+        } catch {
+          detail = await res.text().catch(() => '');
+        }
+        alert(`Błąd wysyłki (HTTP ${res.status}):\n${detail}`);
       }
     } finally {
       setSubmitting(false);

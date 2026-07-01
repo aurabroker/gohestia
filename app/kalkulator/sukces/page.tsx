@@ -1,11 +1,20 @@
 'use client';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
+import { useCalculatorStore } from '@/store/calculator-store';
 
 function SukcesContent() {
   const params = useSearchParams();
   const email = params.get('email') ?? '';
+  const reset = useCalculatorStore((s) => s.reset);
+
+  // Czyścimy dane kalkulatora dopiero tutaj — po dotarciu na stronę sukcesu.
+  // (Reset na stronie podsumowania wywoływał wyścig ze strażnikiem trasy,
+  // który wyrzucał użytkownika z powrotem na początek kalkulatora.)
+  useEffect(() => {
+    reset();
+  }, [reset]);
 
   return (
     <div className="flex justify-center">

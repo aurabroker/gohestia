@@ -101,7 +101,7 @@ function ConsentRow({ name, required, label, fullText, error, register }: {
 export default function PodsumowaniePage() {
   const {
     ageGroup, birthDate, questionnaireComplete, turnstileVerified,
-    selectedProduct, selectedVariant, addons, reset,
+    selectedProduct, selectedVariant, addons,
   } = useCalculatorStore();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
@@ -151,7 +151,6 @@ export default function PodsumowaniePage() {
         }),
       });
       if (res.ok) {
-        reset();
         router.push(`/kalkulator/sukces?email=${encodeURIComponent(data.email)}`);
       } else {
         let detail = '';
@@ -160,7 +159,8 @@ export default function PodsumowaniePage() {
         } catch {
           detail = await res.text().catch(() => '');
         }
-        alert(`Błąd wysyłki (HTTP ${res.status}):\n${detail}`);
+        console.error('Błąd wysyłki /api/oferta:', res.status, detail);
+        alert('Nie udało się wysłać zapytania. Spróbuj ponownie za chwilę.');
       }
     } finally {
       setSubmitting(false);

@@ -1,0 +1,40 @@
+name: Deploy to Cloudflare
+
+# Auto-deploy na Cloudflare (OpenNext) po każdym pushu do `main`.
+# Można też uruchomić ręcznie z zakładki Actions (workflow_dispatch).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Nie pozwól na równoległe deploye tej samej gałęzi.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Build sam w sobie waliduje projekt (TypeScript + Next).
+      # Deploy używa wrangler pod spodem — czyta CLOUDFLARE_API_TOKEN
+      # i CLOUDFLARE_ACCOUNT_ID z sekretów repozytorium (GitHub Actions).
+      # Sekrety runtime (RESEND_API_KEY, AGENT_EMAIL, TURNSTILE_SECRET_KEY,
+      # FROM_EMAIL) są ustawione po stronie Cloudflare i deploy ich nie kasuje.
+      - name: Build & deploy (OpenNext → Cloudflare)
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

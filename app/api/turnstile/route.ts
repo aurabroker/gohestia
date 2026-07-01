@@ -1,10 +1,22 @@
-export const runtime = 'edge';
-
 export async function POST(request: Request) {
-  const { token } = await request.json() as { token: string };
+  let token: string | undefined;
+  try {
+    ({ token } = (await request.json()) as { token?: string });
+  } catch {
+    return new Response(JSON.stringify({ error: 'Nieprawidłowe dane' }), { status: 400 });
+  }
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'Brak tokenu' }), { status: 400 });
+  }
+
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) {
+    console.error('Missing TURNSTILE_SECRET_KEY');
+    return new Response(JSON.stringify({ error: 'Konfiguracja Turnstile' }), { status: 500 });
+  }
 
   const formData = new FormData();
-  formData.append('secret', process.env.TURNSTILE_SECRET_KEY!);
+  formData.append('secret', secret);
   formData.append('response', token);
 
   const result = await fetch(

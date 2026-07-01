@@ -86,7 +86,7 @@ export async function POST(req: Request) {
 
   const resend = new Resend(apiKey);
   const { imie, nazwisko, email, telefon, oferta } = data.data;
-  const fromEmail = process.env.FROM_EMAIL ?? 'noreply@auraexpert.pl';
+  const fromEmail = process.env.FROM_EMAIL ?? 'ergo@beautypolisa.eu';
   // Kanoniczny adres strony (dla pobierania PDF-ów). Pozwól nadpisać przez
   // SITE_URL; w przeciwnym razie użyj originu bieżącego żądania.
   const baseUrl = process.env.SITE_URL ?? new URL(req.url).origin;

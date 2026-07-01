@@ -78,7 +78,10 @@ export async function POST(req: Request) {
       hasApiKey: Boolean(apiKey),
       hasAgentEmail: Boolean(agentEmail),
     });
-    return json({ error: 'Email configuration missing' }, 500);
+    return json({
+      error: 'Email configuration missing',
+      detail: { hasApiKey: Boolean(apiKey), hasAgentEmail: Boolean(agentEmail) },
+    }, 500);
   }
 
   const resend = new Resend(apiKey);
@@ -118,11 +121,15 @@ export async function POST(req: Request) {
     const failed = results.find((r) => r.error);
     if (failed) {
       console.error('Resend API error:', failed.error);
-      return json({ error: 'Email error' }, 500);
+      return json({ error: 'Email error', detail: failed.error, from: fromEmail }, 500);
     }
   } catch (err) {
     console.error('Email send error:', err);
-    return json({ error: 'Email error' }, 500);
+    return json({
+      error: 'Email error',
+      detail: err instanceof Error ? err.message : String(err),
+      from: fromEmail,
+    }, 500);
   }
 
   return json({ ok: true }, 200);

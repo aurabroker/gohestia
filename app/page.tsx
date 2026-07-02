@@ -361,6 +361,8 @@ export default function Home() {
             <a href="/informacja-o-agencie" className="text-gray-500 hover:text-[#E4002B] transition-colors">Informacja o agencie</a>
             <span className="text-gray-300">|</span>
             <a href="/katalog-zachorowan" className="text-gray-500 hover:text-[#E4002B] transition-colors">Katalog zachorowań</a>
+            <span className="text-gray-300">|</span>
+            <a href="/ubezpieczenia-dodatkowe" className="text-gray-500 hover:text-[#E4002B] transition-colors">MediPlan / Medical Assistance</a>
           </div>
         </div>
       </footer>

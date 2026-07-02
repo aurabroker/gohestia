@@ -9,7 +9,6 @@ const PRODUCTS: {
   type: ProductType;
   label: string;
   desc: string;
-  icon: string;
   image: string;
   bg: string;
   border: string;
@@ -21,7 +20,6 @@ const PRODUCTS: {
     type: 'dla_mnie',
     label: 'Dla Mnie',
     desc: 'Ubezpieczenie indywidualne — kompleksowa ochrona tylko dla Ciebie',
-    icon: '👤',
     image: '/girl.jpg',
     bg: 'bg-blue-50',
     border: 'border-blue-200',
@@ -33,7 +31,6 @@ const PRODUCTS: {
     type: 'dla_nas',
     label: 'Dla Nas',
     desc: 'Ty i Twój małżonek lub partner życiowy — ochrona dla dwojga',
-    icon: '👫',
     image: '/para.jpg',
     bg: 'bg-rose-50',
     border: 'border-rose-200',
@@ -45,7 +42,6 @@ const PRODUCTS: {
     type: 'dla_rodziny',
     label: 'Dla Rodziny',
     desc: 'Ty, partner, dzieci i rodzice — pełna ochrona całej rodziny',
-    icon: '👨‍👩‍👧‍👦',
     image: '/family.jpg',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
@@ -247,12 +243,9 @@ export default function Home() {
                     {/* Content side */}
                     <div className="p-6 flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <span className="text-4xl">{p.icon}</span>
-                          <div>
-                            <h4 className={`text-xl font-bold ${p.accent}`}>{p.label}</h4>
-                            <p className="text-gray-600 text-sm mt-0.5">{p.desc}</p>
-                          </div>
+                        <div>
+                          <h4 className={`text-xl font-bold ${p.accent}`}>{p.label}</h4>
+                          <p className="text-gray-600 text-sm mt-0.5">{p.desc}</p>
                         </div>
                         <div className="shrink-0 ml-4">
                           {open === p.type

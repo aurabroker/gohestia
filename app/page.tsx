@@ -312,6 +312,60 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Explore details: illness catalog + additional insurance */}
+        <section className="border-t border-gray-100 py-14">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="text-center mb-10">
+              <h3 className="text-2xl font-bold text-gray-900">Poznaj szczegóły ochrony</h3>
+              <p className="text-gray-500 mt-1 text-sm">
+                Sprawdź pełny zakres świadczeń — katalog poważnych zachorowań oraz dodatkowe pakiety medyczne.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Katalog zachorowań */}
+              <Link
+                href="/katalog-zachorowan"
+                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
+              >
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
+                  <Heart className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
+                    Katalog poważnych zachorowań
+                  </h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Pełna lista poważnych zachorowań objętych ochroną ERGO Razem — z definicjami i zakresem dla każdego wariantu.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
+                    Zobacz katalog →
+                  </span>
+                </div>
+              </Link>
+              {/* MediPlan / Medical Assistance */}
+              <Link
+                href="/ubezpieczenia-dodatkowe"
+                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
+              >
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
+                  <Shield className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
+                    MediPlan / Medical Assistance
+                  </h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Ubezpieczenia dodatkowe — specjalistyczna pomoc medyczna po wypadku oraz pomoc opiekuńczo-medyczna dla całej rodziny.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
+                    Zobacz szczegóły →
+                  </span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Bottom CTA */}
         <section className="bg-gradient-to-br from-rose-50 to-red-50 border-t border-rose-100 py-16">
           <div className="max-w-2xl mx-auto px-4 text-center space-y-4">

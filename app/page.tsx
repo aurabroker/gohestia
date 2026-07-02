@@ -10,6 +10,7 @@ const PRODUCTS: {
   label: string;
   desc: string;
   icon: string;
+  image: string;
   bg: string;
   border: string;
   accent: string;
@@ -21,6 +22,7 @@ const PRODUCTS: {
     label: 'Dla Mnie',
     desc: 'Ubezpieczenie indywidualne — kompleksowa ochrona tylko dla Ciebie',
     icon: '👤',
+    image: '/girl.jpg',
     bg: 'bg-blue-50',
     border: 'border-blue-200',
     accent: 'text-blue-700',
@@ -32,6 +34,7 @@ const PRODUCTS: {
     label: 'Dla Nas',
     desc: 'Ty i Twój małżonek lub partner życiowy — ochrona dla dwojga',
     icon: '👫',
+    image: '/para.jpg',
     bg: 'bg-rose-50',
     border: 'border-rose-200',
     accent: 'text-rose-700',
@@ -43,6 +46,7 @@ const PRODUCTS: {
     label: 'Dla Rodziny',
     desc: 'Ty, partner, dzieci i rodzice — pełna ochrona całej rodziny',
     icon: '👨‍👩‍👧‍👦',
+    image: '/family.jpg',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
     accent: 'text-emerald-700',
@@ -223,34 +227,47 @@ export default function Home() {
               </div>
             </div>
 
-            {PRODUCTS.map(p => (
+            {PRODUCTS.map((p, i) => {
+              const imageRight = i % 2 === 1;
+              return (
               <div key={p.type} className={`rounded-2xl border ${p.border} shadow-sm overflow-hidden`}>
                 <button
                   onClick={() => toggle(p.type)}
                   className="w-full text-left"
                 >
-                  <div className={`${p.bg} p-6`}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <span className="text-4xl">{p.icon}</span>
-                        <div>
-                          <h4 className={`text-xl font-bold ${p.accent}`}>{p.label}</h4>
-                          <p className="text-gray-600 text-sm mt-0.5">{p.desc}</p>
+                  <div className={`${p.bg} flex flex-col sm:flex-row items-stretch ${imageRight ? 'sm:flex-row-reverse' : ''}`}>
+                    {/* Image side */}
+                    <div className="relative shrink-0 sm:w-2/5 h-48 sm:h-auto sm:min-h-[220px]">
+                      <img
+                        src={p.image}
+                        alt={`Ubezpieczenie ${p.label}`}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    </div>
+                    {/* Content side */}
+                    <div className="p-6 flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <span className="text-4xl">{p.icon}</span>
+                          <div>
+                            <h4 className={`text-xl font-bold ${p.accent}`}>{p.label}</h4>
+                            <p className="text-gray-600 text-sm mt-0.5">{p.desc}</p>
+                          </div>
+                        </div>
+                        <div className="shrink-0 ml-4">
+                          {open === p.type
+                            ? <ChevronUp className="h-6 w-6 text-gray-400" />
+                            : <ChevronDown className="h-6 w-6 text-gray-400" />
+                          }
                         </div>
                       </div>
-                      <div className="shrink-0 ml-4">
-                        {open === p.type
-                          ? <ChevronUp className="h-6 w-6 text-gray-400" />
-                          : <ChevronDown className="h-6 w-6 text-gray-400" />
-                        }
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {p.features.map(f => (
+                          <span key={f} className={`rounded-full ${p.pillBg} px-3 py-1 text-xs font-medium`}>
+                            ✓ {f}
+                          </span>
+                        ))}
                       </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {p.features.map(f => (
-                        <span key={f} className={`rounded-full ${p.pillBg} px-3 py-1 text-xs font-medium`}>
-                          ✓ {f}
-                        </span>
-                      ))}
                     </div>
                   </div>
                 </button>
@@ -274,7 +291,8 @@ export default function Home() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 

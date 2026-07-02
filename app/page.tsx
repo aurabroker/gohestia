@@ -341,6 +341,8 @@ export default function Home() {
             <a href="/regulamin" className="text-gray-500 hover:text-[#E4002B] transition-colors">Regulamin</a>
             <span className="text-gray-300">|</span>
             <a href="/informacja-o-agencie" className="text-gray-500 hover:text-[#E4002B] transition-colors">Informacja o agencie</a>
+            <span className="text-gray-300">|</span>
+            <a href="/katalog-zachorowan" className="text-gray-500 hover:text-[#E4002B] transition-colors">Katalog zachorowań</a>
           </div>
         </div>
       </footer>

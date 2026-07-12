@@ -1,6 +1,8 @@
 'use client';
 import { useState, type ReactNode } from "react";
-import Link from "next/link";
+import { SiteHeader } from "@/components/site-header";
+import { PageHero } from "@/components/page-hero";
+import { SiteFooter } from "@/components/site-footer";
 
 const BLUE_MID = "#1565C0";
 const BLUE_LIGHT = "#E3F2FD";
@@ -448,16 +450,17 @@ function ProductPanel({ data }: { data: ProductData }) {
 
 export function UbezpieczeniaDodatkowe() {
   return (
-    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", maxWidth: 860, margin: "0 auto", padding: "20px 14px", background: "#F0F4F8", minHeight: "100vh" }}>
-      {/* Back link */}
-      <Link href="/" style={{ display: "inline-block", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#1565C0", textDecoration: "none" }}>
-        ← Powrót do strony głównej
-      </Link>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <SiteHeader />
 
-      <div style={{ marginBottom: 24, textAlign: "center" }}>
-        <h1 style={{ margin: "0 0 4px", fontSize: 20, fontWeight: 800, color: "#1A237E" }}>Ubezpieczenia Dodatkowe</h1>
-        <p style={{ margin: 0, fontSize: 13, color: GRAY }}>WU ER 01/25 · ERGO Hestia · Obowiązuje od 13.02.2026</p>
-      </div>
+      <PageHero
+        eyebrow="WU ER 01/25"
+        title={<>Ubezpieczenia <span className="text-[#E4002B]">Dodatkowe</span></>}
+        description="MediPlan i Medical Assistance — specjalistyczna pomoc medyczna po wypadku oraz pomoc opiekuńczo-medyczna dla całej rodziny. Obowiązuje od 13.02.2026."
+      />
+
+      <main className="flex-1">
+    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", maxWidth: 860, margin: "0 auto", padding: "20px 14px", background: "#F0F4F8" }}>
 
       {/* Comparison header */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
@@ -503,6 +506,10 @@ export function UbezpieczeniaDodatkowe() {
       <p style={{ textAlign: "center", fontSize: 11, color: "#B0BEC5", margin: 0 }}>
         Warunki Grupowego Ubezpieczenia na Życie ERGO Razem · kod ER 01/25 · rozdz. XXVII–XXVIII · ERGO Hestia S.A.
       </p>
+    </div>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }

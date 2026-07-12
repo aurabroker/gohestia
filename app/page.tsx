@@ -1,8 +1,10 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp, Shield, Heart, Users, Star, Phone, FileText } from 'lucide-react';
+import { ChevronDown, ChevronUp, Shield, Heart, Users, Star, Phone, FileText, HelpCircle, Globe2 } from 'lucide-react';
 import { VariantsComparisonTable } from '@/components/variants-comparison-table';
+import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
 import type { ProductType } from '@/types';
 
 const PRODUCTS: {
@@ -87,32 +89,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/ergo-hestia-logo.jpg" alt="ERGO Hestia" className="h-9 w-auto" />
-            <div>
-              <p className="text-[10px] text-gray-400 uppercase tracking-wide">Aura Expert sp. z o.o.</p>
-              <h1 className="text-base font-bold text-gray-800">
-                ERGO Razem <span className="text-[#E4002B]">Kalkulator</span>
-              </h1>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-xs text-gray-500">Grupa Otwarta</p>
-              <p className="text-xs text-gray-400">ER 01/25</p>
-            </div>
-            <Link
-              href="/kalkulator/wiek"
-              className="rounded-lg bg-[#E4002B] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#c00025] transition-colors"
-            >
-              Złóż wniosek →
-            </Link>
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="flex-1">
 
@@ -365,6 +342,46 @@ export default function Home() {
                   </span>
                 </div>
               </Link>
+              {/* Global Doctors */}
+              <Link
+                href="/global-doctors"
+                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
+              >
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
+                  <Globe2 className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
+                    Global Doctors
+                  </h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Dodatkowe ubezpieczenie GD 02/24 — dostęp do konsultacji z lekarzami specjalistami na świecie w przypadku poważnych diagnoz.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
+                    Zobacz szczegóły →
+                  </span>
+                </div>
+              </Link>
+              {/* FAQ */}
+              <Link
+                href="/faq"
+                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
+              >
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
+                  <HelpCircle className="h-6 w-6" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
+                    Najczęściej zadawane pytania
+                  </h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Odpowiedzi na pytania o przystąpienie, ankietę medyczną, składki, warianty i zgłaszanie roszczeń.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
+                    Zobacz FAQ →
+                  </span>
+                </div>
+              </Link>
             </div>
           </div>
         </section>
@@ -387,35 +404,7 @@ export default function Home() {
 
       </main>
 
-      <footer className="border-t border-gray-200 bg-white py-6">
-        <div className="max-w-5xl mx-auto px-4 space-y-3">
-          <div className="flex justify-center">
-            <Link
-              href="/zglos-roszczenie"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#E4002B] px-6 py-3 text-sm font-semibold text-white hover:bg-[#c00025] transition-colors shadow-sm"
-            >
-              Zgłoś roszczenie →
-            </Link>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-            <p>© 2025 Aura Expert sp. z o.o. — Agent ERGO Hestia</p>
-            <p>Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.</p>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs">
-            <a href="/polityka-prywatnosci" className="text-gray-500 hover:text-[#E4002B] transition-colors">Polityka prywatności</a>
-            <span className="text-gray-300">|</span>
-            <a href="/rodo" className="text-gray-500 hover:text-[#E4002B] transition-colors">RODO</a>
-            <span className="text-gray-300">|</span>
-            <a href="/regulamin" className="text-gray-500 hover:text-[#E4002B] transition-colors">Regulamin</a>
-            <span className="text-gray-300">|</span>
-            <a href="/informacja-o-agencie" className="text-gray-500 hover:text-[#E4002B] transition-colors">Informacja o agencie</a>
-            <span className="text-gray-300">|</span>
-            <a href="/katalog-zachorowan" className="text-gray-500 hover:text-[#E4002B] transition-colors">Katalog zachorowań</a>
-            <span className="text-gray-300">|</span>
-            <a href="/ubezpieczenia-dodatkowe" className="text-gray-500 hover:text-[#E4002B] transition-colors">MediPlan / Medical Assistance</a>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

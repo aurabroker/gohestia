@@ -1,6 +1,8 @@
 'use client';
 import { useState, useMemo } from 'react';
-import Link from 'next/link';
+import { SiteHeader } from '@/components/site-header';
+import { PageHero } from '@/components/page-hero';
+import { SiteFooter } from '@/components/site-footer';
 
 const illnesses = [
   {
@@ -645,22 +647,19 @@ export function KatalogZachorowan() {
   }), []);
 
   return (
-    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", maxWidth: 1000, margin: "0 auto", padding: "24px 16px", background: "#F8F9FA", minHeight: "100vh" }}>
-      {/* Back link */}
-      <Link href="/" style={{ display: "inline-block", marginBottom: 16, fontSize: 13, fontWeight: 600, color: "#1565C0", textDecoration: "none" }}>
-        ← Powrót do strony głównej
-      </Link>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <SiteHeader />
 
+      <PageHero
+        eyebrow="WU/ER 01/25 · Załącznik 1"
+        title={<>Katalog <span className="text-[#E4002B]">Poważnych Zachorowań</span></>}
+        description="Pełna lista poważnych zachorowań objętych ochroną ERGO Razem — z definicjami i zakresem dla każdego wariantu. Obowiązuje od 13.02.2026."
+      />
+
+      <main className="flex-1">
+    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", maxWidth: 1000, margin: "0 auto", padding: "24px 16px", background: "#F8F9FA" }}>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
-          <div style={{ width: 6, height: 40, background: "#1565C0", borderRadius: 3 }} />
-          <div>
-            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: "#1A237E" }}>Katalog Poważnych Zachorowań</h1>
-            <p style={{ margin: 0, fontSize: 13, color: "#546E7A" }}>ERGO Hestia — WU/ER 01/25 · Załącznik 1 · Obowiązuje od 13.02.2026</p>
-          </div>
-        </div>
-
         {/* Stats */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
           {[
@@ -843,6 +842,10 @@ export function KatalogZachorowan() {
       <p style={{ textAlign: "center", fontSize: 11, color: "#B0BEC5", marginTop: 24 }}>
         Warunki Grupowego Ubezpieczenia na Życie ERGO Razem · kod ER 01/25 · ERGO Hestia S.A.
       </p>
+    </div>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }

@@ -1,5 +1,7 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import { SiteHeader } from '@/components/site-header';
+import { PageHero } from '@/components/page-hero';
+import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
   title: 'Klauzula RODO — Aura Expert sp. z o.o.',
@@ -7,15 +9,18 @@ export const metadata: Metadata = {
 
 export default function RodoPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <Link href="/" className="text-sm text-[#E4002B] hover:underline mb-6 inline-block">
-          ← Powrót do strony głównej
-        </Link>
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
-          <h1 className="text-2xl font-bold text-gray-900">Klauzula Informacyjna RODO</h1>
-          <p className="text-gray-500 text-sm">Zgodnie z art. 13 Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO)</p>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <SiteHeader />
 
+      <PageHero
+        eyebrow="Aura Expert sp. z o.o."
+        title={<>Klauzula Informacyjna <span className="text-[#E4002B]">RODO</span></>}
+        description="Zgodnie z art. 13 Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO)."
+      />
+
+      <main className="flex-1 py-12">
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
           <h2>1. Administrator danych</h2>
           <p>
             Administratorem Twoich danych osobowych jest:<br />
@@ -90,6 +95,9 @@ export default function RodoPage() {
           </p>
         </div>
       </div>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }

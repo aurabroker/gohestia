@@ -1,5 +1,7 @@
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import { SiteHeader } from '@/components/site-header';
+import { PageHero } from '@/components/page-hero';
+import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
   title: 'Regulamin — Aura Expert sp. z o.o.',
@@ -7,13 +9,18 @@ export const metadata: Metadata = {
 
 export default function RegulaminPage() {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <SiteHeader />
+
+      <PageHero
+        eyebrow="Aura Expert sp. z o.o."
+        title={<>Regulamin <span className="text-[#E4002B]">serwisu</span></>}
+        description="Zasady korzystania z serwisu prezentującego ofertę grupowego ubezpieczenia ERGO Razem."
+      />
+
+      <main className="flex-1 py-12">
       <div className="max-w-3xl mx-auto px-4">
-        <Link href="/" className="text-sm text-[#E4002B] hover:underline mb-6 inline-block">
-          ← Powrót do strony głównej
-        </Link>
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
-          <h1 className="text-2xl font-bold text-gray-900">Regulamin serwisu</h1>
           <p className="text-gray-500 text-sm">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
 
           <h2>§1. Postanowienia ogólne</h2>
@@ -126,6 +133,9 @@ export default function RegulaminPage() {
           </ol>
         </div>
       </div>
+      </main>
+
+      <SiteFooter />
     </div>
   );
 }

@@ -42,6 +42,7 @@ const bodySchema = z.object({
   nazwisko: z.string().min(1),
   email:    z.string().email(),
   telefon:  z.string(),
+  region:   z.string().optional(),
   oferta: z.object({
     ageGroup:       z.enum(['A1', 'A2', 'B']),
     product:        z.enum(['dla_mnie', 'dla_nas', 'dla_rodziny']),
@@ -49,6 +50,14 @@ const bodySchema = z.object({
     addons:         z.array(z.string()),
     monthlyPremium: z.number(),
   }),
+  // Status zgód marketingowych/kontaktowych klienta. Opcjonalne, żeby
+  // starsze klienty (bez tego pola) nie kończyły się błędem 400.
+  zgody: z.object({
+    marketingElektroniczny:   z.boolean(),
+    marketingErgoHestia:      z.boolean(),
+    marketingCpop:            z.boolean(),
+    obowiazkoweZaakceptowane: z.boolean(),
+  }).optional(),
 });
 
 function json(body: unknown, status: number) {
@@ -85,7 +94,7 @@ export async function POST(req: Request) {
   }
 
   const resend = new Resend(apiKey);
-  const { imie, nazwisko, email, telefon, oferta } = data.data;
+  const { imie, nazwisko, email, telefon, region, oferta, zgody } = data.data;
   const fromEmail = process.env.FROM_EMAIL ?? 'ergo@beautypolisa.eu';
   // Kanoniczny adres strony (dla pobierania PDF-ów). Pozwól nadpisać przez
   // SITE_URL; w przeciwnym razie użyj originu bieżącego żądania.
@@ -98,7 +107,7 @@ export async function POST(req: Request) {
     // installed `@react-email/components` package does the same job reliably.
     const [ofertaHtml, agentHtml, attachments] = await Promise.all([
       render(React.createElement(OfertaEmailTemplate, { imie, nazwisko, oferta })),
-      render(React.createElement(AgentEmailTemplate, { imie, nazwisko, email, telefon, oferta })),
+      render(React.createElement(AgentEmailTemplate, { imie, nazwisko, email, telefon, region, oferta, zgody })),
       buildAttachments(baseUrl),
     ]);
 

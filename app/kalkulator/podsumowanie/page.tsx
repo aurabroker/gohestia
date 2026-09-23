@@ -141,12 +141,23 @@ export default function PodsumowaniePage() {
           nazwisko: data.nazwisko,
           email:    data.email,
           telefon:  data.telefon,
+          region:   data.agent_region,
           oferta: {
             ageGroup,
             product:        selectedProduct,
             variant:        selectedVariant,
             addons:         activeAddons,
             monthlyPremium: monthly,
+          },
+          // Zgody: dane medyczne NIE są przekazywane. Przekazujemy tylko
+          // status zgód marketingowych/kontaktowych, których udzielił klient,
+          // oraz potwierdzenie kompletu zgód obowiązkowych (walidacja formularza
+          // nie dopuszcza wysyłki bez nich).
+          zgody: {
+            marketingElektroniczny:   Boolean(data.zgoda_7),
+            marketingErgoHestia:      Boolean(data.zgoda_8),
+            marketingCpop:            Boolean(data.zgoda_10),
+            obowiazkoweZaakceptowane: true,
           },
         }),
       });

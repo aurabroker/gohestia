@@ -14,11 +14,3 @@ export interface PremiumEntry {
   variant: Variant;
   monthly: number;
 }
-
-export interface OfertaData {
-  ageGroup: AgeGroup;
-  product: ProductType;
-  variant: string;
-  addons: string[];
-  monthlyPremium: number;
-}

@@ -65,7 +65,7 @@ export function QuestionnaireComponent() {
 
   const handleNext = () => {
     setQuestionnaireComplete(true);
-    router.push('/kalkulator/weryfikacja');
+    router.push('/kalkulator/produkt');
   };
 
   return (

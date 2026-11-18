@@ -1,12 +1,12 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Suspense, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useCalculatorStore } from '@/store/calculator-store';
 
-function SukcesContent() {
-  const params = useSearchParams();
-  const email = params.get('email') ?? '';
+export default function SukcesPage() {
+  // Adres e-mail przychodzi z pamięci (store), nie z adresu URL. Odczytujemy
+  // go raz, przy pierwszym renderze, bo zaraz potem store jest czyszczony.
+  const [email] = useState(() => useCalculatorStore.getState().submittedEmail ?? '');
   const reset = useCalculatorStore((s) => s.reset);
 
   // Czyścimy dane kalkulatora dopiero tutaj — po dotarciu na stronę sukcesu.
@@ -49,13 +49,5 @@ function SukcesContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function SukcesPage() {
-  return (
-    <Suspense>
-      <SukcesContent />
-    </Suspense>
   );
 }

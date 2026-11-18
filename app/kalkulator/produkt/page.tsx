@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCalculatorStore } from '@/store/calculator-store';
-import { getVariants, isGlobalDoctorsEligible, calcMonthlyPremium } from '@/lib/calculator';
+import { getVariants, isGlobalDoctorsEligible } from '@/lib/calculator';
+import { resolveOffer } from '@/lib/offer';
 import { ProductCard } from '@/components/product-card';
 import { AddonToggle } from '@/components/addon-toggle';
 import { PremiumCalculator } from '@/components/premium-calculator';
@@ -19,7 +20,7 @@ const PRODUCTS: { type: ProductType; label: string; desc: string; icon: string }
 
 export default function ProduktPage() {
   const {
-    ageGroup, birthDate, questionnaireComplete, turnstileVerified,
+    ageGroup, birthDate, questionnaireComplete,
     selectedProduct, selectedVariant, addons,
     setProduct, setVariant, toggleAddon,
   } = useCalculatorStore();
@@ -29,17 +30,18 @@ export default function ProduktPage() {
   useEffect(() => {
     if (!ageGroup)               router.replace('/kalkulator/wiek');
     else if (!questionnaireComplete) router.replace('/kalkulator/ankieta');
-    else if (!turnstileVerified) router.replace('/kalkulator/weryfikacja');
-  }, [ageGroup, questionnaireComplete, turnstileVerified, router]);
+  }, [ageGroup, questionnaireComplete, router]);
 
   if (!ageGroup || !birthDate) return null;
 
   const variants = selectedProduct ? getVariants(ageGroup, selectedProduct) : [];
   const globalEligible = isGlobalDoctorsEligible(birthDate);
 
-  const monthly = selectedProduct && selectedVariant
-    ? calcMonthlyPremium(ageGroup, selectedProduct, selectedVariant as Variant, addons, birthDate)
-    : 0;
+  // Ta sama funkcja liczy składkę w mailach — ekran i mail pokazują tę samą kwotę.
+  const offer = selectedProduct && selectedVariant
+    ? resolveOffer({ ageGroup, product: selectedProduct, variant: selectedVariant, addons })
+    : null;
+  const monthly = offer?.monthlyPremium ?? 0;
 
   return (
     <div className="space-y-8">

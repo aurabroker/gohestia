@@ -1,25 +1,38 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useCalculatorStore } from '@/store/calculator-store';
-import { calcMonthlyPremium } from '@/lib/calculator';
-import { VARIANT_LABELS, PRODUCT_LABELS, ADDONS } from '@/lib/data/premiums';
+import { resolveOffer } from '@/lib/offer';
+import {
+  EMAIL_MAX, MANDATORY_CONSENTS, NAME_MAX, NAME_MIN, NAME_PATTERN,
+  OPTIONAL_CONSENTS, PHONE_PATTERN, REGION_MAX, REGION_PATTERN,
+} from '@/lib/oferta-schema';
+import { TURNSTILE_SITE_KEY } from '@/lib/turnstile-config';
 import { getBenefits } from '@/lib/data/benefits';
 import { BenefitsTable } from '@/components/benefits-table';
-import type { Variant, ProductType } from '@/types';
 
 const req = z.literal(true, { message: 'Wymagana zgoda' });
 
+// Te same reguły pól stosuje endpoint /api/oferta (lib/oferta-schema.ts).
+const nameField = z.string().normalize('NFC').trim()
+  .min(NAME_MIN, 'Min. 2 znaki')
+  .max(NAME_MAX, 'Maks. 50 znaków')
+  .regex(NAME_PATTERN, 'Dozwolone: litery, spacja, myślnik, apostrof i kropka');
+
 const schema = z.object({
-  imie:           z.string().min(2, 'Min. 2 znaki').max(50),
-  nazwisko:       z.string().min(2, 'Min. 2 znaki').max(50),
-  email:          z.string().email('Nieprawidłowy adres email'),
-  telefon:        z.string().regex(/^\+?[0-9\s\-]{9,15}$/, 'Nieprawidłowy numer telefonu'),
-  agent_region:   z.string().optional(),
+  imie:           nameField,
+  nazwisko:       nameField,
+  email:          z.string().trim().max(EMAIL_MAX, 'Nieprawidłowy adres email').pipe(z.email('Nieprawidłowy adres email')),
+  telefon:        z.string().trim().regex(PHONE_PATTERN, 'Nieprawidłowy numer telefonu'),
+  agent_region:   z.string().trim()
+    .max(REGION_MAX, 'Maks. 60 znaków')
+    .regex(REGION_PATTERN, 'Dozwolone: litery, cyfry, spacja, przecinek, kropka i myślnik')
+    .optional(),
   // Zgody obowiązkowe
   zgoda_1:        req,
   zgoda_2:        req,
@@ -39,6 +52,14 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
+
+const CAPTCHA_REQUIRED_MESSAGE =
+  'Dokończ weryfikację antybotową powyżej, a następnie wyślij formularz.';
+const ANTI_BOT_FAILED_MESSAGE =
+  'Weryfikacja antybotowa nie powiodła się. Wykonaj ją ponownie i wyślij formularz jeszcze raz.';
+const SEND_FAILED_MESSAGE =
+  'Nie udało się wysłać zapytania. Spróbuj ponownie za chwilę.';
+
 
 function ExpandableConsent({ label, required, children }: {
   label: string;
@@ -100,81 +121,97 @@ function ConsentRow({ name, required, label, fullText, error, register }: {
 
 export default function PodsumowaniePage() {
   const {
-    ageGroup, birthDate, questionnaireComplete, turnstileVerified,
-    selectedProduct, selectedVariant, addons,
+    ageGroup, questionnaireComplete,
+    selectedProduct, selectedVariant, addons, setSubmittedEmail,
   } = useCalculatorStore();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
+  // Token Turnstile żyje tylko w stanie komponentu; serwer weryfikuje go przy wysyłce.
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [captchaMessage, setCaptchaMessage] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
+  // Blokada drugiego kliknięcia, zanim przycisk zdąży się wyłączyć.
+  const inFlight = useRef(false);
+
+  // Etykiety i składka z tej samej funkcji, której używa serwer przy wysyłce maili.
+  const offer = ageGroup && selectedProduct && selectedVariant
+    ? resolveOffer({ ageGroup, product: selectedProduct, variant: selectedVariant, addons })
+    : null;
+  const offerAvailable = offer !== null;
 
   useEffect(() => {
     if (!ageGroup)                    router.replace('/kalkulator/wiek');
     else if (!questionnaireComplete)  router.replace('/kalkulator/ankieta');
-    else if (!turnstileVerified)      router.replace('/kalkulator/weryfikacja');
-    else if (!selectedProduct || !selectedVariant) router.replace('/kalkulator/produkt');
-  }, [ageGroup, questionnaireComplete, turnstileVerified, selectedProduct, selectedVariant, router]);
+    else if (!selectedProduct || !selectedVariant || !offerAvailable) router.replace('/kalkulator/produkt');
+  }, [ageGroup, questionnaireComplete, selectedProduct, selectedVariant, offerAvailable, router]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
-  if (!ageGroup || !birthDate || !selectedProduct || !selectedVariant) return null;
+  if (!ageGroup || !selectedProduct || !selectedVariant || !offer) return null;
 
-  const monthly = calcMonthlyPremium(
-    ageGroup, selectedProduct, selectedVariant as Variant, addons, birthDate
-  );
+  const benefits = getBenefits(ageGroup, selectedProduct, selectedVariant);
 
-  const activeAddons: string[] = [];
-  if (addons.mediplan)          activeAddons.push(ADDONS.mediplan.label);
-  if (addons.medicalAssistance) activeAddons.push(ADDONS.medical_assistance.label);
-  if (addons.globalDoctors)     activeAddons.push(ADDONS.global_doctors.label);
-
-  const benefits = getBenefits(ageGroup, selectedProduct as ProductType, selectedVariant);
+  // Tokeny Turnstile są jednorazowe — po nieudanej próbie widget musi wydać nowy.
+  const failAttempt = (message: string) => {
+    setTurnstileToken(null);
+    turnstileRef.current?.reset();
+    setSubmitError(message);
+    setSubmitting(false);
+    inFlight.current = false;
+  };
 
   const onSubmit = async (data: FormData) => {
+    if (inFlight.current) return;
+    setSubmitError(null);
+    // Bez tokenu nie wysyłamy nic — serwer i tak odrzuciłby takie zgłoszenie.
+    if (!turnstileToken) {
+      setCaptchaMessage(CAPTCHA_REQUIRED_MESSAGE);
+      return;
+    }
+    setCaptchaMessage(null);
+    inFlight.current = true;
     setSubmitting(true);
     try {
       const res = await fetch('/api/oferta', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        // Wysyłamy wyłącznie wybory (bez kwot — składkę liczy serwer), dane
+        // kontaktowe, status zgód i token. Odpowiedzi z ankiety zdrowotnej
+        // nie opuszczają przeglądarki.
         body: JSON.stringify({
           imie:     data.imie,
           nazwisko: data.nazwisko,
           email:    data.email,
           telefon:  data.telefon,
-          region:   data.agent_region,
+          region:   data.agent_region || undefined,
           oferta: {
             ageGroup,
-            product:        selectedProduct,
-            variant:        selectedVariant,
-            addons:         activeAddons,
-            monthlyPremium: monthly,
+            product: selectedProduct,
+            variant: selectedVariant,
+            addons: {
+              mediplan:          addons.mediplan,
+              medicalAssistance: addons.medicalAssistance,
+              globalDoctors:     addons.globalDoctors,
+            },
           },
-          // Zgody: dane medyczne NIE są przekazywane. Przekazujemy tylko
-          // status zgód marketingowych/kontaktowych, których udzielił klient,
-          // oraz potwierdzenie kompletu zgód obowiązkowych (walidacja formularza
-          // nie dopuszcza wysyłki bez nich).
-          zgody: {
-            marketingElektroniczny:   Boolean(data.zgoda_7),
-            marketingErgoHestia:      Boolean(data.zgoda_8),
-            marketingCpop:            Boolean(data.zgoda_10),
-            obowiazkoweZaakceptowane: true,
-          },
+          zgody: Object.fromEntries(
+            [...MANDATORY_CONSENTS, ...OPTIONAL_CONSENTS].map((key) => [key, Boolean(data[key])]),
+          ),
+          turnstileToken,
         }),
       });
       if (res.ok) {
-        router.push(`/kalkulator/sukces?email=${encodeURIComponent(data.email)}`);
-      } else {
-        let detail = '';
-        try {
-          detail = JSON.stringify(await res.json());
-        } catch {
-          detail = await res.text().catch(() => '');
-        }
-        console.error('Błąd wysyłki /api/oferta:', res.status, detail);
-        alert('Nie udało się wysłać zapytania. Spróbuj ponownie za chwilę.');
+        // Adres trafia do pamięci (store), nie do adresu URL strony sukcesu.
+        setSubmittedEmail(data.email);
+        router.push('/kalkulator/sukces');
+        return;
       }
-    } finally {
-      setSubmitting(false);
+      failAttempt(res.status === 403 ? ANTI_BOT_FAILED_MESSAGE : SEND_FAILED_MESSAGE);
+    } catch {
+      failAttempt(SEND_FAILED_MESSAGE);
     }
   };
 
@@ -187,23 +224,23 @@ export default function PodsumowaniePage() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <p className="text-xs text-gray-500">Produkt</p>
-            <p className="font-semibold">{PRODUCT_LABELS[selectedProduct as ProductType]}</p>
+            <p className="font-semibold">{offer.productLabel}</p>
           </div>
           <div>
             <p className="text-xs text-gray-500">Wariant</p>
-            <p className="font-semibold">{VARIANT_LABELS[selectedVariant as Variant]}</p>
+            <p className="font-semibold">{offer.variantLabel}</p>
           </div>
-          {activeAddons.length > 0 && (
+          {offer.addonLabels.length > 0 && (
             <div className="col-span-2">
               <p className="text-xs text-gray-500">Dodatki</p>
-              <p className="font-semibold">{activeAddons.join(', ')}</p>
+              <p className="font-semibold">{offer.addonLabels.join(', ')}</p>
             </div>
           )}
         </div>
 
         <div className="rounded-xl bg-[#E4002B]/5 border border-[#E4002B]/20 p-4 text-center mb-6">
           <p className="text-sm text-gray-600">Składka miesięczna</p>
-          <p className="text-4xl font-bold text-[#E4002B]">{monthly} zł<span className="text-lg font-normal text-gray-500">/mies.</span></p>
+          <p className="text-4xl font-bold text-[#E4002B]">{offer.monthlyPremium} zł<span className="text-lg font-normal text-gray-500">/mies.</span></p>
         </div>
 
         <h3 className="font-semibold text-gray-900 mb-3">Pełny zakres świadczeń</h3>
@@ -224,7 +261,7 @@ export default function PodsumowaniePage() {
           ubezpieczeniowemu. <strong>Nie przekazujemy danych medycznych.</strong>
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={(event) => { void handleSubmit(onSubmit)(event); }} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Imię *</label>
@@ -269,6 +306,7 @@ export default function PodsumowaniePage() {
               placeholder="np. Warszawa, Kraków..."
               className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
             />
+            {errors.agent_region && <p className="mt-1 text-xs text-red-600">{errors.agent_region.message}</p>}
           </div>
 
           {/* Zgody i oświadczenia obowiązkowe */}
@@ -367,6 +405,32 @@ Administratorem danych jest Centrum Pomocy Osobom Poszkodowanym Sp. z o.o., 80-3
               Oświadczenia
             </p>
 
+            <div className="rounded-lg border border-gray-200 bg-white p-3">
+              <p className="text-xs font-semibold text-gray-700">Dokumenty</p>
+              <ul className="mt-1 space-y-1 text-xs text-gray-600">
+                <li>
+                  <a
+                    href="/dokumenty/owu.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-[#E4002B] underline hover:no-underline"
+                  >
+                    Ogólne Warunki Ubezpieczenia ERGO Razem — OWU (PDF)
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/informacja-o-agencie"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-[#E4002B] underline hover:no-underline"
+                  >
+                    Informacja o agencie (dystrybutorze)
+                  </a>
+                </li>
+              </ul>
+            </div>
+
             <ConsentRow
               name="oswiadczenie_1"
               required
@@ -433,6 +497,27 @@ Twoją zgodę przekażemy do Sopockiego Towarzystwa Ubezpieczeń ERGO Hestia S.A
           </div>
 
           <p className="text-xs text-gray-400">* Pola i zgody obowiązkowe wymagane do objęcia ochroną ubezpieczeniową.</p>
+
+          {submitError && (
+            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {submitError}
+            </p>
+          )}
+
+          {/* Weryfikacja antybotowa — token trafia do stanu i jest wysyłany z formularzem */}
+          <div>
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              options={{ refreshExpired: 'auto' }}
+              onSuccess={(token) => { setTurnstileToken(token); setCaptchaMessage(null); }}
+              onExpire={() => setTurnstileToken(null)}
+              onError={() => setTurnstileToken(null)}
+            />
+            {captchaMessage && (
+              <p role="alert" className="mt-2 text-sm text-red-600">{captchaMessage}</p>
+            )}
+          </div>
 
           <button
             type="submit"

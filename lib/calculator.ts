@@ -1,5 +1,6 @@
 import { differenceInYears } from 'date-fns';
-import { PREMIUMS, ADDONS } from './data/premiums';
+import { PREMIUMS } from './data/premiums';
+import { resolveOffer, type OfferAddons } from './offer';
 import type { AgeGroup, ProductType, Variant } from '@/types';
 
 export function getAgeGroup(birthDate: Date): AgeGroup | null {
@@ -14,22 +15,18 @@ export function getVariants(ageGroup: AgeGroup, product: ProductType) {
   return PREMIUMS[ageGroup][product];
 }
 
+/**
+ * Łączna składka miesięczna dla wyboru użytkownika. Liczy ją `resolveOffer`
+ * — to samo wyliczenie trafia do maili. Zwraca 0, gdy wariant nie jest
+ * oferowany dla danej grupy wiekowej i produktu.
+ */
 export function calcMonthlyPremium(
   ageGroup: AgeGroup,
   product: ProductType,
   variant: Variant,
-  addons: { mediplan: boolean; medicalAssistance: boolean; globalDoctors: boolean },
-  birthDate: Date
+  addons: OfferAddons,
 ): number {
-  const base = PREMIUMS[ageGroup][product].find(p => p.variant === variant)?.monthly ?? 0;
-  let total = base;
-  if (addons.mediplan)          total += ADDONS.mediplan.monthly;
-  if (addons.medicalAssistance) total += ADDONS.medical_assistance.monthly;
-  if (addons.globalDoctors) {
-    const age = differenceInYears(new Date(), birthDate);
-    if (age < 64) total += 0; // cena indywidualna
-  }
-  return total;
+  return resolveOffer({ ageGroup, product, variant, addons })?.monthlyPremium ?? 0;
 }
 
 export function isGlobalDoctorsEligible(birthDate: Date): boolean {

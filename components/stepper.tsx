@@ -5,7 +5,6 @@ import clsx from 'clsx';
 const STEPS = [
   { label: 'Wiek',         path: '/kalkulator/wiek' },
   { label: 'Ankieta',      path: '/kalkulator/ankieta' },
-  { label: 'Weryfikacja',  path: '/kalkulator/weryfikacja' },
   { label: 'Oferta',       path: '/kalkulator/produkt' },
   { label: 'Podsumowanie', path: '/kalkulator/podsumowanie' },
   { label: 'Gotowe',       path: '/kalkulator/sukces' },

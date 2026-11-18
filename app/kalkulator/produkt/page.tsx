@@ -144,9 +144,7 @@ export default function ProduktPage() {
       {selectedVariant && (
         <section className="space-y-4">
           <PremiumCalculator
-            base={monthly}
-            addonMediplan={addons.mediplan}
-            addonMedicalAssistance={addons.medicalAssistance}
+            total={monthly}
             addonGlobalDoctors={addons.globalDoctors}
           />
           <button

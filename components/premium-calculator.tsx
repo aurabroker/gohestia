@@ -1,24 +1,17 @@
 'use client';
 
 interface Props {
-  base: number;
-  addonMediplan: boolean;
-  addonMedicalAssistance: boolean;
+  /** Łączna składka miesięczna — już z doliczonymi dodatkami (calcMonthlyPremium). */
+  total: number;
   addonGlobalDoctors: boolean;
   globalDoctorsNote?: string;
 }
 
 export function PremiumCalculator({
-  base,
-  addonMediplan,
-  addonMedicalAssistance,
+  total,
   addonGlobalDoctors,
   globalDoctorsNote,
 }: Props) {
-  const total = base
-    + (addonMediplan ? 9 : 0)
-    + (addonMedicalAssistance ? 6 : 0);
-
   return (
     <div className="rounded-xl border-2 border-[#E4002B] bg-[#E4002B]/5 p-6 text-center">
       <p className="text-sm text-gray-600 mb-1">Łączna składka miesięczna</p>

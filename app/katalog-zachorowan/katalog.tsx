@@ -577,45 +577,86 @@ const illnesses = [
   }
 ];
 
-const categories: Record<string, { label: string; color: string }> = {
-  infekcyjne: { label: "Choroby infekcyjne", color: "#DC7633" },
-  neurologiczne: { label: "Neurologiczne", color: "#7D3C98" },
-  kardiologiczne: { label: "Kardiologiczne", color: "#C0392B" },
-  onkologiczne: { label: "Onkologiczne", color: "#2E86C1" },
-  gastroenterologiczne: { label: "Gastroenterologiczne", color: "#1E8449" },
-  urazowe: { label: "Urazowe", color: "#784212" },
-  nefrologiczne: { label: "Nefrologiczne", color: "#0E6655" },
-  hematologiczne: { label: "Hematologiczne", color: "#922B21" },
-  metaboliczne: { label: "Metaboliczne", color: "#B9770E" },
-  reumatologiczne: { label: "Reumatologiczne", color: "#1A5276" },
-  genetyczne: { label: "Genetyczne", color: "#633974" },
-  pulmonologiczne: { label: "Pulmonologiczne", color: "#117A65" },
-  operacje: { label: "Operacje/Przeszczepy", color: "#424949" },
-  inne: { label: "Inne", color: "#616A6B" },
+const categories: Record<string, string> = {
+  infekcyjne: "Choroby infekcyjne",
+  neurologiczne: "Neurologiczne",
+  kardiologiczne: "Kardiologiczne",
+  onkologiczne: "Onkologiczne",
+  gastroenterologiczne: "Gastroenterologiczne",
+  urazowe: "Urazowe",
+  nefrologiczne: "Nefrologiczne",
+  hematologiczne: "Hematologiczne",
+  metaboliczne: "Metaboliczne",
+  reumatologiczne: "Reumatologiczne",
+  genetyczne: "Genetyczne",
+  pulmonologiczne: "Pulmonologiczne",
+  operacje: "Operacje/Przeszczepy",
+  inne: "Inne",
 };
 
-const CoverageTag = ({ covered, label }: { covered: boolean; label: string }) => (
-  <span style={{
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 4,
-    padding: "2px 8px",
-    borderRadius: 4,
-    fontSize: 11,
-    fontWeight: 600,
-    background: covered ? "#E8F5E9" : "#FAFAFA",
-    color: covered ? "#1B5E20" : "#9E9E9E",
-    border: `1px solid ${covered ? "#A5D6A7" : "#E0E0E0"}`,
-  }}>
-    {covered ? "✓" : "–"} {label}
-  </span>
-);
+type Illness = (typeof illnesses)[number];
+
+// Zakresy w kolejności z warunków ubezpieczenia; `short` to skrót pokazywany na liście.
+const SCOPES: { key: "ubezpieczony_max" | "ubezpieczony_komfort" | "malzonek" | "dziecko"; label: string; short?: string }[] = [
+  { key: "ubezpieczony_max", label: "Ubezpieczony – Maksymalny", short: "MAX" },
+  { key: "ubezpieczony_komfort", label: "Ubezpieczony – Komfort" },
+  { key: "malzonek", label: "Małżonek – Rozszerzony", short: "MŁŻ" },
+  { key: "dziecko", label: "Dziecko", short: "DZI" },
+];
+
+// Kolumny skrótów na szerokim ekranie: stałe miejsce dla każdego zakresu.
+const SHORT_COL = ["min-[900px]:col-start-4", "min-[900px]:col-start-5", "min-[900px]:col-start-6"];
+
+function IllnessEntry({ ill }: { ill: Illness }) {
+  const shorts = SCOPES.filter(s => s.short);
+  return (
+    <details className="acc">
+      <summary>
+        <span className="grid min-w-0 flex-1 grid-cols-[2.1rem_minmax(0,1fr)] gap-x-2 min-[900px]:grid-cols-[2.6rem_minmax(0,1fr)_13rem_2.8rem_2.8rem_2.8rem] min-[900px]:items-baseline min-[900px]:gap-x-3">
+          <span className="font-normal tabular-nums text-druk-2">{ill.lp}.</span>
+          <span>{ill.name}</span>
+          <span className="col-start-2 mt-[2px] flex flex-wrap gap-x-3 text-[16px] font-normal leading-[1.35] min-[900px]:contents">
+            <span className="text-druk-2 min-[900px]:col-start-3 min-[900px]:row-start-1">{categories[ill.category]}</span>
+            {shorts.map((s, i) => ill[s.key] && (
+              <span key={s.key} title={s.label} className={`font-cond font-semibold min-[900px]:row-start-1 ${SHORT_COL[i]}`}>
+                {s.short}
+              </span>
+            ))}
+          </span>
+        </span>
+      </summary>
+      <div className="acc-b break-words min-[900px]:pl-[calc(2.6rem+0.75rem)]">
+        <div className="bg-blankiet px-[10px] pb-[8px] pt-[4px]">
+          <table className="ft-t">
+            <tbody>
+              {SCOPES.map(s => (
+                <tr key={s.key}>
+                  <th scope="row">{s.label}</th>
+                  <td className={ill[s.key] ? "w-[4.5rem]" : "no w-[4.5rem]"}>
+                    <span aria-hidden="true">{ill[s.key] ? "✓" : "–"}</span>
+                    <span className="sr-only">{ill[s.key] ? "obejmuje" : "nie obejmuje"}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-4">
+          <strong className="block font-semibold">Definicja ubezpieczeniowa</strong>
+          {ill.definition}
+        </p>
+        <p className="mt-3 text-[16px] leading-[1.4] text-druk-2">
+          Źródło: WU ER 01/25, Załącznik 1 – Definicje poważnych zachorowań, poz. {ill.lp}
+        </p>
+      </div>
+    </details>
+  );
+}
 
 export function KatalogZachorowan() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedScope, setSelectedScope] = useState("all");
-  const [expandedId, setExpandedId] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState("lp");
 
   const filtered = useMemo(() => {
@@ -646,206 +687,113 @@ export function KatalogZachorowan() {
     dziecko: illnesses.filter(i => i.dziecko).length,
   }), []);
 
+  // Niebieski druk w polu wyboru dopiero wtedy, gdy odwiedzający coś w nim wybrał.
+  const selectClass = (chosen: boolean) => (chosen ? "inp text-[17px]" : "inp text-[17px] text-druk");
+
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="WU/ER 01/25 · Załącznik 1"
-        title={<>Katalog <span className="text-[#E4002B]">Poważnych Zachorowań</span></>}
+        title="Katalog Poważnych Zachorowań"
         description="Pełna lista poważnych zachorowań objętych ochroną ERGO Razem — z definicjami i zakresem dla każdego wariantu. Obowiązuje od 13.02.2026."
+        note="WU/ER 01/25, Załącznik 1"
       />
 
       <main className="flex-1">
-    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", maxWidth: 1000, margin: "0 auto", padding: "24px 16px", background: "#F8F9FA" }}>
-      {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        {/* Stats */}
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 16 }}>
-          {[
-            { label: "Wszystkich zachorowań", value: stats.total, color: "#1565C0" },
-            { label: "Zakres MAKSYMALNY", value: stats.max, color: "#2E7D32" },
-            { label: "Zakres KOMFORT", value: stats.komfort, color: "#558B2F" },
-            { label: "Małżonek (rozszerzony)", value: stats.malzonek, color: "#6A1B9A" },
-            { label: "Dziecko", value: stats.dziecko, color: "#E65100" },
-          ].map(s => (
-            <div key={s.label} style={{
-              background: "#fff",
-              border: `1px solid #E0E0E0`,
-              borderRadius: 8,
-              padding: "8px 14px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}>
-              <span style={{ fontSize: 24, fontWeight: 800, color: s.color }}>{s.value}</span>
-              <span style={{ fontSize: 11, color: "#78909C", textAlign: "center", lineHeight: 1.3 }}>{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+        <section className="sheet">
+          <div className="wrap pb-8 min-[900px]:pb-12">
+            {/* Stats */}
+            <dl className="grid grid-cols-2 gap-[2px] min-[900px]:grid-cols-5">
+              {[
+                { label: "Wszystkich zachorowań", value: stats.total },
+                { label: "Zakres MAKSYMALNY", value: stats.max },
+                { label: "Zakres KOMFORT", value: stats.komfort },
+                { label: "Małżonek (rozszerzony)", value: stats.malzonek },
+                { label: "Dziecko", value: stats.dziecko },
+              ].map(s => (
+                <div
+                  key={s.label}
+                  className="flex flex-col-reverse justify-end bg-pole px-3 py-[10px] first:col-span-2 min-[900px]:px-4 min-[900px]:py-3 min-[900px]:first:col-span-1"
+                >
+                  <dt className="text-[16px] leading-[1.3] text-druk-2">{s.label}</dt>
+                  <dd className="font-cond text-[32px] font-bold leading-[1.05] tabular-nums min-[900px]:text-[40px]">{s.value}</dd>
+                </div>
+              ))}
+            </dl>
 
-      {/* Filters */}
-      <div style={{ background: "#fff", border: "1px solid #E0E0E0", borderRadius: 10, padding: 16, marginBottom: 16, display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-        <input
-          type="text"
-          placeholder="🔍  Szukaj zachorowania lub słów kluczowych..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ flex: "1 1 220px", padding: "8px 12px", border: "1px solid #CFD8DC", borderRadius: 6, fontSize: 14, outline: "none" }}
-        />
-        <select
-          value={selectedCategory}
-          onChange={e => setSelectedCategory(e.target.value)}
-          style={{ padding: "8px 12px", border: "1px solid #CFD8DC", borderRadius: 6, fontSize: 14, background: "#fff", cursor: "pointer" }}
-        >
-          <option value="all">Wszystkie kategorie</option>
-          {Object.entries(categories).map(([k, v]) => (
-            <option key={k} value={k}>{v.label}</option>
-          ))}
-        </select>
-        <select
-          value={selectedScope}
-          onChange={e => setSelectedScope(e.target.value)}
-          style={{ padding: "8px 12px", border: "1px solid #CFD8DC", borderRadius: 6, fontSize: 14, background: "#fff", cursor: "pointer" }}
-        >
-          <option value="all">Wszystkie zakresy</option>
-          <option value="max">Ubezpieczony – Maksymalny</option>
-          <option value="komfort">Ubezpieczony – Komfort</option>
-          <option value="malzonek">Małżonek – Rozszerzony</option>
-          <option value="dziecko">Dziecko</option>
-        </select>
-        <select
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value)}
-          style={{ padding: "8px 12px", border: "1px solid #CFD8DC", borderRadius: 6, fontSize: 14, background: "#fff", cursor: "pointer" }}
-        >
-          <option value="lp">Sortuj: LP (domyślnie)</option>
-          <option value="name">Sortuj: Alfabetycznie</option>
-        </select>
-      </div>
-
-      {/* Results count */}
-      <p style={{ fontSize: 13, color: "#607D8B", margin: "0 0 10px" }}>
-        Wyświetlono <strong>{filtered.length}</strong> z <strong>{illnesses.length}</strong> zachorowań
-      </p>
-
-      {/* Illness list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {filtered.map(ill => {
-          const cat = categories[ill.category];
-          const isExpanded = expandedId === ill.lp;
-          return (
-            <div
-              key={ill.lp}
-              style={{
-                background: "#fff",
-                border: `1px solid ${isExpanded ? "#1565C0" : "#E0E0E0"}`,
-                borderRadius: 8,
-                overflow: "hidden",
-                transition: "border-color 0.15s",
-                boxShadow: isExpanded ? "0 2px 8px rgba(21,101,192,0.1)" : "none",
-              }}
-            >
-              {/* Row header */}
-              <button
-                onClick={() => setExpandedId(isExpanded ? null : ill.lp)}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "10px 14px",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
+            {/* Filters */}
+            <div role="search" className="mt-6 grid gap-[10px] min-[900px]:grid-cols-2 min-[900px]:gap-3 min-[1280px]:grid-cols-[1.5fr_0.95fr_1.15fr_1fr]">
+              <input
+                type="search"
+                aria-label="Szukaj zachorowania lub słów kluczowych"
+                placeholder="Szukaj zachorowania lub słów kluczowych..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="inp text-[17px] placeholder:text-[16px]"
+              />
+              <select
+                aria-label="Kategoria"
+                value={selectedCategory}
+                onChange={e => setSelectedCategory(e.target.value)}
+                className={selectClass(selectedCategory !== "all")}
               >
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#90A4AE", minWidth: 28 }}>
-                  {ill.lp}.
-                </span>
-                <span style={{
-                  flex: 1,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: "#1A237E",
-                  lineHeight: 1.3,
-                }}>
-                  {ill.name}
-                </span>
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
-                  <span style={{
-                    display: "inline-block",
-                    padding: "2px 8px",
-                    borderRadius: 4,
-                    fontSize: 11,
-                    fontWeight: 600,
-                    background: cat.color + "18",
-                    color: cat.color,
-                    border: `1px solid ${cat.color}44`,
-                    whiteSpace: "nowrap",
-                  }}>
-                    {cat.label}
-                  </span>
-                  {ill.ubezpieczony_max && (
-                    <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 700, background: "#E3F2FD", color: "#1565C0", border: "1px solid #90CAF9" }}>MAX</span>
-                  )}
-                  {ill.malzonek && (
-                    <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 700, background: "#EDE7F6", color: "#6A1B9A", border: "1px solid #CE93D8" }}>MŁŻ</span>
-                  )}
-                  {ill.dziecko && (
-                    <span style={{ padding: "2px 6px", borderRadius: 4, fontSize: 11, fontWeight: 700, background: "#FFF3E0", color: "#E65100", border: "1px solid #FFCC80" }}>DZI</span>
-                  )}
-                </div>
-                <span style={{ fontSize: 16, color: "#90A4AE", marginLeft: 4, transform: isExpanded ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
-              </button>
-
-              {/* Expanded detail */}
-              {isExpanded && (
-                <div style={{ padding: "0 14px 14px 14px", borderTop: "1px solid #F5F5F5" }}>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "12px 0" }}>
-                    <CoverageTag covered={ill.ubezpieczony_max} label="Ubezpieczony – Maksymalny" />
-                    <CoverageTag covered={ill.ubezpieczony_komfort} label="Ubezpieczony – Komfort" />
-                    <CoverageTag covered={ill.malzonek} label="Małżonek – Rozszerzony" />
-                    <CoverageTag covered={ill.dziecko} label="Dziecko" />
-                  </div>
-                  <div style={{
-                    background: "#F8F9FA",
-                    border: "1px solid #ECEFF1",
-                    borderRadius: 6,
-                    padding: "10px 14px",
-                    fontSize: 13,
-                    color: "#37474F",
-                    lineHeight: 1.7,
-                  }}>
-                    <strong style={{ display: "block", marginBottom: 6, color: "#1A237E", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>Definicja ubezpieczeniowa</strong>
-                    {ill.definition}
-                  </div>
-                  <p style={{ margin: "10px 0 0", fontSize: 11, color: "#90A4AE" }}>
-                    Źródło: WU ER 01/25, Załącznik 1 – Definicje poważnych zachorowań, poz. {ill.lp}
-                  </p>
-                </div>
-              )}
+                <option value="all">Wszystkie kategorie</option>
+                {Object.entries(categories).map(([k, label]) => (
+                  <option key={k} value={k}>{label}</option>
+                ))}
+              </select>
+              <select
+                aria-label="Zakres"
+                value={selectedScope}
+                onChange={e => setSelectedScope(e.target.value)}
+                className={selectClass(selectedScope !== "all")}
+              >
+                <option value="all">Wszystkie zakresy</option>
+                <option value="max">Ubezpieczony – Maksymalny</option>
+                <option value="komfort">Ubezpieczony – Komfort</option>
+                <option value="malzonek">Małżonek – Rozszerzony</option>
+                <option value="dziecko">Dziecko</option>
+              </select>
+              <select
+                aria-label="Sortowanie"
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className={selectClass(sortBy !== "lp")}
+              >
+                <option value="lp">Sortuj: LP (domyślnie)</option>
+                <option value="name">Sortuj: Alfabetycznie</option>
+              </select>
             </div>
-          );
-        })}
-      </div>
+          </div>
+        </section>
 
-      {filtered.length === 0 && (
-        <div style={{ textAlign: "center", padding: 40, color: "#78909C" }}>
-          <div style={{ fontSize: 32 }}>🔍</div>
-          <p>Nie znaleziono zachorowań pasujących do kryteriów wyszukiwania.</p>
+        <div className="wrap page">
+          {/* Results count */}
+          <p aria-live="polite">
+            Wyświetlono <strong>{filtered.length}</strong> z <strong>{illnesses.length}</strong> zachorowań
+          </p>
+
+          {/* Illness list */}
+          {filtered.length > 0 && (
+            <div className="mt-3 border-b-2 border-druk">
+              {filtered.map(ill => (
+                <IllnessEntry key={ill.lp} ill={ill} />
+              ))}
+            </div>
+          )}
+
+          {filtered.length === 0 && (
+            <p className="msg mt-3">Nie znaleziono zachorowań pasujących do kryteriów wyszukiwania.</p>
+          )}
+
+          <p className="hint mt-8 max-w-none">
+            Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, ERGO Hestia S.A.
+          </p>
         </div>
-      )}
-
-      <p style={{ textAlign: "center", fontSize: 11, color: "#B0BEC5", marginTop: 24 }}>
-        Warunki Grupowego Ubezpieczenia na Życie ERGO Razem · kod ER 01/25 · ERGO Hestia S.A.
-      </p>
-    </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

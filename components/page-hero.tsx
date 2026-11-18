@@ -6,8 +6,6 @@ interface PageHeroProps {
   description?: ReactNode;
   /** Krótka informacja pod wstępem, np. kod dokumentu („WU/ER 01/25, Załącznik 1"). */
   note?: ReactNode;
-  /** @deprecated zastąpione przez `note`; ignorowane. */
-  eyebrow?: string;
   actions?: ReactNode;
   /** Link powrotny nad tytułem; `null` go ukrywa. */
   backHref?: string | null;

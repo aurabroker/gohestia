@@ -206,7 +206,7 @@ export function Faq() {
                   {group.items.map(item => (
                     <details key={item.q} className="acc">
                       <summary>{item.q}</summary>
-                      <div className="acc-b">{item.a}</div>
+                      <div className="acc-b break-words">{item.a}</div>
                     </details>
                   ))}
                 </div>

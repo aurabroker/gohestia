@@ -1,15 +1,8 @@
 'use client';
-import { useState, type ReactNode } from "react";
+import { useId, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import { SiteHeader } from "@/components/site-header";
 import { PageHero } from "@/components/page-hero";
 import { SiteFooter } from "@/components/site-footer";
-
-const BLUE_MID = "#1565C0";
-const BLUE_LIGHT = "#E3F2FD";
-const TEAL = "#00695C";
-const TEAL_LIGHT = "#E0F2F1";
-const GRAY = "#546E7A";
-const BORDER = "#CFD8DC";
 
 // ─── TYPES ───────────────────────────────────────────────────────────────────
 
@@ -21,7 +14,6 @@ interface BenefitEntry {
 
 interface BenefitGroup {
   group: string;
-  color: string;
   items: BenefitEntry[];
 }
 
@@ -39,9 +31,6 @@ interface Definition {
 interface ProductData {
   title: string;
   subtitle: string;
-  accentColor: string;
-  lightColor: string;
-  icon: string;
   summary: string;
   trigger: string;
   definitions: Definition[];
@@ -56,9 +45,6 @@ interface ProductData {
 const mediplanData: ProductData = {
   title: "MediPlan",
   subtitle: "§ 62–66 WU ER 01/25",
-  accentColor: BLUE_MID,
-  lightColor: BLUE_LIGHT,
-  icon: "🏥",
   summary: "Organizacja i pokrycie kosztów specjalistycznej pomocy medycznej po nieszczęśliwym wypadku na terytorium Polski. Suma ubezpieczenia: 10 000 zł. Telefon Centrum Alarmowego: 22 522 29 94",
   trigger: "Nieszczęśliwy wypadek skutkujący: pęknięciem/złamaniem kości, zwichnięciem/skręceniem stawu, urazem kręgosłupa, urazem głowy (wstrząśnienie, pęknięcie czaszki), urazem narządów wewnętrznych lub urazem oka.",
   definitions: [
@@ -80,7 +66,6 @@ const mediplanData: ProductData = {
   benefits: [
     {
       group: "Informacyjno-organizacyjne",
-      color: "#1565C0",
       items: [
         { name: "Telefoniczna informacja medyczna", detail: "Ogólna informacja o stanach nagłych, jednostkach chorobowych, zachowaniach prozdrowotnych, dietach, lekach, szczepieniach, ukąszeniach, wynikach badań, telefonach zaufania, danych placówek medycznych i aptek na terenie Polski. Możliwość telefonicznej konsultacji z lekarzem Centrum Alarmowego (informacje mają charakter ogólny, nie stanowią porady medycznej).", limit: "bez limitu" },
         { name: "Infolinia szpitalna", detail: "Informacje o szpitalach w sieci Centrum Alarmowego: dostępność, specjalności, numery telefonów, średnie ceny usług. Wskazówki co zabrać do szpitala, na co zwrócić uwagę, czego spodziewać się podczas leczenia.", limit: "bez limitu" },
@@ -88,7 +73,6 @@ const mediplanData: ProductData = {
     },
     {
       group: "Pomoc medyczna (maks. 20 świadczeń na zdarzenie)",
-      color: "#00695C",
       items: [
         { name: "Konsultacja chirurga", detail: "Centrum Alarmowe zorganizuje i pokryje koszty wizyty na podstawie pisemnego zalecenia lekarza prowadzącego.", limit: "z puli 20 świadczeń" },
         { name: "Konsultacja okulisty", detail: "Centrum Alarmowe zorganizuje i pokryje koszty wizyty na podstawie pisemnego zalecenia lekarza prowadzącego.", limit: "z puli 20 świadczeń" },
@@ -140,9 +124,6 @@ const mediplanData: ProductData = {
 const medicalAssistanceData: ProductData = {
   title: "Medical Assistance",
   subtitle: "§ 67–71 WU ER 01/25",
-  accentColor: TEAL,
-  lightColor: TEAL_LIGHT,
-  icon: "🚑",
   summary: "Organizacja i pokrycie kosztów pomocy opiekuńczo-medycznej po nieszczęśliwym wypadku lub nagłym zachorowaniu na terytorium Polski. Łączny roczny limit: 3 000 zł. Telefon Centrum Alarmowego: (22) 522 29 94.",
   trigger: "Uszkodzenie ciała lub rozstrój zdrowia wskutek nieszczęśliwego wypadku lub nagłego zachorowania (nagłe stany wymagające natychmiastowej pomocy medycznej) na terytorium Polski.",
   definitions: [
@@ -173,7 +154,6 @@ const medicalAssistanceData: ProductData = {
   benefits: [
     {
       group: "Pomoc medyczna i pielęgniarska",
-      color: TEAL,
       items: [
         { name: "Pokrycie kosztów wizyty lekarza I kontaktu Centrum Alarmowego", detail: "Organizacja i pokrycie kosztów pierwszej wizyty lekarza pierwszego kontaktu w miejscu pobytu Ubezpieczonego lub współubezpieczonego (dojazd i honorarium lekarza). Zdarzenie: nieszczęśliwy wypadek lub nagłe zachorowanie.", limit: "500 zł / rok" },
         { name: "Transport medyczny", detail: "Organizacja i pokrycie kosztów transportu Ubezpieczonego lub współubezpieczonego z miejsca pobytu do szpitala lub innej placówki medycznej, zgodnie z zaleceniami lekarza Centrum Alarmowego.", limit: "bez limitu" },
@@ -187,7 +167,6 @@ const medicalAssistanceData: ProductData = {
     },
     {
       group: "Pomoc opiekuńcza i logistyczna",
-      color: "#6A1B9A",
       items: [
         { name: "Dostawa podstawowych artykułów żywnościowych, higienicznych i leków", detail: "Organizacja i pokrycie kosztów dostarczenia leków lub artykułów żywnościowych i higienicznych do miejsca pobytu, gdy Ubezpieczony lub współubezpieczony nie może opuszczać miejsca pobytu wg zaleceń lekarza. Koszt zakupu ponosi Ubezpieczony — pokrywane są jedynie koszty dostawy.", limit: "300 zł / rok" },
         { name: "Opieka nad dziećmi lub osobami niesamodzielnymi", detail: "Organizacja i pokrycie kosztów opieki nad dziećmi lub osobami niesamodzielnymi w miejscu zamieszkania, jeżeli Ubezpieczony lub współubezpieczony przebywa w szpitalu przez co najmniej 3 dni po wypadku i nie ma innej osoby mogącej zapewnić opiekę. Wymagana pisemna zgoda Ubezpieczonego.", limit: "450 zł / rok" },
@@ -198,7 +177,6 @@ const medicalAssistanceData: ProductData = {
     },
     {
       group: "Informacyjne",
-      color: "#1565C0",
       items: [
         { name: "Infolinia medyczna", detail: "Ogólna informacja o: działaniu leków (stosowanie, odpowiedniki, skutki uboczne, interakcje, ciąża), lokalizacji i godzinach pracy aptek, przychodni i szpitali, badaniach kontrolnych dla grup ryzyka, grupach wsparcia i telefonach zaufania (alkohol, narkotyki, depresja, przemoc domowa, ciężkie choroby), placówkach rehabilitacyjnych i sanatoryjnych.", limit: "bez limitu" },
         { name: "Serwis informacyjny dla rodziców „Tele-Maluch”", detail: "Informacje o szkołach rodzenia, pielęgnacji w czasie ciąży i po porodzie, pielęgnacji noworodka, szczepieniach dzieci, przedszkolach, szkołach, uczelniach, ośrodkach kolonijnych, schroniskach i ośrodkach sportowo-rekreacyjnych na terenie kraju.", limit: "bez limitu" },
@@ -227,222 +205,211 @@ const medicalAssistanceData: ProductData = {
   ]
 };
 
+const PRODUCTS = [
+  { name: "MediPlan", desc: "Specjalistyczna pomoc medyczna", limit: "10 000 zł", who: "Ubezpieczony", trigger: "Nieszczęśliwy wypadek" },
+  { name: "Medical Assistance", desc: "Pomoc opiekuńczo-medyczna", limit: "3 000 zł / rok", who: "Ubezpieczony + współubezpieczeni (rodzina)", trigger: "Wypadek lub nagłe zachorowanie" },
+];
+
+const DIFFERENCES = [
+  ["Trigger", "tylko nieszczęśliwy wypadek", "wypadek LUB nagłe zachorowanie"],
+  ["Co pokrywa", "konsultacje specjalistów, zabiegi, badania diagnostyczne (RTG, USG, CT, MRI), rehabilitacja", "wizyta lekarza I kontaktu, pielęgniarka, transport, opieka nad dziećmi/zwierzętami, dostawa artykułów"],
+  ["Dla kogo", "tylko Ubezpieczony", "Ubezpieczony + współubezpieczeni (rodzina)"],
+  ["Suma ubezpieczenia", "10 000 zł (bez odnowienia w roku)", "3 000 zł / rok (odnawia się rocznie)"],
+  ["Jak działa", "Centrum Alarmowe organizuje po weryfikacji dokumentów medycznych", "Centrum Alarmowe organizuje po jednym telefonie – od razu"],
+  ["Czas reakcji", "3–5 dni roboczych", "natychmiast po kontakcie telefonicznym"],
+];
+
 // ─── COMPONENTS ──────────────────────────────────────────────────────────────
 
-function Section({ title, children, icon }: { title: string; children: ReactNode; icon?: string }) {
+const TWO_COLS = { "--n": 2 } as CSSProperties;
+
+// Biała komórka z tekstem (nie z kwotą): ten sam wąski krój co w kwotach, ale zwykłej grubości,
+// żeby dwie kolumny zdań mieściły się obok siebie na telefonie.
+const TEXT_CELL = "c break-words text-[17px] font-normal leading-[1.35] min-[900px]:text-[18px]";
+
+// Nagłówki kolumn długiej tabeli zostają na telefonie przy górnej krawędzi ekranu.
+const STICKY_HEAD = "c ph max-[899px]:sticky max-[899px]:top-0 max-[899px]:z-[2] max-[899px]:shadow-[0_2px_0_var(--color-blankiet)]";
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-        {icon && <span style={{ fontSize: 16 }}>{icon}</span>}
-        <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: GRAY, textTransform: "uppercase", letterSpacing: 0.8 }}>{title}</h3>
-      </div>
+    <div className="mt-6 first:mt-0">
+      <h3 className="mb-2 text-[19px] font-bold leading-[1.25] min-[900px]:text-[20px]">{title}</h3>
       {children}
     </div>
   );
 }
 
-function BenefitItem({ item, accentColor }: { item: BenefitEntry; accentColor: string }) {
-  const [open, setOpen] = useState(false);
+function BenefitItem({ item }: { item: BenefitEntry }) {
   return (
-    <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, marginBottom: 4, overflow: "hidden" }}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "9px 12px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          textAlign: "left",
-          gap: 12,
-        }}
-      >
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#1A237E", flex: 1 }}>{item.name}</span>
-        <span style={{
-          padding: "2px 10px",
-          borderRadius: 20,
-          fontSize: 11,
-          fontWeight: 700,
-          background: accentColor + "18",
-          color: accentColor,
-          whiteSpace: "nowrap",
-          border: `1px solid ${accentColor}44`,
-        }}>{item.limit}</span>
-        <span style={{ fontSize: 14, color: "#90A4AE", transform: open ? "rotate(180deg)" : "none", transition: "0.15s" }}>▾</span>
-      </button>
-      {open && (
-        <div style={{ padding: "4px 12px 12px 12px", borderTop: `1px solid #F5F5F5`, background: "#FAFAFA", fontSize: 13, color: "#37474F", lineHeight: 1.7 }}>
-          {item.detail}
-        </div>
-      )}
-    </div>
+    <details className="acc border-t-0 bg-pole px-3 min-[900px]:px-4">
+      <summary className="font-normal">
+        <span className="grid min-w-0 flex-1 gap-x-6 gap-y-[2px] text-[17px] min-[900px]:grid-cols-[minmax(0,1fr)_19rem] min-[900px]:items-baseline">
+          <span>{item.name}</span>
+          <span className="font-cond text-[18px] font-medium min-[900px]:text-[19px]">{item.limit}</span>
+        </span>
+      </summary>
+      <div className="acc-b break-words">{item.detail}</div>
+    </details>
   );
 }
 
+const TABS = ["świadczenia", "limity", "wyłączenia", "jak skorzystać", "definicje"];
+
 function ProductPanel({ data }: { data: ProductData }) {
   const [tab, setTab] = useState("świadczenia");
-  const tabs = ["świadczenia", "limity", "wyłączenia", "jak skorzystać", "definicje"];
+  const id = useId();
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function onTabKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    const current = TABS.indexOf(tab);
+    let next = -1;
+    if (e.key === "ArrowRight") next = (current + 1) % TABS.length;
+    else if (e.key === "ArrowLeft") next = (current - 1 + TABS.length) % TABS.length;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = TABS.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    setTab(TABS[next]);
+    tabRefs.current[next]?.focus();
+  }
 
   return (
-    <div style={{ background: "#fff", border: `2px solid ${data.accentColor}`, borderRadius: 12, overflow: "hidden", marginBottom: 24 }}>
+    <section className="sec" aria-labelledby={`${id}-h`}>
       {/* Header */}
-      <div style={{ background: data.accentColor, padding: "18px 20px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-          <span style={{ fontSize: 28 }}>{data.icon}</span>
-          <div>
-            <h2 style={{ margin: 0, color: "#fff", fontSize: 22, fontWeight: 800, letterSpacing: -0.5 }}>{data.title}</h2>
-            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>{data.subtitle}</span>
-          </div>
-        </div>
-        <p style={{ margin: "10px 0 0", color: "rgba(255,255,255,0.92)", fontSize: 13, lineHeight: 1.6 }}>{data.summary}</p>
-        <div style={{ marginTop: 12, padding: "8px 12px", background: "rgba(255,255,255,0.12)", borderRadius: 6, fontSize: 12, color: "#fff" }}>
-          <strong>Zdarzenie objęte ochroną:</strong> {data.trigger}
+      <div className="wrap pb-6 pt-2 min-[900px]:pb-8 min-[900px]:pt-4">
+        <div className="max-w-[44em]">
+          <h2 id={`${id}-h`}>{data.title}</h2>
+          <p className="mt-[2px] text-[16px] text-druk-2">{data.subtitle}</p>
+          <p className="mt-3">{data.summary}</p>
+          <p className="mt-3">
+            <strong className="font-semibold">Zdarzenie objęte ochroną:</strong> {data.trigger}
+          </p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: "flex", borderBottom: `1px solid ${BORDER}`, background: "#F8F9FA", overflowX: "auto" }}>
-        {tabs.map(t => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            style={{
-              padding: "10px 16px",
-              border: "none",
-              borderBottom: tab === t ? `3px solid ${data.accentColor}` : "3px solid transparent",
-              background: "none",
-              cursor: "pointer",
-              fontSize: 12,
-              fontWeight: tab === t ? 700 : 500,
-              color: tab === t ? data.accentColor : GRAY,
-              whiteSpace: "nowrap",
-              transition: "0.12s",
-            }}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
-      </div>
+      <div className="sheet">
+        <div className="wrap pb-8 pt-4 min-[900px]:pb-10 min-[900px]:pt-5">
+          <div className="max-w-[60rem]">
+            {/* Tabs */}
+            <div
+              role="tablist"
+              aria-labelledby={`${id}-h`}
+              onKeyDown={onTabKeyDown}
+              className="flex flex-wrap gap-[2px]"
+            >
+              {TABS.map((t, i) => {
+                const on = tab === t;
+                return (
+                  <button
+                    key={t}
+                    ref={el => { tabRefs.current[i] = el; }}
+                    type="button"
+                    role="tab"
+                    id={`${id}-tab-${i}`}
+                    aria-selected={on}
+                    aria-controls={`${id}-panel`}
+                    tabIndex={on ? 0 : -1}
+                    onClick={() => setTab(t)}
+                    className={
+                      "relative min-h-[48px] flex-auto cursor-pointer bg-pole px-4 py-2 text-left text-[17px] leading-[1.2] focus-visible:z-10 " +
+                      (on
+                        ? "font-semibold text-dlugopis shadow-[inset_0_0_0_3px_var(--color-dlugopis)]"
+                        : "font-medium hover:underline hover:decoration-[3px] hover:underline-offset-[0.2em]")
+                    }
+                  >
+                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                  </button>
+                );
+              })}
+            </div>
 
-      {/* Tab Content */}
-      <div style={{ padding: "16px 20px" }}>
+            {/* Tab Content */}
+            <div
+              role="tabpanel"
+              id={`${id}-panel`}
+              aria-labelledby={`${id}-tab-${TABS.indexOf(tab)}`}
+              tabIndex={0}
+              className="mt-5"
+            >
 
-        {tab === "świadczenia" && (
-          <div>
-            {data.benefits.map(group => (
-              <Section key={group.group} title={group.group} icon="✦">
-                {group.items.map(item => (
-                  <BenefitItem key={item.name} item={item} accentColor={group.color} />
-                ))}
-              </Section>
-            ))}
+              {tab === "świadczenia" && (
+                <div>
+                  {data.benefits.map(group => (
+                    <Section key={group.group} title={group.group}>
+                      <div className="grid gap-[2px]">
+                        {group.items.map(item => (
+                          <BenefitItem key={item.name} item={item} />
+                        ))}
+                      </div>
+                    </Section>
+                  ))}
+                </div>
+              )}
+
+              {tab === "limity" && (
+                <Section title="Limity i sumy ubezpieczenia">
+                  <table className="ft-t">
+                    <tbody>
+                      {data.limits.map(l => (
+                        <tr key={l.label}>
+                          <th scope="row" className="text-[17px]">
+                            {l.label}
+                            {l.note && <small className="mt-[2px] block text-[15px] leading-[1.35] text-druk-2">{l.note}</small>}
+                          </th>
+                          <td className="min-[900px]:w-[22rem]">{l.value}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Section>
+              )}
+
+              {tab === "wyłączenia" && (
+                <Section title="Wyłączenia odpowiedzialności ERGO Hestii">
+                  <ul className="grid gap-[2px]">
+                    {data.exclusions.map((e, i) => (
+                      <li key={i} className="bg-pole px-3 py-[10px] leading-[1.45] min-[900px]:px-4">
+                        {e}
+                      </li>
+                    ))}
+                  </ul>
+                </Section>
+              )}
+
+              {tab === "jak skorzystać" && (
+                <Section title="Jak skorzystać ze świadczeń">
+                  <ol className="grid gap-[2px]">
+                    {data.procedure.map((step, i) => (
+                      <li key={i} className="grid grid-cols-[1.9rem_minmax(0,1fr)] bg-pole px-3 py-[10px] leading-[1.45] min-[900px]:px-4">
+                        <span className="font-cond text-[20px] font-bold leading-[1.2]">{i + 1}</span>
+                        <span>{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className="msg mt-4">
+                    <strong>Ważne:</strong> Świadczenia MUSZĄ być zorganizowane przez Centrum Alarmowe. ERGO Hestia nie zwraca kosztów poniesionych samodzielnie bez wcześniejszego uzgodnienia.
+                  </p>
+                </Section>
+              )}
+
+              {tab === "definicje" && (
+                <Section title="Kluczowe definicje">
+                  <dl className="grid gap-[2px]">
+                    {data.definitions.map(d => (
+                      <div key={d.term} className="bg-pole px-3 py-[10px] min-[900px]:px-4">
+                        <dt className="font-semibold">{d.term}</dt>
+                        <dd className="mt-[2px] leading-[1.45]">{d.def}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </Section>
+              )}
+
+            </div>
           </div>
-        )}
-
-        {tab === "limity" && (
-          <Section title="Limity i sumy ubezpieczenia" icon="💰">
-            <div style={{ display: "grid", gap: 8 }}>
-              {data.limits.map(l => (
-                <div key={l.label} style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  padding: "10px 14px",
-                  background: "#F8F9FA",
-                  borderRadius: 6,
-                  border: `1px solid ${BORDER}`,
-                  gap: 12,
-                }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, color: "#1A237E", fontWeight: 600 }}>{l.label}</div>
-                    {l.note && <div style={{ fontSize: 11, color: GRAY, marginTop: 2 }}>{l.note}</div>}
-                  </div>
-                  <span style={{
-                    padding: "3px 12px",
-                    borderRadius: 20,
-                    fontSize: 13,
-                    fontWeight: 800,
-                    background: data.lightColor,
-                    color: data.accentColor,
-                    whiteSpace: "nowrap",
-                  }}>{l.value}</span>
-                </div>
-              ))}
-            </div>
-          </Section>
-        )}
-
-        {tab === "wyłączenia" && (
-          <Section title="Wyłączenia odpowiedzialności ERGO Hestii" icon="🚫">
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {data.exclusions.map((e, i) => (
-                <div key={i} style={{
-                  display: "flex",
-                  gap: 10,
-                  padding: "8px 12px",
-                  background: "#FFF8F8",
-                  borderRadius: 6,
-                  border: "1px solid #FFCDD2",
-                  fontSize: 13,
-                  color: "#37474F",
-                  lineHeight: 1.6,
-                }}>
-                  <span style={{ color: "#C62828", fontWeight: 700, minWidth: 16 }}>✕</span>
-                  <span>{e}</span>
-                </div>
-              ))}
-            </div>
-          </Section>
-        )}
-
-        {tab === "jak skorzystać" && (
-          <Section title="Jak skorzystać ze świadczeń" icon="📋">
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {data.procedure.map((step, i) => (
-                <div key={i} style={{
-                  display: "flex",
-                  gap: 12,
-                  padding: "10px 14px",
-                  background: data.lightColor,
-                  borderRadius: 8,
-                  fontSize: 13,
-                  color: "#1A237E",
-                  lineHeight: 1.6,
-                }}>
-                  <span style={{
-                    width: 24, height: 24, borderRadius: "50%",
-                    background: data.accentColor, color: "#fff",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: 12, fontWeight: 800, flexShrink: 0,
-                  }}>{i + 1}</span>
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
-            <div style={{ marginTop: 16, padding: "12px 14px", background: "#FFF9C4", border: "1px solid #F9A825", borderRadius: 8, fontSize: 13, color: "#4E342E" }}>
-              ⚠️ <strong>Ważne:</strong> Świadczenia MUSZĄ być zorganizowane przez Centrum Alarmowe. ERGO Hestia nie zwraca kosztów poniesionych samodzielnie bez wcześniejszego uzgodnienia.
-            </div>
-          </Section>
-        )}
-
-        {tab === "definicje" && (
-          <Section title="Kluczowe definicje" icon="📖">
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {data.definitions.map(d => (
-                <div key={d.term} style={{ padding: "10px 14px", background: "#F8F9FA", borderRadius: 6, border: `1px solid ${BORDER}` }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: data.accentColor, marginBottom: 4 }}>{d.term}</div>
-                  <div style={{ fontSize: 13, color: "#37474F", lineHeight: 1.6 }}>{d.def}</div>
-                </div>
-              ))}
-            </div>
-          </Section>
-        )}
-
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -450,66 +417,87 @@ function ProductPanel({ data }: { data: ProductData }) {
 
 export function UbezpieczeniaDodatkowe() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="WU ER 01/25"
-        title={<>Ubezpieczenia <span className="text-[#E4002B]">Dodatkowe</span></>}
+        title="Ubezpieczenia Dodatkowe"
         description="MediPlan i Medical Assistance — specjalistyczna pomoc medyczna po wypadku oraz pomoc opiekuńczo-medyczna dla całej rodziny. Obowiązuje od 13.02.2026."
+        note="WU ER 01/25"
       />
 
       <main className="flex-1">
-    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", maxWidth: 860, margin: "0 auto", padding: "20px 14px", background: "#F0F4F8" }}>
-
-      {/* Comparison header */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-        {[
-          { icon: "🏥", name: "MediPlan", desc: "Specjalistyczna pomoc medyczna", limit: "10 000 zł", color: BLUE_MID, who: "Ubezpieczony", trigger: "Nieszczęśliwy wypadek" },
-          { icon: "🚑", name: "Medical Assistance", desc: "Pomoc opiekuńczo-medyczna", limit: "3 000 zł / rok", color: TEAL, who: "Ubezpieczony + współubezpieczeni (rodzina)", trigger: "Wypadek lub nagłe zachorowanie" },
-        ].map(p => (
-          <div key={p.name} style={{ background: "#fff", border: `1px solid ${BORDER}`, borderRadius: 10, padding: "14px 16px" }}>
-            <div style={{ fontSize: 22, marginBottom: 6 }}>{p.icon}</div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: p.color }}>{p.name}</div>
-            <div style={{ fontSize: 12, color: GRAY, marginBottom: 8 }}>{p.desc}</div>
-            <div style={{ fontSize: 12, color: "#37474F" }}><strong>Limit:</strong> <span style={{ color: p.color, fontWeight: 700 }}>{p.limit}</span></div>
-            <div style={{ fontSize: 12, color: "#37474F" }}><strong>Dla kogo:</strong> {p.who}</div>
-            <div style={{ fontSize: 12, color: "#37474F" }}><strong>Trigger:</strong> {p.trigger}</div>
-          </div>
-        ))}
-      </div>
-
-      <ProductPanel data={mediplanData} />
-      <ProductPanel data={medicalAssistanceData} />
-
-      {/* Key difference */}
-      <div style={{ background: "#fff", border: "1px solid #E8EAF6", borderRadius: 10, padding: "16px 18px", marginBottom: 16 }}>
-        <h3 style={{ margin: "0 0 12px", fontSize: 13, fontWeight: 700, color: GRAY, textTransform: "uppercase", letterSpacing: 0.8 }}>⚡ Kluczowe różnice</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, fontSize: 12 }}>
-          {[
-            ["Trigger", "tylko nieszczęśliwy wypadek", "wypadek LUB nagłe zachorowanie"],
-            ["Co pokrywa", "konsultacje specjalistów, zabiegi, badania diagnostyczne (RTG, USG, CT, MRI), rehabilitacja", "wizyta lekarza I kontaktu, pielęgniarka, transport, opieka nad dziećmi/zwierzętami, dostawa artykułów"],
-            ["Dla kogo", "tylko Ubezpieczony", "Ubezpieczony + współubezpieczeni (rodzina)"],
-            ["Suma ubezpieczenia", "10 000 zł (bez odnowienia w roku)", "3 000 zł / rok (odnawia się rocznie)"],
-            ["Jak działa", "Centrum Alarmowe organizuje po weryfikacji dokumentów medycznych", "Centrum Alarmowe organizuje po jednym telefonie – od razu"],
-            ["Czas reakcji", "3–5 dni roboczych", "natychmiast po kontakcie telefonicznym"],
-          ].map(([label, a, b]) => (
-            <div key={label} style={{ gridColumn: "1 / -1", display: "grid", gridTemplateColumns: "120px 1fr 1fr", gap: 10, padding: "8px 0", borderBottom: `1px solid #F5F5F5` }}>
-              <span style={{ fontWeight: 700, color: GRAY, fontSize: 11, textTransform: "uppercase" }}>{label}</span>
-              <span style={{ background: BLUE_LIGHT, color: BLUE_MID, padding: "4px 8px", borderRadius: 4 }}><strong>MediPlan:</strong> {a}</span>
-              <span style={{ background: TEAL_LIGHT, color: TEAL, padding: "4px 8px", borderRadius: 4 }}><strong>Medical Assist.:</strong> {b}</span>
+        {/* Comparison header */}
+        <section className="sheet">
+          <div className="wrap pb-8 min-[900px]:pb-12">
+            <div className="tab max-w-[60rem]" style={TWO_COLS} role="table" aria-label="MediPlan i Medical Assistance">
+              <div role="row">
+                <div className="corner" role="presentation" />
+                {PRODUCTS.map(p => (
+                  <div key={p.name} className="c ph" role="columnheader">
+                    <b>{p.name}</b>
+                    <span>{p.desc}</span>
+                  </div>
+                ))}
+              </div>
+              <div role="row">
+                <div className="stub" role="rowheader">Limit</div>
+                {PRODUCTS.map(p => (
+                  <div key={p.name} className="c" role="cell">{p.limit}</div>
+                ))}
+              </div>
+              <div role="row">
+                <div className="stub" role="rowheader">Dla kogo</div>
+                {PRODUCTS.map(p => (
+                  <div key={p.name} className={TEXT_CELL} role="cell">{p.who}</div>
+                ))}
+              </div>
+              <div role="row">
+                <div className="stub" role="rowheader">Trigger</div>
+                {PRODUCTS.map(p => (
+                  <div key={p.name} className={TEXT_CELL} role="cell">{p.trigger}</div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </section>
 
-      <p style={{ textAlign: "center", fontSize: 11, color: "#B0BEC5", margin: 0 }}>
-        Warunki Grupowego Ubezpieczenia na Życie ERGO Razem · kod ER 01/25 · rozdz. XXVII–XXVIII · ERGO Hestia S.A.
-      </p>
-    </div>
+        <ProductPanel data={mediplanData} />
+        <ProductPanel data={medicalAssistanceData} />
+
+        {/* Key difference */}
+        <section className="sec" aria-labelledby="kluczowe-roznice">
+          <div className="wrap pb-5 pt-2 min-[900px]:pb-6 min-[900px]:pt-4">
+            <h2 id="kluczowe-roznice">Kluczowe różnice</h2>
+          </div>
+          <div className="sheet">
+            <div className="wrap pb-8 pt-4 min-[900px]:pb-10 min-[900px]:pt-6">
+              <div className="tab max-w-[60rem]" style={TWO_COLS} role="table" aria-labelledby="kluczowe-roznice">
+                <div role="row">
+                  <div className="corner" role="presentation" />
+                  <div className={STICKY_HEAD} role="columnheader"><b>MediPlan</b></div>
+                  <div className={STICKY_HEAD} role="columnheader"><b>Medical Assist.</b></div>
+                </div>
+                {DIFFERENCES.map(([label, a, b]) => (
+                  <div key={label} role="row">
+                    <div className="stub" role="rowheader">{label}</div>
+                    <div className={TEXT_CELL} role="cell">{a}</div>
+                    <div className={TEXT_CELL} role="cell">{b}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="wrap pb-14 pt-6 min-[900px]:pb-20 min-[900px]:pt-8">
+          <p className="hint max-w-none">
+            Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, rozdz. XXVII–XXVIII, ERGO Hestia S.A.
+          </p>
+        </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

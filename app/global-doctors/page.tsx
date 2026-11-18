@@ -81,13 +81,13 @@ export default function GlobalDoctorsPage() {
               Pełną treść dokumentu oraz odpowiedzi na dodatkowe pytania uzyskasz u swojego agenta
               ERGO Hestia — <a href="mailto:biuro@utratadochodu.com">biuro@utratadochodu.com</a>.
             </p>
-
-            <div className="not-prose mt-8">
-              <Link href="/kalkulator/wiek" className="btn">
-                Sprawdź składkę
-              </Link>
-            </div>
           </Tresc>
+
+          <div className="mt-8">
+            <Link href="/kalkulator/wiek" className="btn">
+              Sprawdź składkę
+            </Link>
+          </div>
         </div>
       </main>
 

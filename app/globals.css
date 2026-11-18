@@ -1123,32 +1123,6 @@
   .page {
     padding-block: 28px 56px;
   }
-  /* Długi tekst (strony prawne, opisy): typografia w kolorach druku. */
-  .tresc {
-    --tw-prose-body: var(--color-druk);
-    --tw-prose-headings: var(--color-druk);
-    --tw-prose-links: var(--color-druk);
-    --tw-prose-bold: var(--color-druk);
-    --tw-prose-counters: var(--color-druk);
-    --tw-prose-bullets: var(--color-druk);
-    --tw-prose-hr: var(--color-druk);
-    --tw-prose-quotes: var(--color-druk);
-    --tw-prose-th-borders: var(--color-druk);
-    --tw-prose-td-borders: var(--color-blankiet-2);
-    font-size: 17px;
-    line-height: 1.6;
-    max-width: 44em;
-  }
-  .tresc :where(h2) {
-    font: 700 24px/1.2 var(--font-sans);
-  }
-  .tresc :where(h3) {
-    font: 700 20px/1.25 var(--font-sans);
-  }
-  .tresc :where(a) {
-    font-weight: 400;
-    text-decoration-thickness: 1px;
-  }
   /* Lista rozwijana (pytania i odpowiedzi, katalogi). */
   .acc {
     border-top: 2px solid var(--color-druk);
@@ -1616,5 +1590,38 @@
       grid-column: 1;
       grid-row: 2;
     }
+  }
+}
+
+/* Długi tekst (strony prawne, opisy): `prose` z wtyczki typography w kolorach
+   i rozmiarach druku. Stoi w warstwie utilities, po `prose`, żeby je nadpisać. */
+@layer utilities {
+  .tresc {
+    --tw-prose-body: var(--color-druk);
+    --tw-prose-headings: var(--color-druk);
+    --tw-prose-links: var(--color-druk);
+    --tw-prose-bold: var(--color-druk);
+    --tw-prose-counters: var(--color-druk);
+    --tw-prose-bullets: var(--color-druk);
+    --tw-prose-hr: var(--color-druk);
+    --tw-prose-quotes: var(--color-druk);
+    --tw-prose-th-borders: var(--color-druk);
+    --tw-prose-td-borders: var(--color-blankiet-2);
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 44em;
+    overflow-wrap: break-word;
+  }
+  .tresc :where(h2) {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .tresc :where(h3) {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+  .tresc :where(a:not(.btn, .btn-2)) {
+    font-weight: 400;
+    text-decoration-thickness: 1px;
   }
 }

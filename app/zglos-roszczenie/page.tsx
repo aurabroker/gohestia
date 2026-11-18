@@ -48,7 +48,7 @@ export default function ZglosRoszczeniePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                https://zgloszenieroszczenia.ergohestia.pl
+                https://<wbr />zgloszenieroszczenia.ergohestia.pl
               </a>
               ,
             </li>

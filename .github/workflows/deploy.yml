@@ -16,9 +16,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      # Akceptuj poświadczenia z Secrets ALBO z Variables (na wypadek pomyłki
-      # zakładki). Token najlepiej trzymać w Secrets — patrz krok preflight.
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || vars.CLOUDFLARE_API_TOKEN }}
+      # Token wyłącznie z Secrets: wartości z Variables nie są maskowane
+      # w logach, a logi Actions publicznego repozytorium są publiczne.
+      # Identyfikator konta nie jest sekretem, więc może leżeć w Variables.
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || vars.CLOUDFLARE_ACCOUNT_ID }}
     steps:
       - name: Checkout
@@ -37,9 +38,16 @@ jobs:
           chk "CLOUDFLARE_API_TOKEN  (Variables)" "$TOK_V"
           chk "CLOUDFLARE_ACCOUNT_ID (Secrets)  " "$ACC_S"
           chk "CLOUDFLARE_ACCOUNT_ID (Variables)" "$ACC_V"
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "::error::CLOUDFLARE_API_TOKEN nie znaleziony ani w Secrets, ani w Variables repo. Dodaj go w Settings → Secrets and variables → Actions → zakładka Secrets, o nazwie dokładnie CLOUDFLARE_API_TOKEN."
+          if [ -z "$TOK_S" ] && [ -n "$TOK_V" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN jest w Variables, a musi być w Secrets. Przenieś go: Settings → Secrets and variables → Actions → zakładka Secrets (nazwa dokładnie CLOUDFLARE_API_TOKEN), a wpis z zakładki Variables usuń. Najlepiej przy okazji wygeneruj nowy token w Cloudflare."
             exit 1
+          fi
+          if [ -z "$TOK_S" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN nie znaleziony w Secrets repo. Dodaj go w Settings → Secrets and variables → Actions → zakładka Secrets, o nazwie dokładnie CLOUDFLARE_API_TOKEN."
+            exit 1
+          fi
+          if [ -n "$TOK_V" ]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN jest też w Variables. Usuń ten wpis — wystarczy kopia w Secrets."
           fi
 
       - name: Setup Node
@@ -53,7 +61,7 @@ jobs:
         run: npm ci
 
       # Deploy używa wrangler pod spodem — czyta CLOUDFLARE_API_TOKEN i
-      # CLOUDFLARE_ACCOUNT_ID z env ustawionego na poziomie job (Secrets/Variables).
+      # CLOUDFLARE_ACCOUNT_ID z env ustawionego na poziomie job.
       # Sekrety runtime (RESEND_API_KEY, AGENT_EMAIL, TURNSTILE_SECRET_KEY,
       # FROM_EMAIL) są po stronie Cloudflare i deploy ich nie kasuje.
       - name: Build & deploy (OpenNext → Cloudflare)

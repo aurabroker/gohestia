@@ -82,28 +82,29 @@ function ConsentRow({ name, required, label, fullText, error, register }: {
         <input
           {...register(name as keyof FormData)}
           type="checkbox"
+          aria-required={required ? true : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
         />
         <span className="mark sq" aria-hidden="true" />
-        <span className="cs-txt">
-          {label}
-          {required && <span className="cs-req">wymagane</span>}
-        </span>
+        <span className="cs-txt">{label}</span>
       </label>
-      {fullText && (
+      {(required || fullText) && (
         <div className="cs-more">
-          <button
-            type="button"
-            aria-expanded={open}
-            aria-controls={fullId}
-            onClick={() => setOpen(v => !v)}
-          >
-            {open ? 'Zwiń pełną treść' : 'Pokaż pełną treść'}
-          </button>
-          {open && <div id={fullId} className="cs-full">{fullText}</div>}
+          {required && <span className="cs-req">wymagane</span>}
+          {fullText && (
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={fullId}
+              onClick={() => setOpen(v => !v)}
+            >
+              {open ? 'Zwiń pełną treść' : 'Pokaż pełną treść'}
+            </button>
+          )}
         </div>
       )}
+      {fullText && open && <div id={fullId} className="cs-full">{fullText}</div>}
       {error && <p id={errorId} role="alert" className="err">{error}</p>}
     </div>
   );

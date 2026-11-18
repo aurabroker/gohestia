@@ -101,3 +101,11 @@ describe('verifyTurnstileToken', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+describe('verifyTurnstileToken — status odpowiedzi', () => {
+  it('odpowiedź HTTP 500 z success: true jest odrzucana', async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ success: true }, 500));
+
+    expect(await verifyTurnstileToken('token')).toBe(false);
+  });
+});

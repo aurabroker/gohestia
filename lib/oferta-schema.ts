@@ -7,20 +7,26 @@ import { z } from 'zod';
  */
 
 /**
- * Imię / nazwisko: litery (dowolny alfabet), spacja, myślnik, apostrof i kropka.
- * Zaczyna się od litery; kropka nie może stać bezpośrednio przed literą
- * (dopuszczamy „Jan K.", ale nie „slowo.slowo").
+ * Imię / nazwisko: litery łacińskie lub cyrylica, spacja, myślnik, apostrof
+ * i kropka. Zaczyna się od litery; kropka nie może stać bezpośrednio przed
+ * literą (dopuszczamy „Jan K.", ale nie „slowo.slowo"); najwyżej cztery
+ * człony oddzielone spacjami.
  */
-export const NAME_PATTERN = /^(?!.*\.\p{L})\p{L}[\p{L} .'’-]*$/u;
+export const NAME_PATTERN =
+  /^(?!.*\.\p{L})(?!(?:[^ ]* ){4})[\p{Script=Latin}\p{Script=Cyrillic}][\p{Script=Latin}\p{Script=Cyrillic} .'’-]*$/u;
 export const NAME_MIN = 2;
 export const NAME_MAX = 50;
 
 export const EMAIL_MAX = 254;
 
-export const PHONE_PATTERN = /^\+?[0-9 -]{9,15}$/;
+/** Telefon: 9–15 cyfr, opcjonalny plus na początku, pojedyncze spacje lub myślniki między cyframi. */
+export const PHONE_PATTERN = /^\+?[0-9](?:[ -]?[0-9]){8,14}$/;
 
-/** Region: litery, cyfry, spacja, przecinek, kropka i myślnik. */
-export const REGION_PATTERN = /^[\p{L}\p{Nd} ,.-]*$/u;
+/**
+ * Region: nazwa miejscowości lub województwa — litery, spacja, przecinek,
+ * kropka i myślnik. Bez cyfr; kropka nie może stać bezpośrednio przed literą.
+ */
+export const REGION_PATTERN = /^(?!.*\.\p{L})[\p{Script=Latin}\p{Script=Cyrillic} ,.-]*$/u;
 export const REGION_MAX = 60;
 
 /** Zgody i oświadczenia, bez których zapytanie nie może zostać wysłane. */

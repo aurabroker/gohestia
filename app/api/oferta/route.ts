@@ -6,7 +6,7 @@ import { AgentEmailTemplate } from '@/components/email/agent-template';
 import { loadOfferDocuments } from '@/lib/attachments';
 import { ofertaRequestSchema } from '@/lib/oferta-schema';
 import { resolveOffer } from '@/lib/offer';
-import { isWithinRateLimit } from '@/lib/rate-limit';
+import { clientKey, isWithinRateLimit } from '@/lib/rate-limit';
 import { getSiteUrl } from '@/lib/site-url';
 import { verifyTurnstileToken } from '@/lib/turnstile';
 
@@ -36,9 +36,8 @@ const INVALID_BODY = Symbol('invalid-body');
  * niż `application/json`.
  */
 async function readJsonBody(req: Request): Promise<unknown | typeof INVALID_BODY> {
-  if (!req.headers.get('content-type')?.toLowerCase().includes('application/json')) {
-    return INVALID_BODY;
-  }
+  const mediaType = req.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+  if (mediaType !== 'application/json') return INVALID_BODY;
 
   const declaredLength = Number(req.headers.get('content-length'));
   if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) return INVALID_BODY;
@@ -88,23 +87,46 @@ function formatWarsawTime(date: Date): string {
 }
 
 /**
- * Opis błędu do logów workera: nazwa, kod i komunikat z zamaskowanymi adresami
- * e-mail. Dane osobowe klienta (imię, nazwisko, e-mail, telefon) nie są logowane.
+ * Opis błędu do logów workera: wyłącznie nazwa i kod. Komunikat dostawcy
+ * poczty bywa cytatem z żądania (adres, nazwisko), więc go nie logujemy.
  */
 function describeError(err: unknown): string {
   if (typeof err !== 'object' || err === null) return 'nieznany błąd';
-  const { name, statusCode, message } = err as { name?: unknown; statusCode?: unknown; message?: unknown };
-  const safeMessage = typeof message === 'string'
-    ? message.replace(/[^\s<>"'`()]+@[^\s<>"'`()]+/g, '[adres]')
-    : '';
-  return [typeof name === 'string' ? name : 'Error', statusCode ?? '', safeMessage].filter(Boolean).join(' | ');
+  const { name, statusCode } = err as { name?: unknown; statusCode?: unknown };
+  return [
+    typeof name === 'string' ? name.slice(0, 60) : 'Error',
+    typeof statusCode === 'number' ? statusCode : '',
+  ].filter(Boolean).join(' | ');
+}
+
+/**
+ * Czy żądanie przyszło z innej strony niż nasz formularz. Przeglądarki
+ * dołączają `Sec-Fetch-Site`; dodatkowo porównujemy `Origin` z hostem.
+ * Klienty bez tych nagłówków przechodzą dalej — zatrzyma je Turnstile.
+ */
+function isCrossSite(req: Request): boolean {
+  const site = req.headers.get('sec-fetch-site');
+  if (site && site !== 'same-origin') return true;
+
+  const origin = req.headers.get('origin');
+  const host = req.headers.get('host');
+  if (!origin || !host) return false;
+  try {
+    return new URL(origin).host !== host;
+  } catch {
+    return true;
+  }
 }
 
 export async function POST(req: Request) {
+  // Formularz wysyła żądanie z tej samej strony; cudze strony odrzucamy od razu,
+  // żeby nie zużywały limitu zgłoszeń odwiedzającego.
+  if (isCrossSite(req)) return json({ error: ERRORS.invalid }, 403);
+
   const clientIp = req.headers.get('cf-connecting-ip');
 
   // Limit zgłoszeń na adres IP (tylko gdy worker ma binding limitera).
-  if (!(await isWithinRateLimit(clientIp))) {
+  if (!(await isWithinRateLimit('OFERTA_RATE_LIMITER', clientKey(clientIp)))) {
     return json({ error: ERRORS.rateLimit }, 429, { 'Retry-After': '60' });
   }
 
@@ -134,6 +156,12 @@ export async function POST(req: Request) {
   //    załączników i jakimkolwiek wywołaniem Resend.
   if (!(await verifyTurnstileToken(turnstileToken, clientIp))) {
     return json({ error: ERRORS.antiBot }, 403);
+  }
+
+  // Limit maili na jednego adresata — liczony dopiero po udanej weryfikacji,
+  // żeby nie dało się nim zablokować cudzego adresu bez ważnego tokenu.
+  if (!(await isWithinRateLimit('OFERTA_RECIPIENT_LIMITER', `mail:${email.toLowerCase()}`))) {
+    return json({ error: ERRORS.rateLimit }, 429, { 'Retry-After': '60' });
   }
 
   // 4. Oferta liczona po stronie serwera z taryfy. Klient przysyła tylko wybory.

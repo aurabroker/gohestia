@@ -726,3 +726,143 @@ describe('POST /api/oferta — limit zgłoszeń', () => {
     expect((await post(validBody())).status).toBe(200);
   });
 });
+
+describe('POST /api/oferta — żądania z obcych stron', () => {
+  it('Sec-Fetch-Site inne niż same-origin → 403 bez zużywania limitu i bez wysyłki', async () => {
+    const limit = vi.fn(async () => ({ success: true }));
+    mocks.cloudflareEnv.current = { OFERTA_RATE_LIMITER: { limit } };
+
+    for (const site of ['cross-site', 'same-site', 'none']) {
+      await expectRejected(await post(validBody(), { 'Sec-Fetch-Site': site }), 403);
+    }
+
+    expect(limit).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expectNothingSent();
+  });
+
+  it('Origin z innego hosta → 403', async () => {
+    const res = await post(validBody(), { Host: 'kalkulator.example.test', Origin: 'https://inna-strona.example.org' });
+
+    await expectRejected(res, 403);
+    expectNothingSent();
+  });
+
+  it('formularz z tej samej strony przechodzi', async () => {
+    const res = await post(validBody(), {
+      Host: 'kalkulator.example.test',
+      Origin: 'https://kalkulator.example.test',
+      'Sec-Fetch-Site': 'same-origin',
+    });
+
+    expect(res.status).toBe(200);
+  });
+
+  it.each([
+    'text/plain;x=application/json',
+    'multipart/form-data; boundary=application/json',
+    'application/jsonp',
+  ])('typ treści „%s" nie jest traktowany jak JSON → 400', async (contentType) => {
+    await expectRejected(await post(validBody(), { 'Content-Type': contentType }), 400);
+    expectNothingSent();
+  });
+
+  it('application/json z parametrem charset jest przyjmowany', async () => {
+    expect((await post(validBody(), { 'Content-Type': 'application/json; charset=utf-8' })).status).toBe(200);
+  });
+});
+
+describe('POST /api/oferta — reguły pól (uzupełnienie)', () => {
+  it.each([
+    ['cyfry i tekst', 'Pilne. Zadzwon 700 800 900, haslo 1234'],
+    ['sama domena', 'www.przyklad.pl'],
+    ['kropka przed literą', 'bit.ly'],
+  ])('region: %s → 400', async (_label, region) => {
+    await expectRejected(await post({ ...validBody(), region }), 400);
+    expectNothingSent();
+  });
+
+  it.each([
+    ['same myślniki', '---------'],
+    ['za mało cyfr', '+48 500 600'],
+    ['podwójny odstęp', '500  600  700'],
+    ['znak nowej linii w środku', '500 600\n700'],
+  ])('telefon: %s → 400', async (_label, telefon) => {
+    await expectRejected(await post({ ...validBody(), telefon }), 400);
+  });
+
+  it.each(['500600700', '500-600-700', '+48 500 600 700', '0048 500 600 700'])('telefon „%s" jest przyjmowany', async (telefon) => {
+    expect((await post({ ...validBody(), telefon })).status).toBe(200);
+  });
+
+  it.each([
+    ['niewidoczne znaki zamiast liter', 'ㅤㅤㅤ'],
+    ['zdanie zamiast imienia', 'Prosimy pilnie oddzwonić w sprawie zwrotu'],
+    ['inny alfabet niż łaciński i cyrylica', '李小龍'],
+  ])('imię: %s → 400', async (_label, imie) => {
+    await expectRejected(await post({ ...validBody(), imie }), 400);
+    expectNothingSent();
+  });
+
+  it.each(['Anna Maria', "D'Angelo", 'Олена', 'Jan K.', 'Zoë'])('imię „%s" jest przyjmowane', async (imie) => {
+    expect((await post({ ...validBody(), imie })).status).toBe(200);
+  });
+});
+
+describe('POST /api/oferta — limity (uzupełnienie)', () => {
+  it('adres IPv6 jest liczony całą podsiecią /64', async () => {
+    const limit = vi.fn(async (options: { key: string }) => ({ success: options.key.length > 0 }));
+    mocks.cloudflareEnv.current = { OFERTA_RATE_LIMITER: { limit } };
+
+    await post(validBody(), { 'CF-Connecting-IP': '2001:db8:1:2::1' });
+    await post(validBody(), { 'CF-Connecting-IP': '2001:0db8:0001:0002:aaaa:bbbb:cccc:dddd' });
+
+    expect(limit.mock.calls.map(([options]) => options.key)).toEqual([
+      '2001:db8:1:2::/64',
+      '2001:db8:1:2::/64',
+    ]);
+  });
+
+  it('limit na adresata: 429 dopiero po udanej weryfikacji, kluczem jest adres małymi literami', async () => {
+    const perIp = vi.fn(async () => ({ success: true }));
+    const perRecipient = vi.fn(async () => ({ success: false }));
+    mocks.cloudflareEnv.current = {
+      OFERTA_RATE_LIMITER: { limit: perIp },
+      OFERTA_RECIPIENT_LIMITER: { limit: perRecipient },
+    };
+
+    const res = await post({ ...validBody(), email: 'Zaneta.Klientka@Poczta.Example.Test' });
+
+    await expectRejected(res, 429);
+    expect(fetchMock).toHaveBeenCalledTimes(1); // siteverify już się odbył
+    expect(perRecipient).toHaveBeenCalledWith({ key: 'mail:zaneta.klientka@poczta.example.test' });
+    expectNothingSent();
+  });
+
+  it('limit na adresata nie jest sprawdzany, gdy weryfikacja Turnstile się nie powiedzie', async () => {
+    const perRecipient = vi.fn(async () => ({ success: true }));
+    mocks.cloudflareEnv.current = { OFERTA_RECIPIENT_LIMITER: { limit: perRecipient } };
+    siteverifyAnswers({ success: false, 'error-codes': ['invalid-input-response'] });
+
+    await expectRejected(await post(validBody()), 403);
+    expect(perRecipient).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /api/oferta — logi (uzupełnienie)', () => {
+  it('komunikat dostawcy poczty nie trafia do logów, nawet gdy cytuje adres z apostrofem', async () => {
+    const email = "anna.kowalska'x@poczta.example.test";
+    mocks.send.mockResolvedValue({
+      data: null,
+      error: { name: 'validation_error', statusCode: 422, message: `Invalid recipient ${email} (Anna Kowalska)` },
+    });
+
+    await expectRejected(await post({ ...validBody(), email }), 502);
+
+    const logged = JSON.stringify([...consoleError.mock.calls, ...consoleWarn.mock.calls]);
+    expect(logged).toContain('validation_error');
+    expect(logged).toContain('422');
+    expect(logged).not.toContain('anna.kowalska');
+    expect(logged).not.toContain('Invalid recipient');
+  });
+});

@@ -30,6 +30,7 @@ export async function verifyTurnstileToken(token: string, remoteIp?: string | nu
       body:   params,
       signal: controller.signal,
     });
+    if (!res.ok) return false;
     const outcome: unknown = await res.json();
     if (typeof outcome !== 'object' || outcome === null) return false;
 

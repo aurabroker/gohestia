@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import Link from 'next/link';
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 import { useCalculatorStore } from '@/store/calculator-store';
+import { getVariants } from '@/lib/calculator';
+import { ADDONS } from '@/lib/data/premiums';
 import { resolveOffer } from '@/lib/offer';
 import {
   EMAIL_MAX, MANDATORY_CONSENTS, NAME_MAX, NAME_MIN, NAME_PATTERN,
@@ -16,22 +18,22 @@ import { TURNSTILE_SITE_KEY } from '@/lib/turnstile-config';
 import { getBenefits } from '@/lib/data/benefits';
 import { BenefitsTable } from '@/components/benefits-table';
 
-const req = z.literal(true, { message: 'Wymagana zgoda' });
+const req = z.literal(true, { message: 'Zaznacz to pole, żeby wysłać zapytanie.' });
 
 // Te same reguły pól stosuje endpoint /api/oferta (lib/oferta-schema.ts).
 const nameField = z.string().normalize('NFC').trim()
-  .min(NAME_MIN, 'Min. 2 znaki')
-  .max(NAME_MAX, 'Maks. 50 znaków')
-  .regex(NAME_PATTERN, 'Dozwolone: litery, spacja, myślnik, apostrof i kropka');
+  .min(NAME_MIN, 'Wpisz co najmniej 2 litery.')
+  .max(NAME_MAX, 'Najwyżej 50 znaków.')
+  .regex(NAME_PATTERN, 'Użyj tylko liter, spacji, myślnika, apostrofu i kropki.');
 
 const schema = z.object({
   imie:           nameField,
   nazwisko:       nameField,
-  email:          z.string().trim().max(EMAIL_MAX, 'Nieprawidłowy adres email').pipe(z.email('Nieprawidłowy adres email')),
-  telefon:        z.string().trim().regex(PHONE_PATTERN, 'Nieprawidłowy numer telefonu'),
+  email:          z.string().trim().max(EMAIL_MAX, 'Podaj poprawny adres e-mail.').pipe(z.email('Podaj poprawny adres e-mail.')),
+  telefon:        z.string().trim().regex(PHONE_PATTERN, 'Podaj numer telefonu: 9–15 cyfr, np. 500 600 700.'),
   agent_region:   z.string().trim()
-    .max(REGION_MAX, 'Maks. 60 znaków')
-    .regex(REGION_PATTERN, 'Dozwolone: litery, cyfry, spacja, przecinek, kropka i myślnik')
+    .max(REGION_MAX, 'Najwyżej 60 znaków.')
+    .regex(REGION_PATTERN, 'Użyj tylko liter, spacji, przecinka, kropki i myślnika.')
     .optional(),
   // Zgody obowiązkowe
   zgoda_1:        req,
@@ -59,34 +61,9 @@ const ANTI_BOT_FAILED_MESSAGE =
   'Weryfikacja antybotowa nie powiodła się. Wykonaj ją ponownie i wyślij formularz jeszcze raz.';
 const SEND_FAILED_MESSAGE =
   'Nie udało się wysłać zapytania. Spróbuj ponownie za chwilę.';
+const CAPTCHA_UNAVAILABLE_MESSAGE =
+  'Nie udało się wczytać weryfikacji antybotowej. Odśwież stronę i spróbuj ponownie.';
 
-
-function ExpandableConsent({ label, required, children }: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="text-xs text-gray-600">
-      <span>{required && <strong>* </strong>}{label}</span>
-      {' '}
-      <button
-        type="button"
-        onClick={() => setOpen(v => !v)}
-        className="inline-flex items-center gap-0.5 text-[#E4002B] hover:underline font-medium"
-      >
-        {open ? 'zwiń' : 'czytaj całość'}
-        {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-      </button>
-      {open && (
-        <div className="mt-2 rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
 
 function ConsentRow({ name, required, label, fullText, error, register }: {
   name: string;
@@ -96,25 +73,38 @@ function ConsentRow({ name, required, label, fullText, error, register }: {
   error?: string;
   register: ReturnType<typeof useForm<FormData>>['register'];
 }) {
+  const [open, setOpen] = useState(false);
+  const fullId = `${name}-tresc`;
+  const errorId = `${name}-blad`;
   return (
-    <div>
-      <label className="flex items-start gap-3 cursor-pointer">
+    <div className="cs-row">
+      <label className="cs-lab">
         <input
           {...register(name as keyof FormData)}
           type="checkbox"
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 accent-[#E4002B]"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
         />
-        {fullText ? (
-          <ExpandableConsent label={label} required={required}>
-            {fullText}
-          </ExpandableConsent>
-        ) : (
-          <span className="text-xs text-gray-600">
-            {required && <strong>* </strong>}{label}
-          </span>
-        )}
+        <span className="mark sq" aria-hidden="true" />
+        <span className="cs-txt">
+          {label}
+          {required && <span className="cs-req">wymagane</span>}
+        </span>
       </label>
-      {error && <p className="mt-1 text-xs text-red-600 ml-7">{error}</p>}
+      {fullText && (
+        <div className="cs-more">
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={fullId}
+            onClick={() => setOpen(v => !v)}
+          >
+            {open ? 'Zwiń pełną treść' : 'Pokaż pełną treść'}
+          </button>
+          {open && <div id={fullId} className="cs-full">{fullText}</div>}
+        </div>
+      )}
+      {error && <p id={errorId} role="alert" className="err">{error}</p>}
     </div>
   );
 }
@@ -153,6 +143,7 @@ export default function PodsumowaniePage() {
   if (!ageGroup || !selectedProduct || !selectedVariant || !offer) return null;
 
   const benefits = getBenefits(ageGroup, selectedProduct, selectedVariant);
+  const basePremium = getVariants(ageGroup, selectedProduct).find((v) => v.variant === selectedVariant)?.monthly;
 
   // Tokeny Turnstile są jednorazowe — po nieudanej próbie widget musi wydać nowy.
   const failAttempt = (message: string) => {
@@ -216,105 +207,144 @@ export default function PodsumowaniePage() {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Podsumowanie oferty */}
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Twoja oferta</h2>
+    <div className="of-grid kontakt">
+      <div className="k-head">
+        <h1>Dane kontaktowe i zgody</h1>
+        <p className="of-lead">
+          Dane kontaktowe i wybrana konfiguracja oferty zostaną przekazane agentowi
+          ubezpieczeniowemu. <strong className="font-semibold">Nie przekazujemy danych medycznych.</strong>
+        </p>
+      </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Podsumowanie oferty */}
+      <aside className="bill" aria-labelledby="h-oferta">
+        <h2 id="h-oferta">Twoja oferta</h2>
+        <dl className="bill-l">
           <div>
-            <p className="text-xs text-gray-500">Produkt</p>
-            <p className="font-semibold">{offer.productLabel}</p>
+            <dt>{offer.productLabel}, wariant {offer.variantLabel}</dt>
+            <dd>{basePremium} zł</dd>
           </div>
-          <div>
-            <p className="text-xs text-gray-500">Wariant</p>
-            <p className="font-semibold">{offer.variantLabel}</p>
-          </div>
-          {offer.addonLabels.length > 0 && (
-            <div className="col-span-2">
-              <p className="text-xs text-gray-500">Dodatki</p>
-              <p className="font-semibold">{offer.addonLabels.join(', ')}</p>
+          {addons.mediplan && (
+            <div>
+              <dt>{ADDONS.mediplan.label}</dt>
+              <dd>{ADDONS.mediplan.monthly} zł</dd>
             </div>
           )}
-        </div>
-
-        <div className="rounded-xl bg-[#E4002B]/5 border border-[#E4002B]/20 p-4 text-center mb-6">
-          <p className="text-sm text-gray-600">Składka miesięczna</p>
-          <p className="text-4xl font-bold text-[#E4002B]">{offer.monthlyPremium} zł<span className="text-lg font-normal text-gray-500">/mies.</span></p>
-        </div>
-
-        <h3 className="font-semibold text-gray-900 mb-3">Pełny zakres świadczeń</h3>
-        <div className="mb-4">
-          <BenefitsTable benefits={benefits} />
-        </div>
-
-        <p className="mt-4 text-xs text-gray-400">
-          Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.
+          {addons.medicalAssistance && (
+            <div>
+              <dt>{ADDONS.medical_assistance.label}</dt>
+              <dd>{ADDONS.medical_assistance.monthly} zł</dd>
+            </div>
+          )}
+          {addons.globalDoctors && (
+            <div>
+              <dt>{ADDONS.global_doctors.label}</dt>
+              <dd className="txt">wycena indywidualna</dd>
+            </div>
+          )}
+        </dl>
+        <p className="bill-sum">
+          <span>Razem miesięcznie</span>
+          <strong>{offer.monthlyPremium} zł</strong>
         </p>
-      </section>
+        {addons.globalDoctors && (
+          <p className="bill-x">Składkę za Global Doctors agent poda osobno.</p>
+        )}
+        <details className="full">
+          <summary>Pełna tabela świadczeń ({benefits.length} pozycji)</summary>
+          <BenefitsTable
+            benefits={benefits}
+            caption={`Pełna tabela świadczeń: ${offer.productLabel}, wariant ${offer.variantLabel}`}
+          />
+        </details>
+        <p className="bill-n">Szczegóły w OWU (kod ER 01/25). Obowiązuje od 2.06.2025 r.</p>
+        <Link href="/kalkulator/produkt" className="back">Zmień ofertę</Link>
+      </aside>
 
       {/* Formularz kontaktowy */}
-      <section className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Dane kontaktowe</h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Dane kontaktowe i wybrana konfiguracja oferty zostaną przekazane agentowi
-          ubezpieczeniowemu. <strong>Nie przekazujemy danych medycznych.</strong>
-        </p>
-
-        <form onSubmit={(event) => { void handleSubmit(onSubmit)(event); }} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form
+        className="k-form"
+        noValidate
+        onSubmit={(event) => { void handleSubmit(onSubmit)(event); }}
+      >
+        <section className="sec" aria-labelledby="h-kontakt">
+          <h2 id="h-kontakt">Dane kontaktowe</h2>
+          <div className="flds two">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Imię *</label>
+              <label className="fld-l" htmlFor="f-imie">Imię</label>
               <input
                 {...register('imie')}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
+                id="f-imie"
+                className="inp"
+                autoComplete="given-name"
+                aria-invalid={errors.imie ? true : undefined}
+                aria-describedby={errors.imie ? 'f-imie-blad' : undefined}
               />
-              {errors.imie && <p className="mt-1 text-xs text-red-600">{errors.imie.message}</p>}
+              {errors.imie && <p id="f-imie-blad" role="alert" className="err">{errors.imie.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nazwisko *</label>
+              <label className="fld-l" htmlFor="f-nazwisko">Nazwisko</label>
               <input
                 {...register('nazwisko')}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
+                id="f-nazwisko"
+                className="inp"
+                autoComplete="family-name"
+                aria-invalid={errors.nazwisko ? true : undefined}
+                aria-describedby={errors.nazwisko ? 'f-nazwisko-blad' : undefined}
               />
-              {errors.nazwisko && <p className="mt-1 text-xs text-red-600">{errors.nazwisko.message}</p>}
+              {errors.nazwisko && <p id="f-nazwisko-blad" role="alert" className="err">{errors.nazwisko.message}</p>}
+            </div>
+            <div>
+              <label className="fld-l" htmlFor="f-email">E-mail</label>
+              <input
+                {...register('email')}
+                id="f-email"
+                type="email"
+                className="inp"
+                autoComplete="email"
+                inputMode="email"
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? 'f-email-blad' : undefined}
+              />
+              {errors.email && <p id="f-email-blad" role="alert" className="err">{errors.email.message}</p>}
+            </div>
+            <div>
+              <label className="fld-l" htmlFor="f-telefon">Telefon</label>
+              <input
+                {...register('telefon')}
+                id="f-telefon"
+                type="tel"
+                className="inp"
+                autoComplete="tel"
+                placeholder="+48 500 600 700"
+                aria-invalid={errors.telefon ? true : undefined}
+                aria-describedby={errors.telefon ? 'f-telefon-blad' : undefined}
+              />
+              {errors.telefon && <p id="f-telefon-blad" role="alert" className="err">{errors.telefon.message}</p>}
+            </div>
+            <div>
+              <label className="fld-l" htmlFor="f-region">
+                Region <small>(opcjonalnie)</small>
+              </label>
+              <input
+                {...register('agent_region')}
+                id="f-region"
+                className="inp"
+                autoComplete="address-level2"
+                placeholder="np. Warszawa, Kraków"
+                aria-invalid={errors.agent_region ? true : undefined}
+                aria-describedby={errors.agent_region ? 'f-region-blad' : undefined}
+              />
+              {errors.agent_region && <p id="f-region-blad" role="alert" className="err">{errors.agent_region.message}</p>}
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-            <input
-              {...register('email')}
-              type="email"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Telefon *</label>
-            <input
-              {...register('telefon')}
-              type="tel"
-              placeholder="+48 500 600 700"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
-            />
-            {errors.telefon && <p className="mt-1 text-xs text-red-600">{errors.telefon.message}</p>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Region (opcjonalnie)</label>
-            <input
-              {...register('agent_region')}
-              placeholder="np. Warszawa, Kraków..."
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
-            />
-            {errors.agent_region && <p className="mt-1 text-xs text-red-600">{errors.agent_region.message}</p>}
-          </div>
+        </section>
 
-          {/* Zgody i oświadczenia obowiązkowe */}
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-4 mt-2">
-            <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-              Zgody obowiązkowe — wymagane do objęcia ochroną
-            </p>
-
+        {/* Zgody obowiązkowe */}
+        <section className="sec" aria-labelledby="h-zgody">
+          <h2 id="h-zgody">Zgody obowiązkowe</h2>
+          <p className="hint">Wymagane do objęcia ochroną.</p>
+          <div className="cs">
             <ConsentRow
               name="zgoda_1"
               required
@@ -401,36 +431,26 @@ INFORMACJA O PRZETWARZANIU DANYCH PRZEZ CPOP
 Administratorem danych jest Centrum Pomocy Osobom Poszkodowanym Sp. z o.o., 80-342 Gdańsk, ul. Jelitkowska 49, email: ergorazem@cpop.pl. Inspektor Ochrony Danych: iod@cpop.pl. Dane przetwarzane są w celu objęcia ochroną ubezpieczeniową, dochodzenia roszczeń oraz (po wyrażeniu zgody) marketingu bezpośredniego. Masz prawo dostępu, sprostowania, usunięcia danych oraz wniesienia skargi do PUODO. Od wyrażenia zgody na finansowanie składki uzależnia się objęcie ochroną w Grupie Otwartej ERGO Razem.`}
             />
 
-            <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide pt-2">
-              Oświadczenia
-            </p>
+          </div>
+        </section>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-3">
-              <p className="text-xs font-semibold text-gray-700">Dokumenty</p>
-              <ul className="mt-1 space-y-1 text-xs text-gray-600">
-                <li>
-                  <a
-                    href="/dokumenty/owu.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-[#E4002B] underline hover:no-underline"
-                  >
-                    Ogólne Warunki Ubezpieczenia ERGO Razem — OWU (PDF)
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/informacja-o-agencie"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-[#E4002B] underline hover:no-underline"
-                  >
-                    Informacja o agencie (dystrybutorze)
-                  </a>
-                </li>
-              </ul>
-            </div>
-
+        {/* Oświadczenia */}
+        <section className="sec" aria-labelledby="h-oswiadczenia">
+          <h2 id="h-oswiadczenia">Oświadczenia</h2>
+          <p className="hint">Dokumenty, których dotyczą oświadczenia (otwierają się w nowej karcie):</p>
+          <ul className="docs">
+            <li>
+              <a href="/dokumenty/owu.pdf" target="_blank" rel="noopener noreferrer">
+                Ogólne Warunki Ubezpieczenia ERGO Razem — OWU (PDF)
+              </a>
+            </li>
+            <li>
+              <a href="/informacja-o-agencie" target="_blank" rel="noopener noreferrer">
+                Informacja o agencie (dystrybutorze)
+              </a>
+            </li>
+          </ul>
+          <div className="cs">
             <ConsentRow
               name="oswiadczenie_1"
               required
@@ -463,13 +483,12 @@ Administratorem danych jest Centrum Pomocy Osobom Poszkodowanym Sp. z o.o., 80-3
               error={errors.oswiadczenie_4?.message}
             />
           </div>
+        </section>
 
-          {/* Zgody dobrowolne */}
-          <div className="rounded-xl border border-gray-100 bg-white p-4 space-y-4">
-            <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-              Zgody dobrowolne
-            </p>
-
+        {/* Zgody dobrowolne */}
+        <section className="sec" aria-labelledby="h-dobrowolne">
+          <h2 id="h-dobrowolne">Zgody dobrowolne</h2>
+          <div className="cs">
             <ConsentRow
               name="zgoda_7"
               register={register}
@@ -495,39 +514,35 @@ Twoją zgodę przekażemy do Sopockiego Towarzystwa Ubezpieczeń ERGO Hestia S.A
               fullText={`Wyrażam zgodę na przekazywanie mi przez Centrum Pomocy Osobom Poszkodowanym sp. z o.o. z siedzibą w Gdańsku na podany przeze mnie adres email informacji handlowej o nowych wariantach ubezpieczenia w Grupie Otwartej ERGO Razem oferowanych przez ERGO Hestię, na podstawie której będę mógł/mogła dokonać zmiany warunków ochrony ubezpieczeniowej. Wyrażoną zgodę mogę cofnąć w każdym czasie i bez podawania przyczyny przesyłając oświadczenie na adres: iod@cpop.pl. Wycofanie zgody nie będzie mieć wpływu na zgodność z prawem przetwarzania przed jej cofnięciem. Zgoda jest dobrowolna — jej brak nie uzależnia objęcia ochroną.`}
             />
           </div>
+        </section>
 
-          <p className="text-xs text-gray-400">* Pola i zgody obowiązkowe wymagane do objęcia ochroną ubezpieczeniową.</p>
-
-          {submitError && (
-            <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {submitError}
-            </p>
-          )}
+        <section className="sec" aria-label="Wysyłka zapytania">
+          <p className="hint">
+            Zgody i oświadczenia oznaczone „wymagane” są warunkiem objęcia ochroną ubezpieczeniową.
+          </p>
 
           {/* Weryfikacja antybotowa — token trafia do stanu i jest wysyłany z formularzem */}
-          <div>
+          <div className="mt-4 min-h-[65px]">
             <Turnstile
               ref={turnstileRef}
               siteKey={TURNSTILE_SITE_KEY}
-              options={{ refreshExpired: 'auto' }}
+              options={{ refreshExpired: 'auto', language: 'pl' }}
               onSuccess={(token) => { setTurnstileToken(token); setCaptchaMessage(null); }}
               onExpire={() => setTurnstileToken(null)}
-              onError={() => setTurnstileToken(null)}
+              onError={() => { setTurnstileToken(null); setCaptchaMessage(CAPTCHA_UNAVAILABLE_MESSAGE); }}
             />
-            {captchaMessage && (
-              <p role="alert" className="mt-2 text-sm text-red-600">{captchaMessage}</p>
-            )}
           </div>
+          {captchaMessage && <p role="alert" className="err mt-3">{captchaMessage}</p>}
+          {submitError && <p role="alert" className="err mt-3">{submitError}</p>}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-[#E4002B] py-4 font-semibold text-white hover:bg-[#c00025] transition-colors disabled:opacity-60"
-          >
-            {submitting ? 'Wysyłanie...' : 'Wyślij zapytanie do agenta →'}
-          </button>
-        </form>
-      </section>
+          <div className="mt-5">
+            <button type="submit" disabled={submitting} className="btn">
+              {submitting ? 'Wysyłanie…' : 'Wyślij zapytanie do agenta'}
+            </button>
+          </div>
+          <p className="hint mt-3">Agent oddzwoni w ciągu 1–2 dni roboczych.</p>
+        </section>
+      </form>
     </div>
   );
 }

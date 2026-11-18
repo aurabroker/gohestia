@@ -22,6 +22,8 @@ const contentSecurityPolicy = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Znaczek narzędzi deweloperskich zasłaniał pola formularza na telefonie.
+  devIndicators: false,
   async headers() {
     return [
       {

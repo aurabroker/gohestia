@@ -15,10 +15,10 @@ export default function AnkietaPage() {
   if (!ageGroup) return null;
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2">Ankieta medyczna</h2>
-      <p className="text-gray-600 mb-6">
-        Odpowiedz na 5 pytań — są one wymagane do oceny możliwości przystąpienia do Grupy Otwartej.
+    <div className="max-w-[52rem]">
+      <h1>Ankieta medyczna</h1>
+      <p className="of-lead">
+        Odpowiedz na 5 pytań. Są wymagane do oceny możliwości przystąpienia do Grupy Otwartej.
       </p>
       <QuestionnaireComponent />
     </div>

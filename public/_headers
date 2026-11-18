@@ -1,0 +1,7 @@
+# Nagłówki dla plików statycznych serwowanych bezpośrednio przez Cloudflare
+# (PDF-y, obrazy, pliki /_next/static). Strony i API dostają nagłówki z next.config.ts.
+/*
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY

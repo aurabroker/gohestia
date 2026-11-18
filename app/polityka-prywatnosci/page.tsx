@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
+import { Tresc } from '@/components/content/tresc';
 import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
@@ -9,19 +10,18 @@ export const metadata: Metadata = {
 
 export default function PolitykaPrywatnosciPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Aura Expert sp. z o.o."
-        title={<>Polityka <span className="text-[#E4002B]">Prywatności</span></>}
+        title="Polityka Prywatności"
         description="Jak przetwarzamy dane osobowe w serwisie i jakie prawa Ci przysługują."
       />
 
-      <main className="flex-1 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
-          <p className="text-gray-500 text-sm">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
+      <main className="flex-1">
+      <div className="wrap page">
+        <Tresc>
+          <p className="text-druk-2">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
 
           <h2>1. Administrator danych osobowych</h2>
           <p>
@@ -84,7 +84,7 @@ export default function PolitykaPrywatnosciPage() {
           <ul>
             <li><strong>Prawo dostępu</strong> do swoich danych (art. 15 RODO)</li>
             <li><strong>Prawo sprostowania</strong> danych (art. 16 RODO)</li>
-            <li><strong>Prawo do usunięcia</strong> danych („prawo do bycia zapomnianym") (art. 17 RODO)</li>
+            <li><strong>Prawo do usunięcia</strong> danych („prawo do bycia zapomnianym&quot;) (art. 17 RODO)</li>
             <li><strong>Prawo do ograniczenia przetwarzania</strong> (art. 18 RODO)</li>
             <li><strong>Prawo do przenoszenia danych</strong> (art. 20 RODO)</li>
             <li><strong>Prawo sprzeciwu</strong> wobec przetwarzania (art. 21 RODO)</li>
@@ -116,11 +116,11 @@ export default function PolitykaPrywatnosciPage() {
             Zastrzegamy prawo do zmiany niniejszej polityki. O istotnych zmianach poinformujemy
             poprzez aktualizację daty na początku dokumentu.
           </p>
-        </div>
+        </Tresc>
       </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

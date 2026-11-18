@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
+import { Tresc } from '@/components/content/tresc';
 import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
@@ -9,18 +10,17 @@ export const metadata: Metadata = {
 
 export default function RodoPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Aura Expert sp. z o.o."
-        title={<>Klauzula Informacyjna <span className="text-[#E4002B]">RODO</span></>}
+        title="Klauzula Informacyjna RODO"
         description="Zgodnie z art. 13 Rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 (RODO)."
       />
 
-      <main className="flex-1 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
+      <main className="flex-1">
+      <div className="wrap page">
+        <Tresc>
           <h2>1. Administrator danych</h2>
           <p>
             Administratorem Twoich danych osobowych jest:<br />
@@ -93,11 +93,11 @@ export default function RodoPage() {
             Dane nie są wykorzystywane do zautomatyzowanego podejmowania decyzji ani profilowania
             w rozumieniu art. 22 RODO.
           </p>
-        </div>
+        </Tresc>
       </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

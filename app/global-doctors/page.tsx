@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
+import { Tresc } from '@/components/content/tresc';
 import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
@@ -11,18 +12,18 @@ export const metadata: Metadata = {
 
 export default function GlobalDoctorsPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Dodatkowe ubezpieczenie · kod GD 02/24"
-        title={<>Global <span className="text-[#E4002B]">Doctors</span></>}
+        title="Global Doctors"
         description="Dostęp do konsultacji z lekarzami specjalistami na świecie, gdy diagnoza wymaga drugiej opinii. Dostępne dla Ubezpieczonych do 63. roku życia."
+        note="Dodatkowe ubezpieczenie, kod GD 02/24"
       />
 
-      <main className="flex-1 py-12">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
+      <main className="flex-1">
+        <div className="wrap page">
+          <Tresc>
             <h2>Czym jest Global Doctors?</h2>
             <p>
               Global Doctors to dodatkowe ubezpieczenie do umowy grupowego ubezpieczenia na życie
@@ -38,7 +39,7 @@ export default function GlobalDoctorsPage() {
               <li>
                 Wysokość składki ustalana jest indywidualnie w zależności od wieku — orientacyjną
                 kwotę zobaczysz przy konfigurowaniu oferty w{' '}
-                <Link href="/kalkulator/wiek" className="text-[#E4002B] font-semibold hover:underline">
+                <Link href="/kalkulator/wiek">
                   kalkulatorze
                 </Link>
                 .
@@ -67,7 +68,7 @@ export default function GlobalDoctorsPage() {
             <p>
               Pełny opis trybu zgłaszania roszczeń, także dla pozostałych pakietów dodatkowych,
               znajdziesz na stronie{' '}
-              <Link href="/zglos-roszczenie" className="text-[#E4002B] font-semibold hover:underline">
+              <Link href="/zglos-roszczenie">
                 Zgłoś roszczenie
               </Link>
               .
@@ -81,19 +82,16 @@ export default function GlobalDoctorsPage() {
               ERGO Hestia — <a href="mailto:biuro@utratadochodu.com">biuro@utratadochodu.com</a>.
             </p>
 
-            <div className="not-prose mt-8 flex justify-center">
-              <Link
-                href="/kalkulator/wiek"
-                className="rounded-lg bg-[#E4002B] text-white px-8 py-3.5 font-semibold hover:bg-[#c00025] transition-colors shadow-sm"
-              >
-                Dodaj Global Doctors do oferty →
+            <div className="not-prose mt-8">
+              <Link href="/kalkulator/wiek" className="btn">
+                Sprawdź składkę
               </Link>
             </div>
-          </div>
+          </Tresc>
         </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

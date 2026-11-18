@@ -1,7 +1,4 @@
-'use client';
-import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
 import { SiteFooter } from '@/components/site-footer';
@@ -50,7 +47,7 @@ const GROUPS: FaqGroup[] = [
         a: (
           <>
             Pełny katalog obejmuje kilkadziesiąt jednostek chorobowych — dokładna liczba zależy od wybranego wariantu i osoby ubezpieczonej. Szczegółową listę z definicjami znajdziesz w{' '}
-            <Link href="/katalog-zachorowan" className="text-[#E4002B] font-semibold hover:underline">
+            <Link href="/katalog-zachorowan">
               Katalogu poważnych zachorowań
             </Link>
             .
@@ -92,7 +89,7 @@ const GROUPS: FaqGroup[] = [
         a: (
           <>
             To dodatek pokrywający koszty specjalistycznej pomocy medycznej po nieszczęśliwym wypadku (m.in. konsultacje specjalistów, badania diagnostyczne, rehabilitację) do sumy 10 000 zł. Zobacz{' '}
-            <Link href="/ubezpieczenia-dodatkowe" className="text-[#E4002B] font-semibold hover:underline">
+            <Link href="/ubezpieczenia-dodatkowe">
               pełne szczegóły MediPlan
             </Link>
             .
@@ -104,7 +101,7 @@ const GROUPS: FaqGroup[] = [
         a: (
           <>
             To pomoc opiekuńczo-medyczna dla Ubezpieczonego i najbliższych (m.in. wizyta lekarza, pielęgniarka, transport medyczny, opieka nad dziećmi lub zwierzętami) do 3 000 zł rocznie. Zobacz{' '}
-            <Link href="/ubezpieczenia-dodatkowe" className="text-[#E4002B] font-semibold hover:underline">
+            <Link href="/ubezpieczenia-dodatkowe">
               pełne szczegóły Medical Assistance
             </Link>
             .
@@ -116,7 +113,7 @@ const GROUPS: FaqGroup[] = [
         a: (
           <>
             To dodatkowe ubezpieczenie (kod GD 02/24) dające dostęp do konsultacji z lekarzami specjalistami za granicą w przypadku poważnej diagnozy. Zobacz{' '}
-            <Link href="/global-doctors" className="text-[#E4002B] font-semibold hover:underline">
+            <Link href="/global-doctors">
               szczegóły Global Doctors
             </Link>
             .
@@ -137,7 +134,7 @@ const GROUPS: FaqGroup[] = [
         a: (
           <>
             Roszczenie z podstawowej ochrony zgłaszasz przez Platformę Zgłaszania Roszczeń, podczas wizyty u agenta lub listownie. Roszczenia z MediPlan i Medical Assistance zgłasza się przez Centrum Alarmowe, a z Global Doctors — telefonicznie lub przez formularz online. Pełne instrukcje znajdziesz na stronie{' '}
-            <Link href="/zglos-roszczenie" className="text-[#E4002B] font-semibold hover:underline">
+            <Link href="/zglos-roszczenie">
               Zgłoś roszczenie
             </Link>
             .
@@ -166,7 +163,7 @@ const GROUPS: FaqGroup[] = [
         a: (
           <>
             Aura Expert sp. z o.o. — agent ubezpieczeniowy działający na rzecz wielu towarzystw ubezpieczeń, w tym ERGO Hestii. Pełne informacje znajdziesz na stronie{' '}
-            <Link href="/informacja-o-agencie" className="text-[#E4002B] font-semibold hover:underline">
+            <Link href="/informacja-o-agencie">
               Informacja o agencie
             </Link>
             .
@@ -177,8 +174,8 @@ const GROUPS: FaqGroup[] = [
         q: 'Jak się z Wami skontaktować?',
         a: (
           <>
-            Napisz na <a href="mailto:biuro@utratadochodu.com" className="text-[#E4002B] font-semibold hover:underline">biuro@utratadochodu.com</a> lub zostaw dane kontaktowe w{' '}
-            <Link href="/kalkulator/wiek" className="text-[#E4002B] font-semibold hover:underline">
+            Napisz na <a href="mailto:biuro@utratadochodu.com">biuro@utratadochodu.com</a> lub zostaw dane kontaktowe w{' '}
+            <Link href="/kalkulator/wiek">
               kalkulatorze
             </Link>{' '}
             — agent oddzwoni w ciągu 1–2 dni roboczych.
@@ -190,72 +187,46 @@ const GROUPS: FaqGroup[] = [
 ];
 
 export function Faq() {
-  const [openKey, setOpenKey] = useState<string | null>(null);
-
-  function toggle(key: string) {
-    setOpenKey(prev => (prev === key ? null : key));
-  }
-
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Pytania i odpowiedzi"
-        title={<>Najczęściej zadawane <span className="text-[#E4002B]">pytania</span></>}
+        title="Najczęściej zadawane pytania"
         description="Wszystko, co warto wiedzieć o przystąpieniu, wariantach, składkach, dodatkach i zgłaszaniu roszczeń w ERGO Razem."
       />
 
-      <main className="flex-1 py-14">
-        <div className="max-w-3xl mx-auto px-4 space-y-10">
-          {GROUPS.map(group => (
-            <div key={group.title}>
-              <h2 className="text-lg font-bold text-gray-900 mb-4">{group.title}</h2>
-              <div className="space-y-3">
-                {group.items.map(item => {
-                  const key = `${group.title}__${item.q}`;
-                  const open = openKey === key;
-                  return (
-                    <div
-                      key={key}
-                      className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden"
-                    >
-                      <button
-                        onClick={() => toggle(key)}
-                        className="w-full flex items-center justify-between gap-4 text-left px-5 py-4"
-                      >
-                        <span className="font-semibold text-gray-900">{item.q}</span>
-                        {open
-                          ? <ChevronUp className="h-5 w-5 text-gray-400 shrink-0" />
-                          : <ChevronDown className="h-5 w-5 text-gray-400 shrink-0" />
-                        }
-                      </button>
-                      {open && (
-                        <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
-                          {item.a}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+      <main className="flex-1">
+        <div className="wrap page">
+          <div className="max-w-[48rem]">
+            {GROUPS.map(group => (
+              <section key={group.title} className="sec first:mt-0">
+                <h2>{group.title}</h2>
+                <div className="mt-3 border-b-2 border-druk">
+                  {group.items.map(item => (
+                    <details key={item.q} className="acc">
+                      <summary>{item.q}</summary>
+                      <div className="acc-b">{item.a}</div>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            ))}
 
-          <div className="rounded-2xl bg-gradient-to-br from-rose-50 to-red-50 border border-rose-100 p-8 text-center space-y-3">
-            <h3 className="text-xl font-bold text-gray-900">Nie znalazłeś odpowiedzi?</h3>
-            <p className="text-gray-600">Skontaktuj się z nami — agent ERGO Hestia odpowie na wszystkie pytania.</p>
-            <Link
-              href="/kalkulator/wiek"
-              className="inline-block rounded-lg bg-[#E4002B] text-white px-8 py-3.5 font-semibold hover:bg-[#c00025] transition-colors shadow-sm"
-            >
-              Złóż wniosek →
-            </Link>
+            <section className="sec">
+              <h2>Nie znalazłeś odpowiedzi?</h2>
+              <p className="mt-2 max-w-[40em]">Skontaktuj się z nami — agent ERGO Hestia odpowie na wszystkie pytania.</p>
+              <div className="mt-5">
+                <Link href="/kalkulator/wiek" className="btn">
+                  Sprawdź składkę
+                </Link>
+              </div>
+            </section>
           </div>
         </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

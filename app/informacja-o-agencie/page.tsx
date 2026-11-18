@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
+import { Tresc } from '@/components/content/tresc';
 import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
@@ -22,18 +23,17 @@ const ZAKLADY = [
 
 export default function InformacjaOAgenciePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Aura Expert sp. z o.o."
-        title={<>Informacja o <span className="text-[#E4002B]">agencie ubezpieczeniowym</span></>}
+        title="Informacja o agencie ubezpieczeniowym"
         description="Informacje wymagane ustawą o dystrybucji ubezpieczeń — kim jesteśmy, na czyją rzecz działamy i jak złożyć reklamację."
       />
 
-      <main className="flex-1 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
+      <main className="flex-1">
+      <div className="wrap page">
+        <Tresc>
           <p>
             Działając na podstawie art. 22 ust. 1 pkt 2–6 oraz ust. 2–4 ustawy z dnia
             15 grudnia 2017 r. o dystrybucji ubezpieczeń (Dz.U. z 2017 r., poz. 2486 ze zm.)
@@ -151,11 +151,11 @@ export default function InformacjaOAgenciePage() {
               .
             </li>
           </ol>
-        </div>
+        </Tresc>
       </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

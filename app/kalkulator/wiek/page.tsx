@@ -32,14 +32,17 @@ export default function WiekPage() {
   };
 
   return (
-    <div className="max-w-[34rem]">
-      <h1>Kiedy się urodziłeś(-aś)?</h1>
-      <p className="of-lead">
-        Od wieku zależy składka. Do ubezpieczenia ERGO Razem mogą przystąpić osoby,
-        które w dniu objęcia ochroną mają 18–65 lat.
-      </p>
+    <div className="of-two">
+      <div>
+        <h1>Kiedy się urodziłeś(-aś)?</h1>
+        <p className="of-lead">
+          Od wieku zależy składka. Do ubezpieczenia ERGO Razem mogą przystąpić osoby,
+          które w dniu objęcia ochroną mają 18–65 lat.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} noValidate className="sec">
+      {/* Pytanie po lewej, pole z odpowiedzią w ramce po prawej. */}
+      <form onSubmit={handleSubmit} noValidate className="bill">
         <label className="fld" htmlFor="birthdate">
           <span className="fld-l">Data urodzenia</span>
         </label>
@@ -59,9 +62,7 @@ export default function WiekPage() {
           Nie przechowujemy Twojej daty urodzenia po zamknięciu strony.
         </p>
 
-        <div className="mt-6">
-          <button type="submit" className="btn">Dalej: pytania o zdrowie</button>
-        </div>
+        <button type="submit" className="btn full-w">Dalej: pytania o zdrowie</button>
       </form>
     </div>
   );

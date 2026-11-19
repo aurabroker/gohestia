@@ -21,13 +21,13 @@ export default function RegulaminPage() {
       <main className="flex-1">
       <div className="wrap page">
         <Tresc>
-          <p className="text-druk-2">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
+          <p className="text-muted">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
 
           <h2>§1. Postanowienia ogólne</h2>
           <ol>
             <li>
               Niniejszy regulamin określa zasady korzystania z serwisu internetowego
-              dostępnego pod adresem domeny obsługiwanej przez <strong>Aura Expert sp. z o.o.</strong>
+              dostępnego pod adresem domeny obsługiwanej przez <strong>Aura Expert sp. z o.o.</strong>{' '}
               (dalej: „Serwis&quot;).
             </li>
             <li>

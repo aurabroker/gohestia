@@ -21,7 +21,7 @@ export default function PolitykaPrywatnosciPage() {
       <main className="flex-1">
       <div className="wrap page">
         <Tresc>
-          <p className="text-druk-2">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
+          <p className="text-muted">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
 
           <h2>1. Administrator danych osobowych</h2>
           <p>

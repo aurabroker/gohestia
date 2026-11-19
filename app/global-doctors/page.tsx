@@ -83,7 +83,7 @@ export default function GlobalDoctorsPage() {
             </p>
           </Tresc>
 
-          <div className="mt-8">
+          <div className="after-tresc">
             <Link href="/kalkulator/wiek" className="btn">
               Sprawdź składkę
             </Link>

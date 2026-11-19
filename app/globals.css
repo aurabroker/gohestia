@@ -3,6 +3,13 @@
  * axes: light/display-condensed/warm · posture: committed · contrast: pass · fold: pass · job: try · draw: be55ff · copy: verbatim · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: H, three premium figures compete with the fitted head; the head took the full measure and the figures one size below it */
 /* Hallmark · hero-review: fix · 5 findings · 4 resolved 1 partial (the left column keeps spare paper under the action; field, hint and button now read as one step) */
+/* Hallmark · waive 39b · one field, the age box of the bill, set on its display line · the age is typed at the size the three premiums are read, in the same counter */
+/* Hallmark · waive 44c · hero posture Banner on every content and calculator page · documents and form steps open with a title, one line and the rule, so their first section starts above the fold */
+/* Hallmark · waive 49b · links inside sentences of the answers, two lines at most · an inline link wraps with its sentence, while the footer and header links hold one line */
+/* Hallmark · waive 78 · heads on content pages sit in the left column beside their text · a marginal head at poster size would not fit four columns, and the page title carries the scale */
+/* Hallmark · dismissed 77 · a redesign keeps the content: the home page had three blocks and keeps them, and a content page is one document under its title */
+/* Hallmark · dismissed 49 · both labels sit on .btn, which sets white-space: nowrap in this stylesheet */
+/* Hallmark · answered F4 · .seg marks the selected tab with the ink fill, a state and not a second primary; the red .btn stays the one filled action of a screen */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./base.css" layer(base);
@@ -1222,7 +1229,30 @@
     margin-top: var(--space-lg);
   }
   .page {
-    padding-block: var(--space-2xl) var(--section-gap-s);
+    padding-block: var(--space-xl) var(--section-gap-s);
+  }
+  /* Rozdział: tytuł w lewej kolumnie, treść w prawej, gruba kreska nad całością. */
+  .split {
+    padding-block: var(--space-lg) var(--space-xl);
+    border-top: var(--rule-bar) solid var(--color-ink);
+  }
+  .split:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .split > h2 {
+    margin-bottom: var(--space-md);
+    font-size: var(--text-xl);
+  }
+  .split .acc:first-child {
+    border-top: 0;
+  }
+  .split .acc:first-child > summary {
+    min-height: 0;
+    padding-top: 0;
+  }
+  .after-tresc {
+    margin-top: var(--space-xl);
   }
   /* Lista rozwijana (pytania i odpowiedzi, katalogi). */
   .acc {
@@ -1305,6 +1335,7 @@
   .stats dd {
     margin: 0;
     font: 400 4.5rem / 0.88 var(--font-display);
+    font-variant-numeric: tabular-nums;
     letter-spacing: var(--tracking-display);
   }
   /* Pole na ciemniejszym papierze. */
@@ -1597,7 +1628,7 @@
     }
 
     .of {
-      padding-block: var(--space-2xl) var(--section-gap-s);
+      padding-block: var(--space-2xl) var(--space-3xl);
     }
     .of-grid {
       display: grid;
@@ -1659,6 +1690,9 @@
     .ph-page {
       padding-block: var(--space-xl) 0;
     }
+    .ph-page::after {
+      margin-top: var(--space-2xl);
+    }
     .ph-page .acts {
       display: flex;
       flex-wrap: wrap;
@@ -1666,6 +1700,26 @@
     }
     .page {
       padding-block: var(--space-2xl) var(--section-gap);
+    }
+    .of-two {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--space-2xl);
+      align-items: start;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    }
+    .split > h2 {
+      margin: 0;
+      padding-right: var(--gap-columns);
+    }
+    .split > :not(h2) {
+      grid-column: 2;
+    }
+    .after-tresc {
+      margin-left: calc(100% / 3);
     }
     .stats {
       grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
@@ -1716,16 +1770,31 @@
     font-size: var(--text-body);
     line-height: 1.65;
     overflow-wrap: break-word;
+    overflow-x: clip;
   }
-  .tresc :where(h2) {
-    margin-top: var(--space-2xl);
+  .tresc > :where(*) {
+    margin-block: 0;
+  }
+  .tresc > :where(* + *) {
+    margin-top: var(--space-md);
+  }
+  .tresc > :where(h2) {
+    position: relative;
+    margin-top: var(--space-xl);
     padding-top: var(--space-md);
-    border-top: var(--rule-bar) solid var(--color-ink);
     font-size: var(--text-xl);
     font-weight: 400;
     line-height: 1.1;
   }
-  .tresc :where(h2:first-child) {
+  .tresc > :where(h2)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-top: var(--rule-bar) solid var(--color-ink);
+  }
+  .tresc > :where(h2:first-child) {
     margin-top: 0;
   }
   .tresc :where(h3) {
@@ -1739,5 +1808,33 @@
   }
   .tresc :where(strong) {
     font-weight: 600;
+  }
+  /* Komputer: tytuł rozdziału w lewej kolumnie, treść w prawej. */
+  @media (min-width: 60rem) {
+    .tresc {
+      display: grid;
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      max-width: none;
+    }
+    .tresc > :where(*) {
+      grid-column: 2;
+      max-width: 68ch;
+    }
+    .tresc > :where(h2),
+    .tresc > :where(p:first-child) {
+      grid-column: 1;
+      max-width: none;
+      padding-right: var(--gap-columns);
+    }
+    .tresc > :where(p:first-child + *) {
+      margin-top: 0;
+    }
+    .tresc > :where(h2)::before {
+      width: 300%;
+    }
+    .tresc > :where(h2 + *) {
+      margin-top: var(--space-xl);
+      padding-top: var(--space-md);
+    }
   }
 }

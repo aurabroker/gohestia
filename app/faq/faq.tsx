@@ -197,32 +197,33 @@ export function Faq() {
       />
 
       <main className="flex-1">
+        {/* Każda grupa pytań: tytuł w lewej kolumnie, pytania w prawej. */}
         <div className="wrap page">
-          <div className="max-w-[48rem]">
-            {GROUPS.map(group => (
-              <section key={group.title} className="sec first:mt-0">
-                <h2>{group.title}</h2>
-                <div className="mt-3 border-b-2 border-druk">
-                  {group.items.map(item => (
-                    <details key={item.q} className="acc">
-                      <summary>{item.q}</summary>
-                      <div className="acc-b break-words">{item.a}</div>
-                    </details>
-                  ))}
-                </div>
-              </section>
-            ))}
+          {GROUPS.map(group => (
+            <section key={group.title} className="split">
+              <h2>{group.title}</h2>
+              <div>
+                {group.items.map(item => (
+                  <details key={item.q} className="acc">
+                    <summary>{item.q}</summary>
+                    <div className="acc-b break-words">{item.a}</div>
+                  </details>
+                ))}
+              </div>
+            </section>
+          ))}
 
-            <section className="sec">
-              <h2>Nie znalazłeś odpowiedzi?</h2>
-              <p className="mt-2 max-w-[40em]">Skontaktuj się z nami — agent ERGO Hestia odpowie na wszystkie pytania.</p>
-              <div className="mt-5">
+          <section className="split">
+            <h2>Nie znalazłeś odpowiedzi?</h2>
+            <div>
+              <p>Skontaktuj się z nami — agent ERGO Hestia odpowie na wszystkie pytania.</p>
+              <div className="mt-6">
                 <Link href="/kalkulator/wiek" className="btn">
                   Sprawdź składkę
                 </Link>
               </div>
-            </section>
-          </div>
+            </div>
+          </section>
         </div>
       </main>
 

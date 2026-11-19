@@ -1,0 +1,33 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "site",
+  "shape": "Marquee Hero",
+  "theme": "Broadside",
+  "axes": "light/display-condensed/warm",
+  "hero": "Counter",
+  "nav": "floating pill",
+  "footer": "statement",
+  "imagery": "the user's 3 photographs as duotone plates",
+  "photos": [],
+  "entry": "heading announces itself",
+  "fingerprint": "marquee-hero/counter/floating-pill/statement/table/steps",
+  "sections": [
+   "Hero (bill of three premiums)",
+   "Table (payouts)",
+   "Steps",
+   "Footer statement"
+  ],
+  "signature": "the bill of three premiums that reprints for the age typed",
+  "waived": [
+   "39b",
+   "44c",
+   "49b",
+   "78"
+  ],
+  "prompt": "group life insurance price calculator for an agent",
+  "draw": "be55ff",
+  "date": "2026-11-19"
+ }
+]

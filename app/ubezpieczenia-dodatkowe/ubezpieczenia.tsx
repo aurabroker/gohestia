@@ -414,7 +414,7 @@ export function UbezpieczeniaDodatkowe() {
 
       <main className="flex-1">
         {/* Porównanie dwóch dodatków na karcie papieru */}
-        <section>
+        <section className="min-[60rem]:pt-4">
           <div className="wrap">
             <div className="sheet-card max-w-[60rem]">
               <div className="tab" style={TWO_COLS} role="table" aria-label="MediPlan i Medical Assistance">
@@ -454,7 +454,7 @@ export function UbezpieczeniaDodatkowe() {
         <ProductPanel data={medicalAssistanceData} />
 
         {/* Kluczowe różnice */}
-        <section className="psec" aria-labelledby="kluczowe-roznice">
+        <section className="psec pb-24" aria-labelledby="kluczowe-roznice">
           <div className="wrap">
             <h2 id="kluczowe-roznice">Kluczowe różnice</h2>
             <div className="sheet-card max-w-[60rem]">
@@ -473,14 +473,11 @@ export function UbezpieczeniaDodatkowe() {
                 ))}
               </div>
             </div>
+            <p className="hint mt-10 max-w-none">
+              Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, rozdz. XXVII–XXVIII, ERGO Hestia S.A.
+            </p>
           </div>
         </section>
-
-        <div className="wrap page">
-          <p className="hint max-w-none">
-            Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, rozdz. XXVII–XXVIII, ERGO Hestia S.A.
-          </p>
-        </div>
       </main>
 
       <SiteFooter />

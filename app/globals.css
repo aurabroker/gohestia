@@ -2,6 +2,15 @@
  * hero: Counter (/), Banner (content and calculator pages) · nav: floating pill · footer: statement · imagery: the user's 3 photographs, one per product, in colour · signature: three premium cards that reprice for the age typed
  * axes: light/grotesk-sans/warm · posture: restrained · contrast: pass · fold: pass · job: try · draw: be55ff · copy: verbatim · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R5 V4 · weakest: S, a calm sans page could belong to many insurers; the age field that reprices three real premiums is what only this one has, so it leads */
+/* Hallmark · hero-review: in-thread (helpers were rate-limited) · fix · 3 findings · 3 resolved: the head ran to four lines at 1280, the three photographs disagreed in colour, a product name wrapped on a phone */
+/* Hallmark · finish-review: in-thread (helpers were rate-limited) · ship · 0 findings · gap: none · the old page showed premiums and payouts on one screen; payouts now sit one scroll below the three cards */
+/* Hallmark · waive 44c · hero posture Banner on every content and calculator page · documents and form steps open with a title, one line and a rule, so their first section starts above the fold */
+/* Hallmark · waive 49b · links inside sentences of the answers, two lines at most · an inline link wraps with its sentence, while the footer and header links hold one line */
+/* Hallmark · waive 78 · heads on content pages sit in the left column beside their text · a marginal head at section size would not fit four columns, and the page title carries the scale */
+/* Hallmark · waive 72 · the measured text is the collapsed answer of a closed disclosure row under the card · nothing is painted there until the row opens, and an open row sits inside the card padding */
+/* Hallmark · dismissed 77 · a redesign keeps the content: the home page had three blocks and keeps them, and a content page is one document under its title */
+/* Hallmark · dismissed 49 · both labels sit on .btn, which sets white-space: nowrap in this stylesheet */
+/* Hallmark · answered F7 · every card is the same cotton stock lit from one side, as the theme sets it; the header plate, the premium cards, the bill and the table sheet differ by size and by what they hold */
 @import "tailwindcss";
 @import "./tokens.css";
 @import "./base.css" layer(base);
@@ -183,7 +192,8 @@
     background: var(--color-desk);
   }
   .hero h1 {
-    font-size: var(--text-display-s);
+    max-width: none;
+    font-size: clamp(2.5rem, 3.8vw + 0.5rem, 4.25rem);
   }
   .ask {
     margin-top: var(--space-lg);
@@ -198,8 +208,8 @@
     line-height: 1;
   }
   .q-age input {
-    width: 2.6em;
-    height: 1.7em;
+    width: 5rem;
+    height: 52px;
     padding: 0;
     border: var(--rule-hair) solid var(--color-muted);
     border-radius: var(--radius-input);
@@ -231,7 +241,7 @@
     color: var(--color-ink-2);
   }
   .cta {
-    margin-top: var(--space-md);
+    margin-top: var(--space-lg);
   }
   .cta-n {
     max-width: 44ch;
@@ -270,7 +280,7 @@
   /* Telefon: każdy produkt to jedna karta w wierszu: zdjęcie, nazwa, składka. */
   .pr {
     display: grid;
-    grid-template-columns: 96px minmax(0, 1fr) auto;
+    grid-template-columns: 80px minmax(0, 1fr) auto;
     column-gap: var(--space-sm);
     align-items: center;
     padding: var(--space-sm);
@@ -292,7 +302,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: saturate(0.82) contrast(0.97) sepia(0.08);
+    filter: saturate(0.72) contrast(0.97) sepia(0.08);
   }
   .ph b {
     display: block;
@@ -523,6 +533,7 @@
   .ft li a {
     display: inline-block;
     padding-block: var(--space-xs);
+    white-space: nowrap;
   }
 
   /* ── Komunikat: pole na ciemniejszym papierze ─────────────────────── */
@@ -1409,6 +1420,7 @@
       display: grid;
       align-items: center;
       min-height: calc(100svh - 104px);
+      padding-block: var(--space-2xl) var(--space-xl);
     }
     .hero > .wrap {
       display: grid;
@@ -1429,6 +1441,10 @@
       grid-column: 1;
       grid-row: 2;
       align-self: start;
+      margin-top: var(--space-xl);
+    }
+    .q-age {
+      font-size: var(--text-3xl);
     }
     .ask .btn {
       min-width: 16rem;
@@ -1451,7 +1467,7 @@
       padding: var(--space-sm) var(--space-sm) var(--space-md);
     }
     .plate span {
-      aspect-ratio: 3 / 2;
+      aspect-ratio: 4 / 3;
     }
     .ph {
       margin-top: var(--space-md);
@@ -1532,7 +1548,8 @@
       margin-top: var(--space-2xl);
     }
     .ft-grid {
-      grid-template-columns: minmax(0, 6fr) minmax(0, 3fr) minmax(0, 3fr);
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      column-gap: var(--space-2xl);
     }
 
     .prog-m {

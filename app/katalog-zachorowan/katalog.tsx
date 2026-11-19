@@ -698,8 +698,7 @@ export function KatalogZachorowan() {
       />
 
       <main className="flex-1">
-        <section>
-          <div className="wrap">
+        <div className="wrap page">
             {/* Liczby: ile zachorowań obejmuje każdy zakres */}
             <dl className="stats border-t-0" style={{ "--n": 5 } as CSSProperties}>
               {[
@@ -759,12 +758,9 @@ export function KatalogZachorowan() {
                 <option value="name">Sortuj: Alfabetycznie</option>
               </select>
             </div>
-          </div>
-        </section>
 
-        <div className="wrap page">
           {/* Results count */}
-          <p aria-live="polite">
+          <p aria-live="polite" className="mt-10">
             Wyświetlono <strong>{filtered.length}</strong> z <strong>{illnesses.length}</strong> zachorowań
           </p>
 

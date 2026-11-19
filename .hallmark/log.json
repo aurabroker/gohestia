@@ -3,6 +3,37 @@
   "mode": "redesign",
   "depth": "full",
   "scope": "site",
+  "shape": "Stat-Led",
+  "theme": "Coral",
+  "axes": "light/grotesk-sans/warm",
+  "hero": "Counter",
+  "nav": "floating pill",
+  "footer": "statement",
+  "imagery": "the user's 3 photographs in colour",
+  "photos": [],
+  "entry": "heading announces itself",
+  "fingerprint": "stat-led/counter/floating-pill/statement/table/steps",
+  "sections": [
+   "Hero (age field and three premium cards)",
+   "Table (payouts on a sheet)",
+   "Steps",
+   "Footer statement"
+  ],
+  "signature": "three premium cards that reprice for the age typed",
+  "waived": [
+   "44c",
+   "49b",
+   "78",
+   "72"
+  ],
+  "prompt": "group life insurance price calculator for an agent, lighter after the owner found Broadside too heavy",
+  "draw": "be55ff",
+  "date": "2026-11-19"
+ },
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "site",
   "shape": "Marquee Hero",
   "theme": "Broadside",
   "axes": "light/display-condensed/warm",

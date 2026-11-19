@@ -22,8 +22,15 @@ export function QuestionBlockComponent({ block, blockNumber, total, answer, onAn
 
   return (
     <section className={clsx('qc', answered && 'is-ans')} aria-labelledby={headingId}>
-      <p className="qc-n">Pytanie {blockNumber} z {total}</p>
-      <h2 id={headingId}>{block.title}</h2>
+      {/* Numer pytania stoi w nagłówku jako cyfra afisza; pełne „Pytanie 1 z 5"
+          zostaje dla czytników ekranu. */}
+      <h2 id={headingId}>
+        <span className="qc-n" aria-hidden="true">{blockNumber}</span>
+        <span>
+          <span className="visually-hidden">Pytanie {blockNumber} z {total}: </span>
+          {block.title}
+        </span>
+      </h2>
 
       <p className="qc-d">{block.declaration}</p>
 

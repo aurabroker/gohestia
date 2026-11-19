@@ -6,7 +6,7 @@ export default function WykluczenieWiekPage() {
   return (
     <>
       <SiteHeader />
-      <main className="sheet flex-1">
+      <main className="flex-1">
         <div className="wrap of">
           <div className="max-w-[40rem]">
             <h1>Niestety, Twój wiek nie spełnia warunków</h1>
@@ -18,7 +18,7 @@ export default function WykluczenieWiekPage() {
               Jeśli masz inne pytania lub szukasz innego rodzaju ochrony, skontaktuj się
               z agentem ERGO Hestia.
             </p>
-            <div className="mt-7 grid gap-3 sm:flex">
+            <div className="mt-10 grid gap-2 min-[60rem]:flex">
               <a href="https://www.ergohestia.pl/kontakt/" className="btn">Skontaktuj się z agentem</a>
               <Link href="/kalkulator/wiek" className="btn-2">Sprawdź ponownie</Link>
             </div>

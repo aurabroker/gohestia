@@ -1,14 +1,15 @@
 import Link from 'next/link';
 
 /**
- * Jeden nagłówek całego serwisu (strona główna, kalkulator, strony treściowe).
- * Logo prowadzi na stronę główną; obok stoi nazwa agenta, bo to serwis agenta,
- * a nie ubezpieczyciela.
+ * Jeden nagłówek całego serwisu (strona główna, kalkulator, strony treściowe):
+ * jasna tabliczka w podwójnej ramce. Logo prowadzi na stronę główną; obok stoi
+ * nazwa agenta, bo to serwis agenta, a nie ubezpieczyciela.
  */
 export function SiteHeader() {
   return (
-    <header>
-      <div className="wrap hd-in">
+    <header className="hd">
+      <div className="wrap">
+        <div className="hd-in">
         <Link href="/" className="brand" aria-label="Aura Expert sp. z o.o., agent ERGO Hestii. Strona główna">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/ergo-hestia-logo.jpg" alt="ERGO Hestia" width={120} height={66} />
@@ -21,6 +22,7 @@ export function SiteHeader() {
           <Link href="/faq">Pytania i odpowiedzi</Link>
           <Link href="/zglos-roszczenie">Zgłoś roszczenie</Link>
         </nav>
+        </div>
       </div>
     </header>
   );

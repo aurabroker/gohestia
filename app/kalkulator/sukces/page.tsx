@@ -26,10 +26,10 @@ export default function SukcesPage() {
       {email && (
         <p className="msg mt-5">
           Kopię podsumowania oferty wysłaliśmy na adres{' '}
-          <strong className="break-all text-dlugopis">{email}</strong>.
+          <strong className="break-all">{email}</strong>.
         </p>
       )}
-      <div className="mt-7 grid gap-3 sm:flex">
+      <div className="mt-10 grid gap-2 min-[60rem]:flex">
         <Link href="/" className="btn-2">Wróć na stronę główną</Link>
         <Link href="/kalkulator/wiek" className="btn-2">Sprawdź składkę jeszcze raz</Link>
       </div>

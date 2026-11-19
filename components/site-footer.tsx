@@ -3,11 +3,16 @@ import Link from 'next/link';
 export function SiteFooter() {
   return (
     <footer className="ft">
-      <div className="wrap ft-grid">
+      <div className="wrap">
+        {/* Zdanie zamykające każdą stronę: kto prowadzi ten serwis. */}
+        <p className="ft-say">
+          <strong>Aura Expert sp. z o.o.</strong> jest agentem ERGO Hestii
+          i prowadzi ten kalkulator.
+        </p>
+        <div className="ft-grid">
         <div className="ft-who">
           <p>
-            <strong className="font-semibold">Aura Expert sp. z o.o.</strong> jest agentem ERGO Hestii
-            i prowadzi ten kalkulator. Ubezpieczycielem jest Sopockie Towarzystwo Ubezpieczeń na Życie
+            Ubezpieczycielem jest Sopockie Towarzystwo Ubezpieczeń na Życie
             ERGO Hestia S.A.
           </p>
           <p>
@@ -35,6 +40,7 @@ export function SiteFooter() {
             <li><Link href="/rodo">RODO</Link></li>
           </ul>
         </nav>
+        </div>
       </div>
     </footer>
   );

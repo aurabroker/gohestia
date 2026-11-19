@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, type CSSProperties } from 'react';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
 import { SiteFooter } from '@/components/site-footer';
@@ -605,34 +605,34 @@ const SCOPES: { key: "ubezpieczony_max" | "ubezpieczony_komfort" | "malzonek" | 
 ];
 
 // Kolumny skrótów na szerokim ekranie: stałe miejsce dla każdego zakresu.
-const SHORT_COL = ["min-[900px]:col-start-4", "min-[900px]:col-start-5", "min-[900px]:col-start-6"];
+const SHORT_COL = ["min-[60rem]:col-start-4", "min-[60rem]:col-start-5", "min-[60rem]:col-start-6"];
 
 function IllnessEntry({ ill }: { ill: Illness }) {
   const shorts = SCOPES.filter(s => s.short);
   return (
     <details className="acc">
       <summary>
-        <span className="grid min-w-0 flex-1 grid-cols-[2.1rem_minmax(0,1fr)] gap-x-2 min-[900px]:grid-cols-[2.6rem_minmax(0,1fr)_13rem_2.8rem_2.8rem_2.8rem] min-[900px]:items-baseline min-[900px]:gap-x-3">
-          <span className="font-normal tabular-nums text-druk-2">{ill.lp}.</span>
+        <span className="grid min-w-0 flex-1 grid-cols-[2.5rem_minmax(0,1fr)] gap-x-2 min-[60rem]:grid-cols-[2.5rem_minmax(0,1fr)_13rem_3rem_3rem_3rem] min-[60rem]:items-baseline min-[60rem]:gap-x-3">
+          <span className="font-normal tabular-nums text-muted">{ill.lp}.</span>
           <span>{ill.name}</span>
-          <span className="col-start-2 mt-[2px] flex flex-wrap gap-x-3 text-[16px] font-normal leading-[1.35] min-[900px]:contents">
-            <span className="text-druk-2 min-[900px]:col-start-3 min-[900px]:row-start-1">{categories[ill.category]}</span>
+          <span className="col-start-2 mt-1 flex flex-wrap gap-x-3 text-md font-normal min-[60rem]:contents">
+            <span className="text-muted min-[60rem]:col-start-3 min-[60rem]:row-start-1">{categories[ill.category]}</span>
             {shorts.map((s, i) => ill[s.key] && (
-              <span key={s.key} title={s.label} className={`font-cond font-semibold min-[900px]:row-start-1 ${SHORT_COL[i]}`}>
+              <span key={s.key} title={s.label} className={`font-semibold min-[60rem]:row-start-1 ${SHORT_COL[i]}`}>
                 {s.short}
               </span>
             ))}
           </span>
         </span>
       </summary>
-      <div className="acc-b break-words min-[900px]:pl-[calc(2.6rem+0.75rem)]">
-        <div className="bg-blankiet px-[10px] pb-[8px] pt-[4px]">
+      <div className="acc-b break-words min-[60rem]:pl-13">
+        <div className="well">
           <table className="ft-t">
             <tbody>
               {SCOPES.map(s => (
                 <tr key={s.key}>
                   <th scope="row">{s.label}</th>
-                  <td className={ill[s.key] ? "w-[4.5rem]" : "no w-[4.5rem]"}>
+                  <td className={ill[s.key] ? "w-18" : "no w-18"}>
                     <span aria-hidden="true">{ill[s.key] ? "✓" : "–"}</span>
                     <span className="sr-only">{ill[s.key] ? "obejmuje" : "nie obejmuje"}</span>
                   </td>
@@ -645,7 +645,7 @@ function IllnessEntry({ ill }: { ill: Illness }) {
           <strong className="block font-semibold">Definicja ubezpieczeniowa</strong>
           {ill.definition}
         </p>
-        <p className="mt-3 text-[16px] leading-[1.4] text-druk-2">
+        <p className="mt-3 text-md text-muted">
           Źródło: WU ER 01/25, Załącznik 1 – Definicje poważnych zachorowań, poz. {ill.lp}
         </p>
       </div>
@@ -687,9 +687,6 @@ export function KatalogZachorowan() {
     dziecko: illnesses.filter(i => i.dziecko).length,
   }), []);
 
-  // Niebieski druk w polu wyboru dopiero wtedy, gdy odwiedzający coś w nim wybrał.
-  const selectClass = (chosen: boolean) => (chosen ? "inp text-[17px]" : "inp text-[17px] text-druk");
-
   return (
     <>
       <SiteHeader />
@@ -701,10 +698,9 @@ export function KatalogZachorowan() {
       />
 
       <main className="flex-1">
-        <section className="sheet">
-          <div className="wrap pb-8 min-[900px]:pb-12">
-            {/* Stats */}
-            <dl className="grid grid-cols-2 gap-[2px] min-[900px]:grid-cols-5">
+        <div className="wrap page">
+            {/* Liczby: ile zachorowań obejmuje każdy zakres */}
+            <dl className="stats border-t-0" style={{ "--n": 5 } as CSSProperties}>
               {[
                 { label: "Wszystkich zachorowań", value: stats.total },
                 { label: "Zakres MAKSYMALNY", value: stats.max },
@@ -712,31 +708,28 @@ export function KatalogZachorowan() {
                 { label: "Małżonek (rozszerzony)", value: stats.malzonek },
                 { label: "Dziecko", value: stats.dziecko },
               ].map(s => (
-                <div
-                  key={s.label}
-                  className="flex flex-col-reverse justify-end bg-pole px-3 py-[10px] first:col-span-2 min-[900px]:px-4 min-[900px]:py-3 min-[900px]:first:col-span-1"
-                >
-                  <dt className="text-[16px] leading-[1.3] text-druk-2">{s.label}</dt>
-                  <dd className="font-cond text-[32px] font-bold leading-[1.05] tabular-nums min-[900px]:text-[40px]">{s.value}</dd>
+                <div key={s.label}>
+                  <dt>{s.label}</dt>
+                  <dd>{s.value}</dd>
                 </div>
               ))}
             </dl>
 
             {/* Filters */}
-            <div role="search" className="mt-6 grid gap-[10px] min-[900px]:grid-cols-2 min-[900px]:gap-3 min-[1280px]:grid-cols-[1.5fr_0.95fr_1.15fr_1fr]">
+            <div role="search" className="mt-10 grid gap-3 min-[40rem]:grid-cols-2 min-[80rem]:grid-cols-[1.5fr_1fr_1.15fr_1fr]">
               <input
                 type="search"
                 aria-label="Szukaj zachorowania lub słów kluczowych"
                 placeholder="Szukaj zachorowania lub słów kluczowych..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="inp text-[17px] placeholder:text-[16px]"
+                className="inp"
               />
               <select
                 aria-label="Kategoria"
                 value={selectedCategory}
                 onChange={e => setSelectedCategory(e.target.value)}
-                className={selectClass(selectedCategory !== "all")}
+                className="inp"
               >
                 <option value="all">Wszystkie kategorie</option>
                 {Object.entries(categories).map(([k, label]) => (
@@ -747,7 +740,7 @@ export function KatalogZachorowan() {
                 aria-label="Zakres"
                 value={selectedScope}
                 onChange={e => setSelectedScope(e.target.value)}
-                className={selectClass(selectedScope !== "all")}
+                className="inp"
               >
                 <option value="all">Wszystkie zakresy</option>
                 <option value="max">Ubezpieczony – Maksymalny</option>
@@ -759,24 +752,21 @@ export function KatalogZachorowan() {
                 aria-label="Sortowanie"
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
-                className={selectClass(sortBy !== "lp")}
+                className="inp"
               >
                 <option value="lp">Sortuj: LP (domyślnie)</option>
                 <option value="name">Sortuj: Alfabetycznie</option>
               </select>
             </div>
-          </div>
-        </section>
 
-        <div className="wrap page">
           {/* Results count */}
-          <p aria-live="polite">
+          <p aria-live="polite" className="mt-10">
             Wyświetlono <strong>{filtered.length}</strong> z <strong>{illnesses.length}</strong> zachorowań
           </p>
 
           {/* Illness list */}
           {filtered.length > 0 && (
-            <div className="mt-3 border-b-2 border-druk">
+            <div className="mt-3 border-b border-rule">
               {filtered.map(ill => (
                 <IllnessEntry key={ill.lp} ill={ill} />
               ))}
@@ -787,7 +777,7 @@ export function KatalogZachorowan() {
             <p className="msg mt-3">Nie znaleziono zachorowań pasujących do kryteriów wyszukiwania.</p>
           )}
 
-          <p className="hint mt-8 max-w-none">
+          <p className="hint mt-10 max-w-none">
             Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, ERGO Hestia S.A.
           </p>
         </div>

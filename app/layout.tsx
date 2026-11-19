@@ -1,20 +1,14 @@
 import type { Metadata } from 'next';
-import { Fira_Sans, Fira_Sans_Condensed } from 'next/font/google';
+import { Hanken_Grotesk } from 'next/font/google';
 import './globals.css';
 
-// Fira Sans: tekst i nagłówki. Fira Sans Condensed: kwoty i nagłówki tabel
-// (cztery kolumny kwot mieszczą się w 390 px bez przewijania w bok).
-// `latin-ext` zawiera polskie znaki.
-const fira = Fira_Sans({
+// Jeden krój w całym serwisie: Hanken Grotesk (tekst, nagłówki, kwoty).
+// Motyw nazywa General Sans; Hanken Grotesk to jego wolny odpowiednik, który
+// można trzymać na własnym serwerze. `latin-ext` zawiera polskie znaki.
+const hanken = Hanken_Grotesk({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-fira',
-  display: 'swap',
-});
-const firaCond = Fira_Sans_Condensed({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-fira-cond',
+  weight: ['400', '500', '600'],
+  variable: '--font-hanken',
   display: 'swap',
 });
 
@@ -26,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" className={`${fira.variable} ${firaCond.variable}`}>
+    <html lang="pl" className={hanken.variable}>
       <body className="min-h-dvh flex flex-col">{children}</body>
     </html>
   );

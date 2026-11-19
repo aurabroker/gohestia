@@ -223,17 +223,13 @@ const DIFFERENCES = [
 
 const TWO_COLS = { "--n": 2 } as CSSProperties;
 
-// Biała komórka z tekstem (nie z kwotą): ten sam wąski krój co w kwotach, ale zwykłej grubości,
-// żeby dwie kolumny zdań mieściły się obok siebie na telefonie.
-const TEXT_CELL = "c break-words text-[17px] font-normal leading-[1.35] min-[900px]:text-[18px]";
-
-// Nagłówki kolumn długiej tabeli zostają na telefonie przy górnej krawędzi ekranu.
-const STICKY_HEAD = "c ph max-[899px]:sticky max-[899px]:top-0 max-[899px]:z-[2] max-[899px]:shadow-[0_2px_0_var(--color-blankiet)]";
+// Komórka z tekstem (nie z kwotą): zwykła grubość, zdania mogą się łamać.
+const TEXT_CELL = "c break-words font-normal";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="mt-6 first:mt-0">
-      <h3 className="mb-2 text-[19px] font-bold leading-[1.25] min-[900px]:text-[20px]">{title}</h3>
+    <div className="mt-10 first:mt-0">
+      <h3 className="mb-2">{title}</h3>
       {children}
     </div>
   );
@@ -241,11 +237,11 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function BenefitItem({ item }: { item: BenefitEntry }) {
   return (
-    <details className="acc border-t-0 bg-pole px-3 min-[900px]:px-4">
-      <summary className="font-normal">
-        <span className="grid min-w-0 flex-1 gap-x-6 gap-y-[2px] text-[17px] min-[900px]:grid-cols-[minmax(0,1fr)_19rem] min-[900px]:items-baseline">
+    <details className="acc">
+      <summary>
+        <span className="grid min-w-0 flex-1 gap-x-6 gap-y-1 min-[60rem]:grid-cols-[minmax(0,1fr)_19rem] min-[60rem]:items-baseline">
           <span>{item.name}</span>
-          <span className="font-cond text-[18px] font-medium min-[900px]:text-[19px]">{item.limit}</span>
+          <span className="font-semibold tabular-nums">{item.limit}</span>
         </span>
       </summary>
       <div className="acc-b break-words">{item.detail}</div>
@@ -274,138 +270,128 @@ function ProductPanel({ data }: { data: ProductData }) {
   }
 
   return (
-    <section className="sec" aria-labelledby={`${id}-h`}>
-      {/* Header */}
-      <div className="wrap pb-6 pt-2 min-[900px]:pb-8 min-[900px]:pt-4">
+    <section className="psec" aria-labelledby={`${id}-h`}>
+      <div className="wrap">
+        {/* Nagłówek produktu */}
         <div className="max-w-[44em]">
           <h2 id={`${id}-h`}>{data.title}</h2>
-          <p className="mt-[2px] text-[16px] text-druk-2">{data.subtitle}</p>
-          <p className="mt-3">{data.summary}</p>
+          <p className="label mt-2">{data.subtitle}</p>
+          <p className="mt-4">{data.summary}</p>
           <p className="mt-3">
             <strong className="font-semibold">Zdarzenie objęte ochroną:</strong> {data.trigger}
           </p>
         </div>
-      </div>
 
-      <div className="sheet">
-        <div className="wrap pb-8 pt-4 min-[900px]:pb-10 min-[900px]:pt-5">
-          <div className="max-w-[60rem]">
-            {/* Tabs */}
-            <div
-              role="tablist"
-              aria-labelledby={`${id}-h`}
-              onKeyDown={onTabKeyDown}
-              className="flex flex-wrap gap-[2px]"
-            >
-              {TABS.map((t, i) => {
-                const on = tab === t;
-                return (
-                  <button
-                    key={t}
-                    ref={el => { tabRefs.current[i] = el; }}
-                    type="button"
-                    role="tab"
-                    id={`${id}-tab-${i}`}
-                    aria-selected={on}
-                    aria-controls={`${id}-panel`}
-                    tabIndex={on ? 0 : -1}
-                    onClick={() => setTab(t)}
-                    className={
-                      "relative min-h-[48px] flex-auto cursor-pointer bg-pole px-4 py-2 text-left text-[17px] leading-[1.2] focus-visible:z-10 " +
-                      (on
-                        ? "font-semibold text-dlugopis shadow-[inset_0_0_0_3px_var(--color-dlugopis)]"
-                        : "font-medium hover:underline hover:decoration-[3px] hover:underline-offset-[0.2em]")
-                    }
-                  >
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                  </button>
-                );
-              })}
-            </div>
+        <div className="mt-10 max-w-[60rem]">
+          {/* Zakładki: rowek w papierze, wybrana zakładka to karta */}
+          <div
+            role="tablist"
+            aria-labelledby={`${id}-h`}
+            onKeyDown={onTabKeyDown}
+            className="seg"
+          >
+            {TABS.map((t, i) => {
+              const on = tab === t;
+              return (
+                <button
+                  key={t}
+                  ref={el => { tabRefs.current[i] = el; }}
+                  type="button"
+                  role="tab"
+                  id={`${id}-tab-${i}`}
+                  aria-selected={on}
+                  aria-controls={`${id}-panel`}
+                  tabIndex={on ? 0 : -1}
+                  onClick={() => setTab(t)}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              );
+            })}
+          </div>
 
-            {/* Tab Content */}
-            <div
-              role="tabpanel"
-              id={`${id}-panel`}
-              aria-labelledby={`${id}-tab-${TABS.indexOf(tab)}`}
-              tabIndex={0}
-              className="mt-5"
-            >
+          {/* Treść zakładki leży na karcie papieru */}
+          <div
+            role="tabpanel"
+            id={`${id}-panel`}
+            aria-labelledby={`${id}-tab-${TABS.indexOf(tab)}`}
+            tabIndex={0}
+            className="sheet-card mt-4 pt-6"
+          >
 
-              {tab === "świadczenia" && (
-                <div>
-                  {data.benefits.map(group => (
-                    <Section key={group.group} title={group.group}>
-                      <div className="grid gap-[2px]">
-                        {group.items.map(item => (
-                          <BenefitItem key={item.name} item={item} />
-                        ))}
-                      </div>
-                    </Section>
-                  ))}
-                </div>
-              )}
-
-              {tab === "limity" && (
-                <Section title="Limity i sumy ubezpieczenia">
-                  <table className="ft-t">
-                    <tbody>
-                      {data.limits.map(l => (
-                        <tr key={l.label}>
-                          <th scope="row" className="text-[17px]">
-                            {l.label}
-                            {l.note && <small className="mt-[2px] block text-[15px] leading-[1.35] text-druk-2">{l.note}</small>}
-                          </th>
-                          <td className="min-[900px]:w-[22rem]">{l.value}</td>
-                        </tr>
+            {tab === "świadczenia" && (
+              <div>
+                {data.benefits.map(group => (
+                  <Section key={group.group} title={group.group}>
+                    <div>
+                      {group.items.map(item => (
+                        <BenefitItem key={item.name} item={item} />
                       ))}
-                    </tbody>
-                  </table>
-                </Section>
-              )}
+                    </div>
+                  </Section>
+                ))}
+              </div>
+            )}
 
-              {tab === "wyłączenia" && (
-                <Section title="Wyłączenia odpowiedzialności ERGO Hestii">
-                  <ul className="grid gap-[2px]">
-                    {data.exclusions.map((e, i) => (
-                      <li key={i} className="bg-pole px-3 py-[10px] leading-[1.45] min-[900px]:px-4">
-                        {e}
-                      </li>
+            {tab === "limity" && (
+              <Section title="Limity i sumy ubezpieczenia">
+                <table className="ft-t">
+                  <tbody>
+                    {data.limits.map(l => (
+                      <tr key={l.label}>
+                        <th scope="row">
+                          {l.label}
+                          {l.note && <small className="mt-1 block text-md text-muted">{l.note}</small>}
+                        </th>
+                        <td className="min-[60rem]:w-[22rem]">{l.value}</td>
+                      </tr>
                     ))}
-                  </ul>
-                </Section>
-              )}
+                  </tbody>
+                </table>
+              </Section>
+            )}
 
-              {tab === "jak skorzystać" && (
-                <Section title="Jak skorzystać ze świadczeń">
-                  <ol className="grid gap-[2px]">
-                    {data.procedure.map((step, i) => (
-                      <li key={i} className="grid grid-cols-[1.9rem_minmax(0,1fr)] bg-pole px-3 py-[10px] leading-[1.45] min-[900px]:px-4">
-                        <span className="font-cond text-[20px] font-bold leading-[1.2]">{i + 1}</span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
-                  <p className="msg mt-4">
-                    <strong>Ważne:</strong> Świadczenia MUSZĄ być zorganizowane przez Centrum Alarmowe. ERGO Hestia nie zwraca kosztów poniesionych samodzielnie bez wcześniejszego uzgodnienia.
-                  </p>
-                </Section>
-              )}
+            {tab === "wyłączenia" && (
+              <Section title="Wyłączenia odpowiedzialności ERGO Hestii">
+                <ul>
+                  {data.exclusions.map((e, i) => (
+                    <li key={i} className="border-t border-rule py-3">
+                      {e}
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            )}
 
-              {tab === "definicje" && (
-                <Section title="Kluczowe definicje">
-                  <dl className="grid gap-[2px]">
-                    {data.definitions.map(d => (
-                      <div key={d.term} className="bg-pole px-3 py-[10px] min-[900px]:px-4">
-                        <dt className="font-semibold">{d.term}</dt>
-                        <dd className="mt-[2px] leading-[1.45]">{d.def}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </Section>
-              )}
+            {tab === "jak skorzystać" && (
+              <Section title="Jak skorzystać ze świadczeń">
+                <ol>
+                  {data.procedure.map((step, i) => (
+                    <li key={i} className="grid grid-cols-[2rem_minmax(0,1fr)] border-t border-rule py-3">
+                      <span className="font-semibold tabular-nums text-muted">{i + 1}</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+                <p className="msg mt-4">
+                  <strong>Ważne:</strong> Świadczenia MUSZĄ być zorganizowane przez Centrum Alarmowe. ERGO Hestia nie zwraca kosztów poniesionych samodzielnie bez wcześniejszego uzgodnienia.
+                </p>
+              </Section>
+            )}
 
-            </div>
+            {tab === "definicje" && (
+              <Section title="Kluczowe definicje">
+                <dl>
+                  {data.definitions.map(d => (
+                    <div key={d.term} className="border-t border-rule py-3">
+                      <dt className="font-semibold">{d.term}</dt>
+                      <dd className="mt-1">{d.def}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Section>
+            )}
+
           </div>
         </div>
       </div>
@@ -427,36 +413,38 @@ export function UbezpieczeniaDodatkowe() {
       />
 
       <main className="flex-1">
-        {/* Comparison header */}
-        <section className="sheet">
-          <div className="wrap pb-8 min-[900px]:pb-12">
-            <div className="tab max-w-[60rem]" style={TWO_COLS} role="table" aria-label="MediPlan i Medical Assistance">
-              <div role="row">
-                <div className="corner" role="presentation" />
-                {PRODUCTS.map(p => (
-                  <div key={p.name} className="c ph" role="columnheader">
-                    <b>{p.name}</b>
-                    <span>{p.desc}</span>
-                  </div>
-                ))}
-              </div>
-              <div role="row">
-                <div className="stub" role="rowheader">Limit</div>
-                {PRODUCTS.map(p => (
-                  <div key={p.name} className="c" role="cell">{p.limit}</div>
-                ))}
-              </div>
-              <div role="row">
-                <div className="stub" role="rowheader">Dla kogo</div>
-                {PRODUCTS.map(p => (
-                  <div key={p.name} className={TEXT_CELL} role="cell">{p.who}</div>
-                ))}
-              </div>
-              <div role="row">
-                <div className="stub" role="rowheader">Trigger</div>
-                {PRODUCTS.map(p => (
-                  <div key={p.name} className={TEXT_CELL} role="cell">{p.trigger}</div>
-                ))}
+        {/* Porównanie dwóch dodatków na karcie papieru */}
+        <section className="min-[60rem]:pt-4">
+          <div className="wrap">
+            <div className="sheet-card max-w-[60rem]">
+              <div className="tab" style={TWO_COLS} role="table" aria-label="MediPlan i Medical Assistance">
+                <div role="row">
+                  <div className="corner" role="presentation" />
+                  {PRODUCTS.map(p => (
+                    <div key={p.name} className="colh" role="columnheader">
+                      <b>{p.name}</b>
+                      <span>{p.desc}</span>
+                    </div>
+                  ))}
+                </div>
+                <div role="row">
+                  <div className="stub" role="rowheader">Limit</div>
+                  {PRODUCTS.map(p => (
+                    <div key={p.name} className="c" role="cell">{p.limit}</div>
+                  ))}
+                </div>
+                <div role="row">
+                  <div className="stub" role="rowheader">Dla kogo</div>
+                  {PRODUCTS.map(p => (
+                    <div key={p.name} className={TEXT_CELL} role="cell">{p.who}</div>
+                  ))}
+                </div>
+                <div role="row">
+                  <div className="stub" role="rowheader">Trigger</div>
+                  {PRODUCTS.map(p => (
+                    <div key={p.name} className={TEXT_CELL} role="cell">{p.trigger}</div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -465,18 +453,16 @@ export function UbezpieczeniaDodatkowe() {
         <ProductPanel data={mediplanData} />
         <ProductPanel data={medicalAssistanceData} />
 
-        {/* Key difference */}
-        <section className="sec" aria-labelledby="kluczowe-roznice">
-          <div className="wrap pb-5 pt-2 min-[900px]:pb-6 min-[900px]:pt-4">
+        {/* Kluczowe różnice */}
+        <section className="psec pb-24" aria-labelledby="kluczowe-roznice">
+          <div className="wrap">
             <h2 id="kluczowe-roznice">Kluczowe różnice</h2>
-          </div>
-          <div className="sheet">
-            <div className="wrap pb-8 pt-4 min-[900px]:pb-10 min-[900px]:pt-6">
-              <div className="tab max-w-[60rem]" style={TWO_COLS} role="table" aria-labelledby="kluczowe-roznice">
+            <div className="sheet-card max-w-[60rem]">
+              <div className="tab" style={TWO_COLS} role="table" aria-labelledby="kluczowe-roznice">
                 <div role="row">
                   <div className="corner" role="presentation" />
-                  <div className={STICKY_HEAD} role="columnheader"><b>MediPlan</b></div>
-                  <div className={STICKY_HEAD} role="columnheader"><b>Medical Assist.</b></div>
+                  <div className="colh" role="columnheader"><b>MediPlan</b></div>
+                  <div className="colh" role="columnheader"><b>Medical Assist.</b></div>
                 </div>
                 {DIFFERENCES.map(([label, a, b]) => (
                   <div key={label} role="row">
@@ -487,14 +473,11 @@ export function UbezpieczeniaDodatkowe() {
                 ))}
               </div>
             </div>
+            <p className="hint mt-10 max-w-none">
+              Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, rozdz. XXVII–XXVIII, ERGO Hestia S.A.
+            </p>
           </div>
         </section>
-
-        <div className="wrap pb-14 pt-6 min-[900px]:pb-20 min-[900px]:pt-8">
-          <p className="hint max-w-none">
-            Warunki Grupowego Ubezpieczenia na Życie ERGO Razem, kod ER 01/25, rozdz. XXVII–XXVIII, ERGO Hestia S.A.
-          </p>
-        </div>
       </main>
 
       <SiteFooter />

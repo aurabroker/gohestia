@@ -51,14 +51,14 @@ const OWU_BASE64 = Buffer.from('%PDF-1.7 test').toString('base64');
 
 const ALL_DOCUMENTS: LoadedDocuments = {
   attachments: [
-    { filename: OWU.filename, content: OWU_BASE64 },
-    { filename: DYSTRYBUTOR.filename, content: OWU_BASE64 },
+    { filename: OWU.filename, content: OWU_BASE64, contentType: 'application/pdf' },
+    { filename: DYSTRYBUTOR.filename, content: OWU_BASE64, contentType: 'application/pdf' },
   ],
   attached: [OWU, DYSTRYBUTOR],
   missing: [],
 };
 const OWU_ONLY: LoadedDocuments = {
-  attachments: [{ filename: OWU.filename, content: OWU_BASE64 }],
+  attachments: [{ filename: OWU.filename, content: OWU_BASE64, contentType: 'application/pdf' }],
   attached: [OWU],
   missing: [DYSTRYBUTOR],
 };

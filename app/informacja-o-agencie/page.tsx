@@ -57,7 +57,7 @@ export default function InformacjaOAgenciePage() {
 
             <li>
               Agent jest wpisany do rejestru przedsiębiorców Krajowego Rejestru Sądowego
-              prowadzonego przez Sąd Rejonowy dla m.st. Warszawy w Warszawie, XIII Wydział
+              prowadzonego przez Sąd Rejonowy dla m.st. Warszawy w Warszawie, XII Wydział
               Gospodarczy Krajowego Rejestru Sądowego pod nr KRS 0000599840, NIP 5242793544,
               nr REGON 363673048, a wysokość kapitału zakładowego Agenta wynosi 5.000 zł.
             </li>

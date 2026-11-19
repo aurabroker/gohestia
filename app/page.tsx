@@ -29,17 +29,6 @@ const STEPS = [
   { title: 'Kontakt', text: 'Zostawiasz telefon i e-mail. Agent oddzwania w ciągu 1–2 dni roboczych.' },
 ];
 
-// Wiersze nagłówka są dopasowane do szerokości: rozmiar pisma to ułamek
-// szerokości nagłówka (jednostka cqi), zmierzony dla kroju Six Caps.
-// Telefon: dwa wiersze, każdy na całą szerokość. Komputer: jeden wiersz.
-const HEAD = {
-  '--k-row': 9.72,
-} as CSSProperties;
-const HEAD_LINES = [
-  { text: 'Ile kosztuje ubezpieczenie ', k: 17.6 },
-  { text: 'na życie ERGO Razem?', k: 22.3 },
-];
-
 export default function Home() {
   const [age, setAge] = useState('');
 
@@ -58,18 +47,11 @@ export default function Home() {
       <SiteHeader />
 
       <main className="flex-1">
-        {/* Afisz: pytanie na całą szerokość, pod nim rachunek trzech składek,
-            który przedrukowuje się po wpisaniu wieku. Pole wieku i akcja to jeden
-            krok w lewej kolumnie. */}
+        {/* Pytanie, pole wieku i akcja po lewej; po prawej trzy karty produktów,
+            których składki zmieniają się po wpisaniu wieku. */}
         <section className={`hero${outOfRange ? ' is-out' : ''}`}>
           <div className="wrap">
-            <h1 className="bill-h" style={HEAD}>
-              {HEAD_LINES.map((line) => (
-                <span key={line.text} className="fit" style={{ '--k': line.k } as CSSProperties}>
-                  {line.text}
-                </span>
-              ))}
-            </h1>
+            <h1>Ile kosztuje ubezpieczenie na życie ERGO Razem?</h1>
 
             <div className="rate">
               <div className="ask">
@@ -93,12 +75,12 @@ export default function Home() {
                     <p className="q-info msg">
                       Do ubezpieczenia ERGO Razem mogą przystąpić osoby w wieku 18–65 lat.{' '}
                       <Link href="/wykluczenie/wiek">Zobacz, co możesz zrobić</Link>. Obok składki dla
-                      wieku {AGE_RANGE.A1}.
+                      wieku <span className="whitespace-nowrap">{AGE_RANGE.A1}</span>.
                     </p>
                   ) : typedGroup === null ? (
                     <p className="q-info">
                       Wpisz swój wiek, a tabela pokaże Twoje składki. Teraz widzisz składki dla
-                      wieku {AGE_RANGE.A1}.
+                      wieku <span className="whitespace-nowrap">{AGE_RANGE.A1}</span>.
                     </p>
                   ) : null}
                 </div>
@@ -126,8 +108,8 @@ export default function Home() {
                           <img
                             src={PRODUCT_PHOTO[product].src}
                             alt={PRODUCT_PHOTO[product].alt}
-                            width={960}
-                            height={640}
+                            width={720}
+                            height={480}
                             style={{ objectPosition: PRODUCT_PHOTO[product].at }}
                           />
                         </span>
@@ -155,26 +137,29 @@ export default function Home() {
             Ubezpieczenie wypłaca
             <small>kwoty w najtańszym wariancie każdego produktu</small>
           </h2>
-          <div className="tab" style={cols} role="table" aria-label="Kwoty wypłat w najtańszym wariancie każdego produktu">
-            <div role="row">
-              <div className="corner" role="presentation" />
-              {prices.map(({ product }) => (
-                <div key={product} className="colh" role="columnheader">{PRODUCT_LABELS[product]}</div>
-              ))}
-            </div>
-            {rows.map((row) => (
-              <div key={row.key} role="row">
-                <div className="stub" role="rowheader">
-                  {row.label}
-                  {row.note && <small>{row.note}</small>}
-                </div>
-                {row.values.map((value, i) => (
-                  <div key={i} className={`c${value === null ? ' no' : ''}`} role="cell">
-                    {value ?? 'nie obejmuje'}
-                  </div>
+          {/* Tabela leży na karcie papieru. */}
+          <div className="sheet-card">
+            <div className="tab" style={cols} role="table" aria-label="Kwoty wypłat w najtańszym wariancie każdego produktu">
+              <div role="row">
+                <div className="corner" role="presentation" />
+                {prices.map(({ product }) => (
+                  <div key={product} className="colh" role="columnheader">{PRODUCT_LABELS[product]}</div>
                 ))}
               </div>
-            ))}
+              {rows.map((row) => (
+                <div key={row.key} role="row">
+                  <div className="stub" role="rowheader">
+                    {row.label}
+                    {row.note && <small>{row.note}</small>}
+                  </div>
+                  {row.values.map((value, i) => (
+                    <div key={i} className={`c${value === null ? ' no' : ''}`} role="cell">
+                      {value ?? 'nie obejmuje'}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
           <div className="pay-n">
             <p>

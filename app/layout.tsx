@@ -1,26 +1,14 @@
 import type { Metadata } from 'next';
-import { Archivo_Narrow, Bevan, Six_Caps } from 'next/font/google';
+import { Hanken_Grotesk } from 'next/font/google';
 import './globals.css';
 
-// Trzy kroje jednego afisza: Six Caps na wielkie wiersze i kwoty, Bevan na
-// nagłówki sekcji i nazwy, Archivo Narrow na wszystko, co się czyta.
-// `latin-ext` zawiera polskie znaki.
-const sixCaps = Six_Caps({
-  subsets: ['latin', 'latin-ext'],
-  weight: '400',
-  variable: '--font-six-caps',
-  display: 'swap',
-});
-const bevan = Bevan({
-  subsets: ['latin', 'latin-ext'],
-  weight: '400',
-  variable: '--font-bevan',
-  display: 'swap',
-});
-const archivoNarrow = Archivo_Narrow({
+// Jeden krój w całym serwisie: Hanken Grotesk (tekst, nagłówki, kwoty).
+// Motyw nazywa General Sans; Hanken Grotesk to jego wolny odpowiednik, który
+// można trzymać na własnym serwerze. `latin-ext` zawiera polskie znaki.
+const hanken = Hanken_Grotesk({
   subsets: ['latin', 'latin-ext'],
   weight: ['400', '500', '600'],
-  variable: '--font-archivo-narrow',
+  variable: '--font-hanken',
   display: 'swap',
 });
 
@@ -32,7 +20,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" className={`${sixCaps.variable} ${bevan.variable} ${archivoNarrow.variable}`}>
+    <html lang="pl" className={hanken.variable}>
       <body className="min-h-dvh flex flex-col">{children}</body>
     </html>
   );

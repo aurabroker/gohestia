@@ -241,6 +241,10 @@
   .q-age input:focus-visible {
     outline-color: var(--color-focus);
   }
+  /* Miejsce na podpowiedź jest zarezerwowane, żeby przycisk nie skakał po wpisaniu wieku. */
+  .q-live {
+    min-height: 5rem;
+  }
   .q-info {
     margin-top: var(--space-sm);
     max-width: 34ch;

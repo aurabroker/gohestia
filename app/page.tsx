@@ -88,7 +88,7 @@ export default function Home() {
                   />
                   <span>lat.</span>
                 </label>
-                <div id="wiek-info" aria-live="polite">
+                <div id="wiek-info" className="q-live" aria-live="polite">
                   {outOfRange ? (
                     <p className="q-info msg">
                       Do ubezpieczenia ERGO Razem mogą przystąpić osoby w wieku 18–65 lat.{' '}

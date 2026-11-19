@@ -12,7 +12,7 @@ interface PageHeroProps {
   backLabel?: string;
 }
 
-/** Nagłówek strony treściowej: pas blankietu z tytułem i krótkim wstępem. */
+/** Nagłówek strony treściowej: tytuł wielkimi literami, krótki wstęp i gruba kreska pod spodem. */
 export function PageHero({
   title,
   description,
@@ -22,7 +22,7 @@ export function PageHero({
   backLabel = 'Strona główna',
 }: PageHeroProps) {
   return (
-    <section className="sheet">
+    <section>
       <div className="wrap ph-page">
         {backHref && (
           <Link href={backHref} className="back">
@@ -31,7 +31,7 @@ export function PageHero({
         )}
         <h1>{title}</h1>
         {description && <p className="lead">{description}</p>}
-        {note && <p className="mt-2 text-[16px] text-druk-2">{note}</p>}
+        {note && <p className="ph-note">{note}</p>}
         {actions && <div className="acts">{actions}</div>}
       </div>
     </section>

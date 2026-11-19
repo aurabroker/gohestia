@@ -1,20 +1,26 @@
 import type { Metadata } from 'next';
-import { Fira_Sans, Fira_Sans_Condensed } from 'next/font/google';
+import { Archivo_Narrow, Bevan, Six_Caps } from 'next/font/google';
 import './globals.css';
 
-// Fira Sans: tekst i nagłówki. Fira Sans Condensed: kwoty i nagłówki tabel
-// (cztery kolumny kwot mieszczą się w 390 px bez przewijania w bok).
+// Trzy kroje jednego afisza: Six Caps na wielkie wiersze i kwoty, Bevan na
+// nagłówki sekcji i nazwy, Archivo Narrow na wszystko, co się czyta.
 // `latin-ext` zawiera polskie znaki.
-const fira = Fira_Sans({
+const sixCaps = Six_Caps({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-fira',
+  weight: '400',
+  variable: '--font-six-caps',
   display: 'swap',
 });
-const firaCond = Fira_Sans_Condensed({
+const bevan = Bevan({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-fira-cond',
+  weight: '400',
+  variable: '--font-bevan',
+  display: 'swap',
+});
+const archivoNarrow = Archivo_Narrow({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500', '600'],
+  variable: '--font-archivo-narrow',
   display: 'swap',
 });
 
@@ -26,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" className={`${fira.variable} ${firaCond.variable}`}>
+    <html lang="pl" className={`${sixCaps.variable} ${bevan.variable} ${archivoNarrow.variable}`}>
       <body className="min-h-dvh flex flex-col">{children}</body>
     </html>
   );

@@ -31,7 +31,7 @@ export function BenefitsTable({ benefits, caption }: Props) {
         {categories.map((cat) => (
           <tbody key={cat}>
             <tr>
-              <th colSpan={3} scope="colgroup" className="!bg-transparent !pt-4 !font-bold">
+              <th colSpan={3} scope="colgroup">
                 {CATEGORY_LABELS[cat]}
               </th>
             </tr>

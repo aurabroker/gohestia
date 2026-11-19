@@ -7,7 +7,7 @@ export default function KalkulatorLayout({ children }: { children: React.ReactNo
     <>
       <SiteHeader />
       <Stepper />
-      <main className="sheet flex-1">
+      <main className="flex-1">
         <div className="wrap of">{children}</div>
       </main>
       <SiteFooter />

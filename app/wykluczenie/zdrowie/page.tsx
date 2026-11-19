@@ -6,7 +6,7 @@ export default function WykluczenieZdrowiePage() {
   return (
     <>
       <SiteHeader />
-      <main className="sheet flex-1">
+      <main className="flex-1">
         <div className="wrap of">
           <div className="max-w-[44rem]">
             <h1>Niestety nie możesz przystąpić do Grupy Otwartej</h1>
@@ -15,7 +15,7 @@ export default function WykluczenieZdrowiePage() {
               do ubezpieczenia ERGO Razem w trybie Grupy Otwartej.
             </p>
 
-            <section className="qc mt-7" aria-labelledby="polisa-indywidualna">
+            <section className="qc mt-10" aria-labelledby="polisa-indywidualna">
               <h2 id="polisa-indywidualna">Polisa indywidualna ERGO Hestia</h2>
               <p className="qc-d">
                 Możesz ubiegać się o indywidualną polisę na życie. Polisa indywidualna może:
@@ -27,7 +27,7 @@ export default function WykluczenieZdrowiePage() {
               <p className="hint mt-3">Zakres ochrony i składka ustalane są indywidualnie.</p>
             </section>
 
-            <div className="mt-7 grid gap-3 sm:flex sm:flex-wrap">
+            <div className="mt-10 grid gap-2 min-[60rem]:flex min-[60rem]:flex-wrap">
               <a
                 href="https://www.ergohestia.pl/ubezpieczenie-na-zycie/"
                 target="_blank"

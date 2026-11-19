@@ -5,7 +5,7 @@ import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { ADDONS, PRODUCT_LABELS } from '@/lib/data/premiums';
 import { AGE_RANGE, PRODUCT_WHO, getHomeRows, getPriceRanges } from '@/lib/benefit-rows';
-import type { AgeGroup } from '@/types';
+import type { AgeGroup, ProductType } from '@/types';
 
 function groupForAge(age: number): AgeGroup | null {
   if (age >= 18 && age <= 53) return 'A1';
@@ -14,6 +14,14 @@ function groupForAge(age: number): AgeGroup | null {
   return null;
 }
 
+// Zdjęcia z pierwszej wersji serwisu, po jednym na produkt: kogo obejmuje ochrona.
+// `at` to punkt kadru (object-position), żeby twarze zostały w wąskiej ramce.
+const PRODUCT_PHOTO: Record<ProductType, { src: string; alt: string; at: string }> = {
+  dla_mnie:    { src: '/zdjecia/dla-mnie.jpg',    alt: 'Uśmiechnięta kobieta w parku', at: '50% 28%' },
+  dla_nas:     { src: '/zdjecia/dla-nas.jpg',     alt: 'Para: kobieta na plecach mężczyzny, oboje z rozłożonymi rękami', at: '50% 30%' },
+  dla_rodziny: { src: '/zdjecia/dla-rodziny.jpg', alt: 'Rodzice z córką i psem biegną po plaży', at: '50% 62%' },
+};
+
 const STEPS = [
   { title: 'Wiek',    text: 'Podajesz datę urodzenia. Od wieku zależy składka.' },
   { title: 'Zdrowie', text: 'Pięć oświadczeń, bez badań lekarskich. Odpowiedzi zostają w Twojej przeglądarce.' },
@@ -21,12 +29,23 @@ const STEPS = [
   { title: 'Kontakt', text: 'Zostawiasz telefon i e-mail. Agent oddzwania w ciągu 1–2 dni roboczych.' },
 ];
 
+// Wiersze nagłówka są dopasowane do szerokości: rozmiar pisma to ułamek
+// szerokości nagłówka (jednostka cqi), zmierzony dla kroju Six Caps.
+// Telefon: dwa wiersze, każdy na całą szerokość. Komputer: jeden wiersz.
+const HEAD = {
+  '--k-row': 9.72,
+} as CSSProperties;
+const HEAD_LINES = [
+  { text: 'Ile kosztuje ubezpieczenie ', k: 17.6 },
+  { text: 'na życie ERGO Razem?', k: 22.3 },
+];
+
 export default function Home() {
   const [age, setAge] = useState('');
 
   const ageNumber = age === '' ? null : Number(age);
   const typedGroup = ageNumber === null ? null : groupForAge(ageNumber);
-  // Wiek jeszcze niewpisany albo spoza zakresu: pokazujemy tabelę dla 18–53 lat.
+  // Wiek jeszcze niewpisany albo spoza zakresu: pokazujemy składki dla 18–53 lat.
   const outOfRange = ageNumber !== null && age.length >= 2 && typedGroup === null;
   const group: AgeGroup = typedGroup ?? 'A1';
 
@@ -39,10 +58,21 @@ export default function Home() {
       <SiteHeader />
 
       <main className="flex-1">
-        <section className={`sheet${outOfRange ? ' is-out' : ''}`}>
-          <div className="wrap hero hero-grid">
-            <div>
-              <div className="q">
+        {/* Afisz: pytanie na całą szerokość, pod nim rachunek trzech składek,
+            który przedrukowuje się po wpisaniu wieku. Pole wieku i akcja to jeden
+            krok w lewej kolumnie. */}
+        <section className={`hero${outOfRange ? ' is-out' : ''}`}>
+          <div className="wrap">
+            <h1 className="bill-h" style={HEAD}>
+              {HEAD_LINES.map((line) => (
+                <span key={line.text} className="fit" style={{ '--k': line.k } as CSSProperties}>
+                  {line.text}
+                </span>
+              ))}
+            </h1>
+
+            <div className="rate">
+              <div className="ask">
                 <label className="q-age">
                   <span>Mam</span>
                   <input
@@ -51,7 +81,6 @@ export default function Home() {
                     pattern="[0-9]*"
                     maxLength={2}
                     autoComplete="off"
-                    placeholder="35"
                     aria-label="Twój wiek w latach"
                     aria-describedby="wiek-info"
                     value={age}
@@ -59,108 +88,104 @@ export default function Home() {
                   />
                   <span>lat.</span>
                 </label>
-                <h1>Ile kosztuje ubezpieczenie na życie ERGO Razem?</h1>
+                <div id="wiek-info" aria-live="polite">
+                  {outOfRange ? (
+                    <p className="q-info msg">
+                      Do ubezpieczenia ERGO Razem mogą przystąpić osoby w wieku 18–65 lat.{' '}
+                      <Link href="/wykluczenie/wiek">Zobacz, co możesz zrobić</Link>. Obok składki dla
+                      wieku {AGE_RANGE.A1}.
+                    </p>
+                  ) : typedGroup === null ? (
+                    <p className="q-info">
+                      Wpisz swój wiek, a tabela pokaże Twoje składki. Teraz widzisz składki dla
+                      wieku {AGE_RANGE.A1}.
+                    </p>
+                  ) : null}
+                </div>
+                <div className="cta">
+                  <Link href="/kalkulator/wiek" className="btn">Sprawdź składkę</Link>
+                  <p className="cta-n">
+                    Cztery kroki, kilka minut, bez badań lekarskich.
+                    <br />
+                    Niczego nie kupujesz online: na końcu wysyłasz zapytanie do agenta.
+                  </p>
+                </div>
               </div>
 
-              <div id="wiek-info" aria-live="polite">
-                {outOfRange ? (
-                  <p className="q-info msg">
-                    Do ubezpieczenia ERGO Razem mogą przystąpić osoby w wieku 18–65 lat.{' '}
-                    <Link href="/wykluczenie/wiek">Zobacz, co możesz zrobić</Link>. Obok składki dla
-                    wieku {AGE_RANGE.A1}.
-                  </p>
-                ) : typedGroup === null ? (
-                  <p className="q-info">
-                    Wpisz swój wiek, a tabela pokaże Twoje składki. Teraz widzisz składki dla
-                    wieku {AGE_RANGE.A1}.
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="cta d">
-                <Link href="/kalkulator/wiek" className="btn">Sprawdź składkę</Link>
-                <p className="cta-n">
-                  Cztery kroki, kilka minut, bez badań lekarskich.
-                  <br />
-                  Niczego nie kupujesz online: na końcu wysyłasz zapytanie do agenta.
+              <div className="offer">
+                <p className="rate-cap" id="rate-cap">
+                  Płacisz miesięcznie
+                  <small>wiek {AGE_RANGE[group]}</small>
                 </p>
-              </div>
-            </div>
-
-            <div className="hero-t">
-              <div className="tab" style={cols} role="table" aria-label="Składka miesięczna według produktu">
-                <div role="row">
-                  <div className="corner" role="presentation" />
-                  {prices.map(({ product }) => (
-                    <div key={product} className="c ph" role="columnheader">
-                      <b>{PRODUCT_LABELS[product]}</b>
-                      <span>{PRODUCT_WHO[product]}</span>
-                    </div>
-                  ))}
-                </div>
-                <div role="row">
-                  <div className="stub" role="rowheader">
-                    Płacisz miesięcznie
-                    <small>wiek {AGE_RANGE[group]}</small>
-                  </div>
-                  {prices.map(({ product, min, max }, i) => (
-                    <div key={product} className="c pp" role="cell">
-                      <small>od</small>
-                      <strong>
-                        <span key={group} className="swap" style={{ '--i': i } as CSSProperties}>{min} zł</span>
-                      </strong>
-                      <small>do {max} zł</small>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="cta m">
-                <Link href="/kalkulator/wiek" className="btn">Sprawdź składkę</Link>
-                <p className="cta-n">Cztery kroki, kilka minut, bez badań lekarskich.</p>
-              </div>
-
-              <div className="pay">
-                <h2 className="pay-h">
-                  Ubezpieczenie wypłaca
-                  <small>kwoty w najtańszym wariancie każdego produktu</small>
-                </h2>
-                <div className="tab" style={cols} role="table" aria-label="Kwoty wypłat w najtańszym wariancie każdego produktu">
-                  <div role="row">
-                    <div className="corner" role="presentation" />
-                    {prices.map(({ product }) => (
-                      <div key={product} className="colh" role="columnheader">{PRODUCT_LABELS[product]}</div>
-                    ))}
-                  </div>
-                  {rows.map((row, r) => (
-                    <div key={row.key} role="row">
-                      <div className="stub" role="rowheader">
-                        {row.label}
-                        {row.note && <small>{row.note}</small>}
+                <ul className="rate-l" aria-labelledby="rate-cap">
+                  {prices.map(({ product, min, max }) => (
+                    <li key={product} className="pr">
+                      <figure className="plate">
+                        <span>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={PRODUCT_PHOTO[product].src}
+                            alt={PRODUCT_PHOTO[product].alt}
+                            width={960}
+                            height={640}
+                            style={{ objectPosition: PRODUCT_PHOTO[product].at }}
+                          />
+                        </span>
+                      </figure>
+                      <div className="ph">
+                        <b>{PRODUCT_LABELS[product]}</b>
+                        <span>{PRODUCT_WHO[product]}</span>
                       </div>
-                      {row.values.map((value, i) => (
-                        <div key={i} className={`c${value === null ? ' no' : ''}`} role="cell">
-                          <span key={group} className="swap" style={{ '--i': 3 + r * 3 + i } as CSSProperties}>
-                            {value ?? 'nie obejmuje'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                      <p className="pp">
+                        <small>od</small>
+                        <strong>{min} zł</strong>
+                        <small>do {max} zł</small>
+                      </p>
+                    </li>
                   ))}
-                </div>
-                <div className="pay-n">
-                  <p>
-                    Wyższe warianty kosztują więcej i wypłacają więcej. W kalkulatorze zobaczysz je obok
-                    siebie. Do każdego wariantu możesz dołączyć {ADDONS.mediplan.label} (+{ADDONS.mediplan.monthly} zł)
-                    i {ADDONS.medical_assistance.label} (+{ADDONS.medical_assistance.monthly} zł miesięcznie).
-                  </p>
-                  <p>
-                    Karencja to czas od początku ubezpieczenia, w którym dana ochrona jeszcze nie działa.
-                    Szczegóły w OWU (kod ER 01/25).
-                  </p>
-                </div>
+                </ul>
               </div>
+
             </div>
+          </div>
+        </section>
+
+        <section className="wrap pay" aria-labelledby="wyplaty">
+          <h2 id="wyplaty">
+            Ubezpieczenie wypłaca
+            <small>kwoty w najtańszym wariancie każdego produktu</small>
+          </h2>
+          <div className="tab" style={cols} role="table" aria-label="Kwoty wypłat w najtańszym wariancie każdego produktu">
+            <div role="row">
+              <div className="corner" role="presentation" />
+              {prices.map(({ product }) => (
+                <div key={product} className="colh" role="columnheader">{PRODUCT_LABELS[product]}</div>
+              ))}
+            </div>
+            {rows.map((row) => (
+              <div key={row.key} role="row">
+                <div className="stub" role="rowheader">
+                  {row.label}
+                  {row.note && <small>{row.note}</small>}
+                </div>
+                {row.values.map((value, i) => (
+                  <div key={i} className={`c${value === null ? ' no' : ''}`} role="cell">
+                    {value ?? 'nie obejmuje'}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="pay-n">
+            <p>
+              Wyższe warianty kosztują więcej i wypłacają więcej. W kalkulatorze zobaczysz je obok
+              siebie. Do każdego wariantu możesz dołączyć {ADDONS.mediplan.label} (+{ADDONS.mediplan.monthly} zł)
+              i {ADDONS.medical_assistance.label} (+{ADDONS.medical_assistance.monthly} zł miesięcznie).
+            </p>
+            <p>
+              Karencja to czas od początku ubezpieczenia, w którym dana ochrona jeszcze nie działa.
+              Szczegóły w OWU (kod ER 01/25).
+            </p>
           </div>
         </section>
 

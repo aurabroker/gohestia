@@ -446,8 +446,8 @@ Administratorem danych jest Centrum Pomocy Osobom Poszkodowanym Sp. z o.o., 80-3
               </a>
             </li>
             <li>
-              <a href="/informacja-o-agencie" target="_blank" rel="noopener noreferrer">
-                Informacja o agencie (dystrybutorze)
+              <a href="/dokumenty/informacja-o-dystrybutorze.pdf" target="_blank" rel="noopener noreferrer">
+                Informacja o agencie (dystrybutorze) (PDF)
               </a>
             </li>
           </ul>

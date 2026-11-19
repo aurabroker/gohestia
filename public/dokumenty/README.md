@@ -13,7 +13,7 @@ i `owu.pdf` to dwa różne pliki.
 | Plik                                  | Dokument                                  | W repozytorium |
 | ------------------------------------- | ----------------------------------------- | -------------- |
 | `owu.pdf`                             | OWU ERGO Razem (kod ER 01/25)             | tak            |
-| `informacja-o-dystrybutorze.pdf`      | Informacja o dystrybutorze (Aura Expert)  | **nie — do dodania** |
+| `informacja-o-dystrybutorze.pdf`      | Informacja o dystrybutorze (Aura Expert)  | tak            |
 | `ipid.pdf` *(opcjonalnie)*            | IPID — tylko jeśli jest osobnym plikiem   | nie            |
 
 ## Uwagi
@@ -27,8 +27,8 @@ i `owu.pdf` to dwa różne pliki.
   - klient dostaje w mailu listę faktycznie dołączonych dokumentów oraz
     (gdy ustawiono `SITE_URL`) linki do OWU i strony „Informacja o agencie",
   - w logach workera pojawia się wpis z nazwą brakującego pliku.
-- Dopóki `informacja-o-dystrybutorze.pdf` nie zostanie tu dodany, każde
-  zgłoszenie generuje powyższe ostrzeżenie dla agenta.
+- Test `tests/documents.test.ts` pilnuje, żeby każdy plik z konfiguracji
+  istniał tutaj pod dokładnie taką nazwą i był poprawnym PDF-em.
 - Na Cloudflare pliki są czytane przez binding `ASSETS` (wrangler.jsonc);
   lokalnie (`next dev` / `next start`) pobierane po HTTP z `SITE_URL` albo
   z adresu bieżącego żądania.

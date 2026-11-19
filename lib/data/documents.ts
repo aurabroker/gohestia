@@ -32,8 +32,6 @@ export const OFFER_DOCUMENTS: OfferDocument[] = [
     required: true,
   },
   {
-    // Pliku nie ma jeszcze w repozytorium — do czasu jego dodania agent
-    // dostaje w mailu ostrzeżenie, że tego dokumentu nie dołączono.
     file: 'dokumenty/informacja-o-dystrybutorze.pdf',
     filename: 'Informacja_o_dystrybutorze_Aura_Expert.pdf',
     title: 'Informacja o dystrybutorze (Aura Expert)',

@@ -1,410 +1,189 @@
 'use client';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp, Shield, Heart, Users, Star, Phone, FileText, HelpCircle, Globe2 } from 'lucide-react';
-import { VariantsComparisonTable } from '@/components/variants-comparison-table';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
-import type { ProductType } from '@/types';
+import { ADDONS, PRODUCT_LABELS } from '@/lib/data/premiums';
+import { AGE_RANGE, PRODUCT_WHO, getHomeRows, getPriceRanges } from '@/lib/benefit-rows';
+import type { AgeGroup } from '@/types';
 
-const PRODUCTS: {
-  type: ProductType;
-  label: string;
-  desc: string;
-  image: string;
-  bg: string;
-  border: string;
-  accent: string;
-  pillBg: string;
-  features: string[];
-}[] = [
-  {
-    type: 'dla_mnie',
-    label: 'Dla Mnie',
-    desc: 'Ubezpieczenie indywidualne — kompleksowa ochrona tylko dla Ciebie',
-    image: '/girl.jpg',
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    accent: 'text-blue-700',
-    pillBg: 'bg-blue-100 text-blue-700',
-    features: ['Zgon z każdej przyczyny', 'Wypadki i NW', 'Leczenie szpitalne', 'Poważne zachorowania (56 jednostek)', 'Operacje chirurgiczne', 'Trwały uszczerbek'],
-  },
-  {
-    type: 'dla_nas',
-    label: 'Dla Nas',
-    desc: 'Ty i Twój małżonek lub partner życiowy — ochrona dla dwojga',
-    image: '/para.jpg',
-    bg: 'bg-rose-50',
-    border: 'border-rose-200',
-    accent: 'text-rose-700',
-    pillBg: 'bg-rose-100 text-rose-700',
-    features: ['Wszystko z pakietu "Dla Mnie"', 'Zgon małżonka / partnera', 'Trwałe inwalidztwo partnera', 'Poważne zachorowania partnera (12 jednostek)', 'Zgon rodziców i teściów'],
-  },
-  {
-    type: 'dla_rodziny',
-    label: 'Dla Rodziny',
-    desc: 'Ty, partner, dzieci i rodzice — pełna ochrona całej rodziny',
-    image: '/family.jpg',
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-200',
-    accent: 'text-emerald-700',
-    pillBg: 'bg-emerald-100 text-emerald-700',
-    features: ['Wszystko z pakietu "Dla Nas"', 'Zgon i inwalidztwo dziecka NW', 'Poważne zachorowania dziecka (18 jednostek)', 'Urodzenie dziecka / wada wrodzona', 'Osierocenie dziecka', 'Leczenie szpitalne dziecka'],
-  },
-];
+function groupForAge(age: number): AgeGroup | null {
+  if (age >= 18 && age <= 53) return 'A1';
+  if (age >= 54 && age <= 59) return 'A2';
+  if (age >= 60 && age <= 65) return 'B';
+  return null;
+}
 
-const HIGHLIGHTS = [
-  { icon: Shield, title: 'Ochrona 24/7', desc: 'Ubezpieczenie działa przez całą dobę, w Polsce i za granicą.' },
-  { icon: Heart, title: '56 chorób objętych', desc: 'Poważne zachorowania — od zawału po nowotwory i udar mózgu.' },
-  { icon: Star, title: 'Bez badań lekarskich', desc: 'Tylko ankieta medyczna wypełniana elektronicznie — szybko i prosto.' },
-  { icon: Users, title: 'Ochrona całej rodziny', desc: 'Warianty obejmują partnera, dzieci oraz rodziców i teściów.' },
-  { icon: Phone, title: 'Kontakt z agentem', desc: 'Dedykowany agent ERGO Hestia omówi szczegóły i pomoże wybrać wariant.' },
-  { icon: FileText, title: 'Transparentne OWU', desc: 'Pełna dokumentacja dostępna — szczegóły w OWU kod ER 01/25.' },
+const STEPS = [
+  { title: 'Wiek',    text: 'Podajesz datę urodzenia. Od wieku zależy składka.' },
+  { title: 'Zdrowie', text: 'Pięć oświadczeń, bez badań lekarskich. Odpowiedzi zostają w Twojej przeglądarce.' },
+  { title: 'Oferta',  text: 'Wybierasz produkt, wariant i dodatki. Widzisz dokładną składkę.' },
+  { title: 'Kontakt', text: 'Zostawiasz telefon i e-mail. Agent oddzwania w ciągu 1–2 dni roboczych.' },
 ];
 
 export default function Home() {
-  const [open, setOpen] = useState<ProductType | null>(null);
   const [age, setAge] = useState('');
 
-  function toggle(type: ProductType) {
-    setOpen(prev => prev === type ? null : type);
-  }
+  const ageNumber = age === '' ? null : Number(age);
+  const typedGroup = ageNumber === null ? null : groupForAge(ageNumber);
+  // Wiek jeszcze niewpisany albo spoza zakresu: pokazujemy tabelę dla 18–53 lat.
+  const outOfRange = ageNumber !== null && age.length >= 2 && typedGroup === null;
+  const group: AgeGroup = typedGroup ?? 'A1';
 
-  const ageNum = parseInt(age, 10);
-  const ageGroup: 'A1' | 'A2' | 'B' | null =
-    !age || isNaN(ageNum) ? null :
-    ageNum >= 18 && ageNum <= 53 ? 'A1' :
-    ageNum >= 54 && ageNum <= 59 ? 'A2' :
-    ageNum >= 60 && ageNum <= 65 ? 'B' : null;
-
-  const ageGroupLabel =
-    ageGroup === 'A1' ? '18–53 lat' :
-    ageGroup === 'A2' ? '54–59 lat' :
-    ageGroup === 'B'  ? '60–65 lat' : null;
-
-  const ageError =
-    age && (isNaN(ageNum) || ageNum < 18 || ageNum > 65)
-      ? 'Ubezpieczenie dostępne dla osób w wieku 18–65 lat.'
-      : null;
+  const prices = getPriceRanges(group);
+  const rows = getHomeRows(group);
+  const cols = { '--n': 3 } as CSSProperties;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <main className="flex-1">
-
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-white via-red-50 to-rose-100 border-b border-rose-100">
-          <div className="max-w-5xl mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-block rounded-full bg-[#E4002B]/10 text-[#E4002B] px-4 py-1 text-sm font-medium">
-                Sopockie TU na Życie ERGO Hestia S.A.
+        <section className={`sheet${outOfRange ? ' is-out' : ''}`}>
+          <div className="wrap hero hero-grid">
+            <div>
+              <div className="q">
+                <label className="q-age">
+                  <span>Mam</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={2}
+                    autoComplete="off"
+                    placeholder="35"
+                    aria-label="Twój wiek w latach"
+                    aria-describedby="wiek-info"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value.replace(/\D/g, '').slice(0, 2))}
+                  />
+                  <span>lat.</span>
+                </label>
+                <h1>Ile kosztuje ubezpieczenie na życie ERGO Razem?</h1>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
-                Grupowe ubezpieczenie na życie <span className="text-[#E4002B]">ERGO Razem</span>
-              </h2>
-              <p className="text-gray-600 text-lg leading-relaxed">
-                Kompleksowa ochrona Ciebie i Twoich bliskich. Wypłaty nawet do <strong className="text-gray-900">500 000 zł</strong> — bez badań lekarskich, w kilka minut online.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  href="/kalkulator/wiek"
-                  className="rounded-lg bg-[#E4002B] px-8 py-4 font-semibold text-white hover:bg-[#c00025] transition-colors text-lg shadow-sm"
-                >
-                  Oblicz składkę →
-                </Link>
-                <a
-                  href="#produkty"
-                  className="rounded-lg bg-white border border-gray-200 px-8 py-4 font-semibold text-gray-700 hover:bg-gray-50 transition-colors text-lg shadow-sm"
-                >
-                  Zobacz świadczenia ↓
-                </a>
-              </div>
-            </div>
-            {/* Video panel */}
-            <div className="hidden md:block relative rounded-2xl overflow-hidden shadow-xl border border-rose-100" style={{aspectRatio:'16/9'}}>
-              <video
-                src="/hero-family.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full object-cover"
-              />
-              {/* Stat overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-5 flex gap-4 text-white">
-                <div>
-                  <p className="text-2xl font-bold">500 000 zł</p>
-                  <p className="text-xs text-white/70">maks. wypłata za zgon NW</p>
-                </div>
-                <div className="border-l border-white/30 pl-4">
-                  <p className="text-2xl font-bold">od 57 zł</p>
-                  <p className="text-xs text-white/70">składka miesięczna</p>
-                </div>
-                <div className="border-l border-white/30 pl-4">
-                  <p className="text-2xl font-bold">56</p>
-                  <p className="text-xs text-white/70">chorób objętych</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Highlights */}
-        <section className="bg-white border-b border-gray-100 py-14">
-          <div className="max-w-5xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-10">Dlaczego ERGO Razem?</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {HIGHLIGHTS.map(h => (
-                <div key={h.title} className="flex gap-4 p-5 rounded-xl bg-gray-50 border border-gray-100">
-                  <div className="shrink-0 w-10 h-10 rounded-lg bg-[#E4002B]/10 flex items-center justify-center">
-                    <h.icon className="w-5 h-5 text-[#E4002B]" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{h.title}</p>
-                    <p className="text-sm text-gray-500 mt-0.5">{h.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+              <div id="wiek-info" aria-live="polite">
+                {outOfRange ? (
+                  <p className="q-info msg">
+                    Do ubezpieczenia ERGO Razem mogą przystąpić osoby w wieku 18–65 lat.{' '}
+                    <Link href="/wykluczenie/wiek">Zobacz, co możesz zrobić</Link>. Obok składki dla
+                    wieku {AGE_RANGE.A1}.
+                  </p>
+                ) : typedGroup === null ? (
+                  <p className="q-info">
+                    Wpisz swój wiek, a tabela pokaże Twoje składki. Teraz widzisz składki dla
+                    wieku {AGE_RANGE.A1}.
+                  </p>
+                ) : null}
+              </div>
 
-        {/* Product accordions with full comparison tables */}
-        <section id="produkty" className="py-14">
-          <div className="max-w-5xl mx-auto px-4 space-y-6">
-            <div className="mb-10">
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-900">Wybierz zakres ochrony</h3>
-                  <p className="text-gray-500 mt-1 text-sm">Kliknij produkt, aby zobaczyć pełną tabelę świadczeń i składek.</p>
-                </div>
-                <div className="shrink-0">
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Twój wiek</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={18}
-                      max={65}
-                      placeholder="np. 35"
-                      value={age}
-                      onChange={e => setAge(e.target.value)}
-                      className="w-24 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
-                    />
-                    {ageGroupLabel && (
-                      <span className="rounded-full bg-[#E4002B]/10 text-[#E4002B] text-xs font-semibold px-3 py-1">
-                        Grupa {ageGroup} · {ageGroupLabel}
-                      </span>
-                    )}
-                  </div>
-                  {ageError && <p className="mt-1 text-xs text-red-500">{ageError}</p>}
-                  {!age && <p className="mt-1 text-xs text-gray-400">Wpisz wiek, aby zobaczyć Twoje składki</p>}
-                </div>
+              <div className="cta d">
+                <Link href="/kalkulator/wiek" className="btn">Sprawdź składkę</Link>
+                <p className="cta-n">
+                  Cztery kroki, kilka minut, bez badań lekarskich.
+                  <br />
+                  Niczego nie kupujesz online: na końcu wysyłasz zapytanie do agenta.
+                </p>
               </div>
             </div>
 
-            {PRODUCTS.map((p, i) => {
-              const imageRight = i % 2 === 1;
-              return (
-              <div key={p.type} className={`rounded-2xl border ${p.border} shadow-sm overflow-hidden`}>
-                <button
-                  onClick={() => toggle(p.type)}
-                  className="w-full text-left"
-                >
-                  <div className={`${p.bg} flex flex-col sm:flex-row items-stretch ${imageRight ? 'sm:flex-row-reverse' : ''}`}>
-                    {/* Image side */}
-                    <div className="relative shrink-0 sm:w-2/5 h-48 sm:h-auto sm:min-h-[220px]">
-                      <img
-                        src={p.image}
-                        alt={`Ubezpieczenie ${p.label}`}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
+            <div className="hero-t">
+              <div className="tab" style={cols} role="table" aria-label="Składka miesięczna według produktu">
+                <div role="row">
+                  <div className="corner" role="presentation" />
+                  {prices.map(({ product }) => (
+                    <div key={product} className="c ph" role="columnheader">
+                      <b>{PRODUCT_LABELS[product]}</b>
+                      <span>{PRODUCT_WHO[product]}</span>
                     </div>
-                    {/* Content side */}
-                    <div className="p-6 flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className={`text-xl font-bold ${p.accent}`}>{p.label}</h4>
-                          <p className="text-gray-600 text-sm mt-0.5">{p.desc}</p>
-                        </div>
-                        <div className="shrink-0 ml-4">
-                          {open === p.type
-                            ? <ChevronUp className="h-6 w-6 text-gray-400" />
-                            : <ChevronDown className="h-6 w-6 text-gray-400" />
-                          }
-                        </div>
+                  ))}
+                </div>
+                <div role="row">
+                  <div className="stub" role="rowheader">
+                    Płacisz miesięcznie
+                    <small>wiek {AGE_RANGE[group]}</small>
+                  </div>
+                  {prices.map(({ product, min, max }, i) => (
+                    <div key={product} className="c pp" role="cell">
+                      <small>od</small>
+                      <strong>
+                        <span key={group} className="swap" style={{ '--i': i } as CSSProperties}>{min} zł</span>
+                      </strong>
+                      <small>do {max} zł</small>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="cta m">
+                <Link href="/kalkulator/wiek" className="btn">Sprawdź składkę</Link>
+                <p className="cta-n">Cztery kroki, kilka minut, bez badań lekarskich.</p>
+              </div>
+
+              <div className="pay">
+                <h2 className="pay-h">
+                  Ubezpieczenie wypłaca
+                  <small>kwoty w najtańszym wariancie każdego produktu</small>
+                </h2>
+                <div className="tab" style={cols} role="table" aria-label="Kwoty wypłat w najtańszym wariancie każdego produktu">
+                  <div role="row">
+                    <div className="corner" role="presentation" />
+                    {prices.map(({ product }) => (
+                      <div key={product} className="colh" role="columnheader">{PRODUCT_LABELS[product]}</div>
+                    ))}
+                  </div>
+                  {rows.map((row, r) => (
+                    <div key={row.key} role="row">
+                      <div className="stub" role="rowheader">
+                        {row.label}
+                        {row.note && <small>{row.note}</small>}
                       </div>
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {p.features.map(f => (
-                          <span key={f} className={`rounded-full ${p.pillBg} px-3 py-1 text-xs font-medium`}>
-                            ✓ {f}
+                      {row.values.map((value, i) => (
+                        <div key={i} className={`c${value === null ? ' no' : ''}`} role="cell">
+                          <span key={group} className="swap" style={{ '--i': 3 + r * 3 + i } as CSSProperties}>
+                            {value ?? 'nie obejmuje'}
                           </span>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </button>
-
-                {open === p.type && (
-                  <div className="p-4 md:p-6">
-                    {ageGroupLabel && (
-                      <p className="text-sm text-gray-500 mb-4">
-                        Składki i świadczenia dla grupy wiekowej <strong>{ageGroupLabel}</strong>.
-                      </p>
-                    )}
-                    <VariantsComparisonTable product={p.type} ageGroup={ageGroup ?? 'A1'} />
-                    <div className="mt-6 flex justify-center">
-                      <Link
-                        href="/kalkulator/wiek"
-                        className="rounded-lg bg-[#E4002B] px-8 py-3.5 font-semibold text-white hover:bg-[#c00025] transition-colors"
-                      >
-                        Oblicz swoją składkę →
-                      </Link>
-                    </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+                <div className="pay-n">
+                  <p>
+                    Wyższe warianty kosztują więcej i wypłacają więcej. W kalkulatorze zobaczysz je obok
+                    siebie. Do każdego wariantu możesz dołączyć {ADDONS.mediplan.label} (+{ADDONS.mediplan.monthly} zł)
+                    i {ADDONS.medical_assistance.label} (+{ADDONS.medical_assistance.monthly} zł miesięcznie).
+                  </p>
+                  <p>
+                    Karencja to czas od początku ubezpieczenia, w którym dana ochrona jeszcze nie działa.
+                    Szczegóły w OWU (kod ER 01/25).
+                  </p>
+                </div>
               </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* How it works */}
-        <section className="bg-white border-t border-gray-100 py-14">
-          <div className="max-w-5xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-10">Jak to działa?</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-              {[
-                { step: '1', title: 'Podaj wiek', desc: 'Wpisz datę urodzenia — dopasujemy dostępne warianty.' },
-                { step: '2', title: 'Ankieta', desc: 'Krótka ankieta medyczna — wypełniana tylko w przeglądarce, nic nie wysyłamy.' },
-                { step: '3', title: 'Wybierz ofertę', desc: 'Porównaj warianty i skonfiguruj dodatki (MediPlan, Medical Assistance, Global Doctors).' },
-                { step: '4', title: 'Agent oddzwoni', desc: 'Zostawiasz dane kontaktowe — agent ERGO Hestia skontaktuje się w 1–2 dni.' },
-              ].map(s => (
-                <div key={s.step} className="text-center">
-                  <div className="w-12 h-12 rounded-full bg-[#E4002B] text-white font-bold text-lg flex items-center justify-center mx-auto mb-3">
-                    {s.step}
-                  </div>
-                  <p className="font-semibold text-gray-900">{s.title}</p>
-                  <p className="text-sm text-gray-500 mt-1">{s.desc}</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
 
-        {/* Explore details: illness catalog + additional insurance */}
-        <section className="border-t border-gray-100 py-14">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <h3 className="text-2xl font-bold text-gray-900">Poznaj szczegóły ochrony</h3>
-              <p className="text-gray-500 mt-1 text-sm">
-                Sprawdź pełny zakres świadczeń — katalog poważnych zachorowań oraz dodatkowe pakiety medyczne.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Katalog zachorowań */}
-              <Link
-                href="/katalog-zachorowan"
-                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
-                  <Heart className="h-6 w-6" />
+        <section className="wrap steps" aria-labelledby="kroki">
+          <h2 id="kroki">Cztery kroki do rozmowy z agentem</h2>
+          <ol className="stp">
+            {STEPS.map((step, i) => (
+              <li key={step.title}>
+                <span className="n" aria-hidden="true">{i + 1}</span>
+                <div>
+                  <b>{step.title}</b>
+                  <p>{step.text}</p>
                 </div>
-                <div className="min-w-0">
-                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
-                    Katalog poważnych zachorowań
-                  </h4>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Pełna lista poważnych zachorowań objętych ochroną ERGO Razem — z definicjami i zakresem dla każdego wariantu.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
-                    Zobacz katalog →
-                  </span>
-                </div>
-              </Link>
-              {/* MediPlan / Medical Assistance */}
-              <Link
-                href="/ubezpieczenia-dodatkowe"
-                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
-                  <Shield className="h-6 w-6" />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
-                    MediPlan / Medical Assistance
-                  </h4>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Ubezpieczenia dodatkowe — specjalistyczna pomoc medyczna po wypadku oraz pomoc opiekuńczo-medyczna dla całej rodziny.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
-                    Zobacz szczegóły →
-                  </span>
-                </div>
-              </Link>
-              {/* Global Doctors */}
-              <Link
-                href="/global-doctors"
-                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
-                  <Globe2 className="h-6 w-6" />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
-                    Global Doctors
-                  </h4>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Dodatkowe ubezpieczenie GD 02/24 — dostęp do konsultacji z lekarzami specjalistami na świecie w przypadku poważnych diagnoz.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
-                    Zobacz szczegóły →
-                  </span>
-                </div>
-              </Link>
-              {/* FAQ */}
-              <Link
-                href="/faq"
-                className="group flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:border-[#E4002B] hover:shadow-md transition-all"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#E4002B]/10 text-[#E4002B] flex items-center justify-center">
-                  <HelpCircle className="h-6 w-6" />
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-lg font-bold text-gray-900 group-hover:text-[#E4002B] transition-colors">
-                    Najczęściej zadawane pytania
-                  </h4>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Odpowiedzi na pytania o przystąpienie, ankietę medyczną, składki, warianty i zgłaszanie roszczeń.
-                  </p>
-                  <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#E4002B] mt-3">
-                    Zobacz FAQ →
-                  </span>
-                </div>
-              </Link>
-            </div>
+              </li>
+            ))}
+          </ol>
+          <div className="cta">
+            <Link href="/kalkulator/wiek" className="btn">Sprawdź składkę</Link>
           </div>
         </section>
-
-        {/* Bottom CTA */}
-        <section className="bg-gradient-to-br from-rose-50 to-red-50 border-t border-rose-100 py-16">
-          <div className="max-w-2xl mx-auto px-4 text-center space-y-4">
-            <h3 className="text-3xl font-bold text-gray-900">Gotowy(-a) na ochronę?</h3>
-            <p className="text-gray-600 text-lg">
-              Oblicz składkę w kilka minut. Bez zobowiązań, bez badań lekarskich.
-            </p>
-            <Link
-              href="/kalkulator/wiek"
-              className="inline-block rounded-lg bg-[#E4002B] text-white px-10 py-4 font-bold text-lg hover:bg-[#c00025] transition-colors shadow-sm"
-            >
-              Złóż wniosek →
-            </Link>
-          </div>
-        </section>
-
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

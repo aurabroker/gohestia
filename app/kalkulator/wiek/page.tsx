@@ -9,7 +9,7 @@ export default function WiekPage() {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const { setAgeGroup, setBirthDate } = useCalculatorStore();
+  const { setAgeGroup, setBirthDate, reset } = useCalculatorStore();
 
   const maxDate = format(subYears(new Date(), 18), 'yyyy-MM-dd');
   const minDate = format(subYears(new Date(), 66), 'yyyy-01-01');
@@ -22,6 +22,9 @@ export default function WiekPage() {
     if (!group) {
       router.push('/wykluczenie/wiek');
     } else {
+      // Nowa data urodzenia zaczyna ścieżkę od początku: wcześniejsze wybory
+      // (wariant, dodatki) mogły dotyczyć innej grupy wiekowej.
+      reset();
       setAgeGroup(group);
       setBirthDate(birth);
       router.push('/kalkulator/ankieta');
@@ -29,50 +32,37 @@ export default function WiekPage() {
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Sprawdź, czy możesz przystąpić
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Grupowe ubezpieczenie na życie ERGO Razem — Grupa Otwarta
-          </p>
+    <div className="max-w-[34rem]">
+      <h1>Kiedy się urodziłeś(-aś)?</h1>
+      <p className="of-lead">
+        Od wieku zależy składka. Do ubezpieczenia ERGO Razem mogą przystąpić osoby,
+        które w dniu objęcia ochroną mają 18–65 lat.
+      </p>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="birthdate" className="block text-sm font-medium text-gray-700 mb-1">
-                Data urodzenia
-              </label>
-              <input
-                id="birthdate"
-                type="date"
-                value={value}
-                min={minDate}
-                max={maxDate}
-                onChange={(e) => { setValue(e.target.value); setError(''); }}
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 text-gray-900 focus:border-[#E4002B] focus:outline-none focus:ring-1 focus:ring-[#E4002B]"
-              />
-              {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-            </div>
+      <form onSubmit={handleSubmit} noValidate className="sec">
+        <label className="fld" htmlFor="birthdate">
+          <span className="fld-l">Data urodzenia</span>
+        </label>
+        <input
+          id="birthdate"
+          type="date"
+          className="inp"
+          value={value}
+          min={minDate}
+          max={maxDate}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? 'birthdate-err' : 'birthdate-note'}
+          onChange={(e) => { setValue(e.target.value); setError(''); }}
+        />
+        {error && <p id="birthdate-err" role="alert" className="err">{error}</p>}
+        <p id="birthdate-note" className="hint">
+          Nie przechowujemy Twojej daty urodzenia po zamknięciu strony.
+        </p>
 
-            <button
-              type="submit"
-              className="w-full rounded-lg bg-[#E4002B] py-4 font-semibold text-white hover:bg-[#c00025] transition-colors"
-            >
-              Dalej →
-            </button>
-          </form>
-
-          <p className="mt-4 text-xs text-gray-400 text-center">
-            Nie przechowujemy Twojej daty urodzenia po zamknięciu strony.
-          </p>
+        <div className="mt-6">
+          <button type="submit" className="btn">Dalej: pytania o zdrowie</button>
         </div>
-
-        <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-4 text-sm text-blue-700">
-          <strong>Warunki przystąpienia:</strong> wiek 18–65 lat w dniu objęcia ochroną.
-        </div>
-      </div>
+      </form>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
+import { Tresc } from '@/components/content/tresc';
 import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
@@ -9,18 +10,18 @@ export const metadata: Metadata = {
 
 export default function ZglosRoszczeniePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Grupa Otwarta ERGO Razem"
-        title={<>Zgłoś <span className="text-[#E4002B]">roszczenie</span></>}
+        title="Zgłoś roszczenie"
         description="Sprawdź, jak zgłosić zdarzenie objęte ochroną — zarówno w ramach podstawowego ubezpieczenia, jak i pakietów dodatkowych."
+        note="Grupa Otwarta ERGO Razem"
       />
 
-      <main className="flex-1 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
+      <main className="flex-1">
+      <div className="wrap page">
+        <Tresc>
           <p>Klient może zgłosić roszczenie w Grupie Otwartej:</p>
           <ul>
             <li>za pomocą Platformy Zgłaszania Roszczeń,</li>
@@ -47,7 +48,7 @@ export default function ZglosRoszczeniePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                https://zgloszenieroszczenia.ergohestia.pl
+                https://<wbr />zgloszenieroszczenia.ergohestia.pl
               </a>
               ,
             </li>
@@ -56,11 +57,11 @@ export default function ZglosRoszczeniePage() {
               Alarmowego pod numerem <a href="tel:+48225222994">22 522 29 94</a>.
             </li>
           </ul>
-        </div>
+        </Tresc>
       </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

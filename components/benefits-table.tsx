@@ -1,8 +1,8 @@
-'use client';
 import type { BenefitRow } from '@/lib/data/benefits';
 
 interface Props {
   benefits: BenefitRow[];
+  caption?: string;
 }
 
 const CATEGORY_LABELS: Record<BenefitRow['category'], string> = {
@@ -11,53 +11,41 @@ const CATEGORY_LABELS: Record<BenefitRow['category'], string> = {
   dziecko: 'Pakiet dziecko',
 };
 
-export function BenefitsTable({ benefits }: Props) {
+/** Pełna tabela świadczeń jednego wariantu: świadczenie, kwota, karencja. */
+export function BenefitsTable({ benefits, caption }: Props) {
   if (benefits.length === 0) return null;
 
-  const categories = Array.from(
-    new Set(benefits.map(r => r.category))
-  ) as BenefitRow['category'][];
+  const categories = Array.from(new Set(benefits.map((r) => r.category)));
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto">
+      <table className="ft-t">
+        {caption && <caption className="sr-only">{caption}</caption>}
         <thead>
-          <tr className="bg-gray-50 border-b border-gray-200">
-            <th className="px-4 py-3 text-left font-semibold text-gray-700 w-full">Świadczenie</th>
-            <th className="px-4 py-3 text-right font-semibold text-gray-700 whitespace-nowrap">Kwota</th>
-            <th className="px-4 py-3 text-right font-semibold text-gray-700 whitespace-nowrap">Karencja</th>
+          <tr>
+            <th scope="col">Świadczenie</th>
+            <th scope="col">Kwota</th>
+            <th scope="col">Karencja</th>
           </tr>
         </thead>
-        <tbody>
-          {categories.flatMap(cat => {
-            const catRows = benefits.filter(r => r.category === cat);
-            return [
-              <tr key={`header-${cat}`} className="bg-[#E4002B]/5 border-b border-gray-100">
-                <td colSpan={3} className="px-4 py-2 font-semibold text-[#E4002B] text-xs uppercase tracking-wide">
-                  {CATEGORY_LABELS[cat]}
-                </td>
-              </tr>,
-              ...catRows.map((row, i) => (
-                <tr
-                  key={`${cat}-${i}`}
-                  className={[
-                    'border-b border-gray-100 last:border-0',
-                    row.highlight ? 'bg-yellow-50' : 'bg-white',
-                  ].join(' ')}
-                >
-                  <td className="px-4 py-2 text-gray-700">{row.name}</td>
-                  <td className={[
-                    'px-4 py-2 text-right font-medium whitespace-nowrap',
-                    row.value === '—' ? 'text-gray-400' : 'text-gray-900',
-                  ].join(' ')}>{row.value}</td>
-                  <td className="px-4 py-2 text-right text-gray-400 whitespace-nowrap text-xs">
-                    {row.karencja ?? '—'}
-                  </td>
-                </tr>
-              )),
-            ];
-          })}
-        </tbody>
+        {categories.map((cat) => (
+          <tbody key={cat}>
+            <tr>
+              <th colSpan={3} scope="colgroup" className="!bg-transparent !pt-4 !font-bold">
+                {CATEGORY_LABELS[cat]}
+              </th>
+            </tr>
+            {benefits.filter((r) => r.category === cat).map((row) => (
+              <tr key={row.name}>
+                <th scope="row">{row.name}</th>
+                {row.value === '—'
+                  ? <td className="no">nie obejmuje</td>
+                  : <td>{row.value}</td>}
+                <td className="k">{row.karencja ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        ))}
       </table>
     </div>
   );

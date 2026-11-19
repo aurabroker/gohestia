@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SiteHeader } from '@/components/site-header';
 import { PageHero } from '@/components/page-hero';
+import { Tresc } from '@/components/content/tresc';
 import { SiteFooter } from '@/components/site-footer';
 
 export const metadata: Metadata = {
@@ -9,26 +10,25 @@ export const metadata: Metadata = {
 
 export default function RegulaminPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <>
       <SiteHeader />
 
       <PageHero
-        eyebrow="Aura Expert sp. z o.o."
-        title={<>Regulamin <span className="text-[#E4002B]">serwisu</span></>}
+        title="Regulamin serwisu"
         description="Zasady korzystania z serwisu prezentującego ofertę grupowego ubezpieczenia ERGO Razem."
       />
 
-      <main className="flex-1 py-12">
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 prose prose-sm max-w-none">
-          <p className="text-gray-500 text-sm">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
+      <main className="flex-1">
+      <div className="wrap page">
+        <Tresc>
+          <p className="text-druk-2">Ostatnia aktualizacja: 1 czerwca 2025 r.</p>
 
           <h2>§1. Postanowienia ogólne</h2>
           <ol>
             <li>
               Niniejszy regulamin określa zasady korzystania z serwisu internetowego
               dostępnego pod adresem domeny obsługiwanej przez <strong>Aura Expert sp. z o.o.</strong>
-              (dalej: „Serwis").
+              (dalej: „Serwis&quot;).
             </li>
             <li>
               Serwis służy do prezentacji oferty grupowego ubezpieczenia na życie
@@ -131,11 +131,11 @@ export default function RegulaminPage() {
               Wszelkie spory rozstrzygane będą przez sąd właściwy miejscowo dla siedziby Operatora.
             </li>
           </ol>
-        </div>
+        </Tresc>
       </div>
       </main>
 
       <SiteFooter />
-    </div>
+    </>
   );
 }

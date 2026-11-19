@@ -1,52 +1,57 @@
 'use client';
 import { usePathname } from 'next/navigation';
-import clsx from 'clsx';
+import { useCalculatorStore } from '@/store/calculator-store';
+import { resolveOffer } from '@/lib/offer';
+
+const AGE_RANGE = { A1: '18–53 lat', A2: '54–59 lat', B: '60–65 lat' } as const;
 
 const STEPS = [
-  { label: 'Wiek',         path: '/kalkulator/wiek' },
-  { label: 'Ankieta',      path: '/kalkulator/ankieta' },
-  { label: 'Weryfikacja',  path: '/kalkulator/weryfikacja' },
-  { label: 'Oferta',       path: '/kalkulator/produkt' },
-  { label: 'Podsumowanie', path: '/kalkulator/podsumowanie' },
-  { label: 'Gotowe',       path: '/kalkulator/sukces' },
-];
+  { label: 'Wiek',    path: '/kalkulator/wiek',         todo: 'data urodzenia' },
+  { label: 'Zdrowie', path: '/kalkulator/ankieta',      todo: 'pięć oświadczeń, bez badań' },
+  { label: 'Oferta',  path: '/kalkulator/produkt',      todo: 'produkt, wariant i dodatki' },
+  { label: 'Kontakt', path: '/kalkulator/podsumowanie', todo: 'dane i wysyłka zapytania do agenta' },
+] as const;
 
+/**
+ * Cztery kroki kalkulatora. Ukończony krok jest niebieski i pokazuje to, co
+ * zostało wpisane lub wybrane; bieżący jest czarny; kolejne są jeszcze puste.
+ * Na telefonie zostaje zdanie „Krok 3 z 4: Oferta" i cztery kreski.
+ */
 export function Stepper() {
   const pathname = usePathname();
-  const currentIndex = STEPS.findIndex(s => s.path === pathname);
+  const { ageGroup, selectedProduct, selectedVariant, addons } = useCalculatorStore();
+  const finished = pathname === '/kalkulator/sukces';
+  const currentIndex = finished ? STEPS.length : STEPS.findIndex((s) => s.path === pathname);
+  if (currentIndex < 0) return null;
+
+  const offer = ageGroup && selectedProduct && selectedVariant
+    ? resolveOffer({ ageGroup, product: selectedProduct, variant: selectedVariant, addons })
+    : null;
+  const doneValue = [
+    ageGroup ? `wiek ${AGE_RANGE[ageGroup]}` : 'podany',
+    'oświadczenia złożone',
+    offer ? `${offer.productLabel}, ${offer.variantLabel}, ${offer.monthlyPremium} zł` : 'wybrana',
+    'zapytanie wysłane',
+  ];
 
   return (
-    <nav aria-label="Postęp" className="w-full">
-      <ol className="flex items-center">
+    <nav aria-label="Kroki kalkulatora" className="wrap prog">
+      {!finished && (
+        <p className="prog-m" aria-hidden="true">
+          Krok {currentIndex + 1} z {STEPS.length}: <b>{STEPS[currentIndex].label}</b>
+        </p>
+      )}
+      <ol>
         {STEPS.map((step, i) => {
-          const done    = i < currentIndex;
-          const current = i === currentIndex;
+          const state = i < currentIndex ? 'done' : i === currentIndex ? 'now' : 'next';
           return (
-            <li key={step.path} className="flex items-center flex-1 last:flex-none">
-              <div className="flex flex-col items-center">
-                <div
-                  className={clsx(
-                    'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-colors',
-                    done    && 'bg-[#E4002B] border-[#E4002B] text-white',
-                    current && 'bg-white border-[#E4002B] text-[#E4002B]',
-                    !done && !current && 'bg-white border-gray-300 text-gray-400'
-                  )}
-                >
-                  {done ? '✓' : i + 1}
-                </div>
-                <span className={clsx(
-                  'mt-1 text-xs hidden sm:block',
-                  current ? 'text-[#E4002B] font-medium' : 'text-gray-400'
-                )}>
-                  {step.label}
-                </span>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className={clsx(
-                  'flex-1 h-0.5 mx-1 mb-4',
-                  i < currentIndex ? 'bg-[#E4002B]' : 'bg-gray-200'
-                )} />
-              )}
+            <li key={step.path} className={state} aria-current={state === 'now' ? 'step' : undefined}>
+              <span className="pn">
+                <i>{i + 1}</i> {step.label}
+              </span>
+              <span className="pv">
+                {state === 'done' ? doneValue[i] : state === 'now' ? 'wypełniasz teraz' : step.todo}
+              </span>
             </li>
           );
         })}

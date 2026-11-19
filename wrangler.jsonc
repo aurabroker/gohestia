@@ -7,5 +7,26 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
-  }
+  },
+  // Kanoniczny adres serwisu — z niego powstają linki do dokumentów w mailu
+  // do klienta. To nie jest sekret, więc leży tutaj, a nie w panelu Cloudflare
+  // (zmienne tekstowe ustawione w panelu są nadpisywane przy każdym wdrożeniu).
+  "vars": {
+    "SITE_URL": "https://ergo.beautypolisa.eu"
+  },
+  // Limity formularza (POST /api/oferta): 5 żądań na 60 s na adres IP oraz
+  // 2 wysyłki na 60 s na jednego adresata. `namespace_id` to dowolna liczba
+  // całkowita, unikalna w ramach konta.
+  "ratelimits": [
+    {
+      "name": "OFERTA_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 5, "period": 60 }
+    },
+    {
+      "name": "OFERTA_RECIPIENT_LIMITER",
+      "namespace_id": "1002",
+      "simple": { "limit": 2, "period": 60 }
+    }
+  ]
 }

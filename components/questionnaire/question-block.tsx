@@ -1,96 +1,65 @@
 'use client';
-import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import clsx from 'clsx';
 import type { QuestionBlock } from '@/lib/data/questionnaire';
 
 interface Props {
   block: QuestionBlock;
   blockNumber: number;
+  total: number;
   answer: boolean | null;
   onAnswer: (value: boolean) => void;
-  disabled?: boolean;
 }
 
-export function QuestionBlockComponent({ block, blockNumber, answer, onAnswer, disabled }: Props) {
-  const [exceptionsOpen, setExceptionsOpen] = useState(false);
+// Etykiety odpowiedzi są ustalone z właścicielem serwisu — nie zmieniać.
+const ANSWERS = [
+  { value: false, label: 'NIE (spełniam warunek)' },
+  { value: true,  label: 'TAK' },
+] as const;
+
+export function QuestionBlockComponent({ block, blockNumber, total, answer, onAnswer }: Props) {
+  const headingId = `${block.id}-tytul`;
+  const answered = ANSWERS.find((a) => a.value === answer);
 
   return (
-    <div className={clsx(
-      'rounded-xl border-2 p-6 transition-colors',
-      answer === false && 'border-green-400 bg-green-50',
-      answer === true  && 'border-red-400 bg-red-50',
-      answer === null  && 'border-gray-200 bg-white'
-    )}>
-      <div className="mb-4">
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Pytanie {blockNumber} z 5
-        </span>
-        <h3 className="mt-1 text-lg font-semibold text-gray-900">{block.title}</h3>
-      </div>
+    <section className={clsx('qc', answered && 'is-ans')} aria-labelledby={headingId}>
+      <p className="qc-n">Pytanie {blockNumber} z {total}</p>
+      <h2 id={headingId}>{block.title}</h2>
 
-      <p className="mb-4 text-sm text-gray-700 leading-relaxed">{block.declaration}</p>
+      <p className="qc-d">{block.declaration}</p>
 
-      <ul className="mb-4 space-y-2">
+      <ul className="qc-l">
         {block.conditions.map((c, i) => (
-          <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-            <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-400" />
-            {c}
-          </li>
+          <li key={i}>{c}</li>
         ))}
       </ul>
 
       {block.exceptions && (
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={() => setExceptionsOpen(v => !v)}
-            className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
-          >
-            {exceptionsOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-            Wyjątki od tej reguły
-          </button>
-          {exceptionsOpen && (
-            <ul className="mt-2 rounded-lg bg-blue-50 p-3 space-y-1">
-              {block.exceptions.map((e, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-blue-800">
-                  <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-blue-400" />
-                  {e}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        <details className="qc-ex">
+          <summary>Wyjątki od tej reguły</summary>
+          <ul className="qc-l">
+            {block.exceptions.map((e, i) => (
+              <li key={i}>{e}</li>
+            ))}
+          </ul>
+        </details>
       )}
 
-      <div className="flex gap-3 mt-4">
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => onAnswer(false)}
-          className={clsx(
-            'flex-1 rounded-lg border-2 py-3 font-semibold text-sm transition-all',
-            answer === false
-              ? 'border-green-500 bg-green-500 text-white'
-              : 'border-gray-300 text-gray-700 hover:border-green-400 hover:bg-green-50'
-          )}
-        >
-          NIE (spełniam warunek)
-        </button>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => onAnswer(true)}
-          className={clsx(
-            'flex-1 rounded-lg border-2 py-3 font-semibold text-sm transition-all',
-            answer === true
-              ? 'border-red-500 bg-red-500 text-white'
-              : 'border-gray-300 text-gray-700 hover:border-red-400 hover:bg-red-50'
-          )}
-        >
-          TAK
-        </button>
+      <div className="qc-a" role="group" aria-labelledby={headingId}>
+        {ANSWERS.map(({ value, label }) => (
+          <button
+            key={label}
+            type="button"
+            aria-pressed={answer === value}
+            onClick={() => onAnswer(value)}
+            className={clsx('ans', answer === value && 'is-on')}
+          >
+            <span className="mark" aria-hidden="true" />
+            {label}
+          </button>
+        ))}
       </div>
-    </div>
+
+      {answered && <p className="qc-y">Twoja odpowiedź: {answered.label}</p>}
+    </section>
   );
 }

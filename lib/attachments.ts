@@ -6,6 +6,8 @@ export interface EmailAttachment {
   filename: string;
   /** Zawartość pliku zakodowana w base64. */
   content: string;
+  /** Typ pliku podawany wprost, żeby program pocztowy nie musiał go zgadywać. */
+  contentType: 'application/pdf';
 }
 
 export interface LoadedDocuments {
@@ -66,7 +68,11 @@ async function fetchDocument(
       return null;
     }
 
-    return { filename: doc.filename, content: Buffer.from(bytes).toString('base64') };
+    return {
+      filename: doc.filename,
+      content: Buffer.from(bytes).toString('base64'),
+      contentType: 'application/pdf',
+    };
   } catch (err) {
     console.warn(`Nie udało się wczytać załącznika: ${doc.file}`, err instanceof Error ? err.name : '');
     return null;

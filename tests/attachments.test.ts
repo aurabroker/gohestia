@@ -66,7 +66,9 @@ describe('loadOfferDocuments — Cloudflare (binding ASSETS)', () => {
       OFFER_DOCUMENTS.map((d) => `/${d.file}`),
     );
 
-    expect(result.attachments).toEqual([{ filename: 'OWU_ERGO_Razem_ER_01-25.pdf', content: PDF_BASE64 }]);
+    expect(result.attachments).toEqual([
+      { filename: 'OWU_ERGO_Razem_ER_01-25.pdf', content: PDF_BASE64, contentType: 'application/pdf' },
+    ]);
     expect(result.attached.map((d) => d.file)).toEqual(['dokumenty/owu.pdf']);
     expect(result.missing.map((d) => d.file)).toEqual(['dokumenty/informacja-o-dystrybutorze.pdf']);
   });

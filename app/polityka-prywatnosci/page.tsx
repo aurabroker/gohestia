@@ -99,9 +99,7 @@ export default function PolitykaPrywatnosciPage() {
 
           <h2>7. Pliki cookie i analityka</h2>
           <p>
-            Serwis korzysta z <strong>Cloudflare Web Analytics</strong> — narzędzia privacy-first, które
-            nie używa plików cookie ani nie śledzi użytkowników między stronami. Nie stosujemy
-            plików cookie do celów marketingowych ani profilowania.
+            Nie stosujemy plików cookie do celów marketingowych ani profilowania.
           </p>
 
           <h2>8. Przekazywanie danych poza EOG</h2>

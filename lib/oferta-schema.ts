@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+// Zod sprawdza przy pierwszej walidacji, czy wolno mu kompilować kod przez
+// `new Function`. Nasz nagłówek CSP tego zabrania, więc próba i tak się nie
+// udawała, a przeglądarka zgłaszała ją w konsoli jako naruszenie. Tryb
+// `jitless` pomija tę próbę; reguły walidacji są te same.
+z.config({ jitless: true });
+
 /**
  * Wspólne reguły pól formularza „Dane kontaktowe" — używane przez formularz
  * w przeglądarce i przez endpoint `/api/oferta`, żeby obie strony przyjmowały

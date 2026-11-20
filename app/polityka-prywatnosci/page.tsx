@@ -99,7 +99,10 @@ export default function PolitykaPrywatnosciPage() {
 
           <h2>7. Pliki cookie i analityka</h2>
           <p>
-            Nie stosujemy plików cookie do celów marketingowych ani profilowania.
+            Serwis prowadzi własne statystyki odwiedzin bez plików cookie: zapisujemy odwiedzoną
+            podstronę, kraj, rodzaj urządzenia, stronę odsyłającą i czas ładowania. Odwiedzających
+            rozróżniamy wyłącznie po skrócie zmienianym co dobę. Nie stosujemy plików cookie do
+            celów marketingowych ani profilowania.
           </p>
 
           <h2>8. Przekazywanie danych poza EOG</h2>
